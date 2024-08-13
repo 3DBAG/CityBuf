@@ -1,8 +1,9 @@
 import json
 
-from flatCitybuf import Header, CityFBFeature, CityObject, Crs, Geometry, Solid, Boundaries, Shell, Ring, Surface, MultiSurface, CompositeSurface, MultiSolid, CompositeSolid, SemanticObject
+from flatCitybuf import Header, CityFBFeature, CityObject, Crs, Geometry, Solid, Boundaries, Shell, Ring, Surface, MultiSurface, CompositeSurface, MultiSolid, CompositeSolid, SemanticObject, Column
 from flatCitybuf.SemanticSurfaceType import SemanticSurfaceType
 from flatCitybuf.CityObjectType import CityObjectType
+from flatCitybuf.ColumnType import ColumnType
 from flatCitybuf.Vertex import CreateVertex
 from flatCitybuf.Transform import CreateTransform
 import flatbuffers
@@ -137,6 +138,9 @@ def create_feature(cj_feature):
           builder.PrependUOffsetTRelative(solid_offset)
         f_boundaries_offset = builder.EndVector()
       
+      else:
+        raise Exception("Geometry type not supported")
+      
       Geometry.Start(builder)
       Geometry.GeometryAddLod(builder, f_lod)
       if semantic_values:
@@ -149,6 +153,8 @@ def create_feature(cj_feature):
     has_parents = "parents" in cj_object    
 
     f_id = builder.CreateString(cj_id)
+
+    # create attributes
 
     # create parent string
     if has_parents:
@@ -235,10 +241,7 @@ def create_feature(cj_feature):
 
   return builder.Output()
 
-def create_data():
-  return b"DATA"
-
-def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features_count=3):
+def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features_count=3, schema_builder=None):
   # Create a FlatBuffer builder
   builder = flatbuffers.Builder(1024)
 
@@ -261,11 +264,45 @@ def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features
   Crs.CrsAddCode(builder, int(code))
   crs_offset = Crs.CrsEnd(builder)
 
+  fb_columns = []
+  for key, type in schema_builder.schema.items():
+    f_name = builder.CreateString(key)
+    # f_title = builder.CreateString(key)
+    # f_description = builder.CreateString(key)
+    # f_metadata = builder.CreateString(key)
+
+    Column.Start(builder)
+    Column.AddName(builder, f_name)
+    if type == str:
+      f_type = ColumnType.String
+    elif type == int:
+      f_type = ColumnType.Int
+    elif type == float:
+      f_type = ColumnType.Float
+    elif type == bool:
+      f_type = ColumnType.Bool
+    else:
+      raise Exception("Type not supported")
+    Column.AddType(builder, f_type)
+    # Column.AddTitle(builder, f_title)
+    # Column.AddDescription(builder, f_description)
+    # Column.AddNullable(builder, True)
+    # Column.AddUnique(builder, False)
+    # Column.AddPrimaryKey(builder, False)
+    # Column.AddMetadata(builder, f_metadata)
+    fb_columns.append(Column.End(builder))
+
+  Header.StartColumnsVector(builder, len(fb_columns))
+  for column_offset in reversed(fb_columns):
+    builder.PrependUOffsetTRelative(column_offset)
+  f_columns_offset = builder.EndVector()
+
   Header.HeaderStart(builder)
   # Header.AddName(builder, name)
   Header.AddFeaturesCount(builder, features_count)
   Header.HeaderAddTransform(builder, CreateTransform(builder, ts[0], ts[1], ts[2], tt[0], tt[1], tt[2]))
   Header.HeaderAddCrs(builder, crs_offset)
+  Header.HeaderAddColumns(builder, f_columns_offset)
 
   header = Header.HeaderEnd(builder)
   builder.Finish(header)
@@ -275,6 +312,37 @@ def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features
 cj_metadata = json.load(open('data/metadata.json'))
 cj_features = [json.load(open('data/503100000000296.city.jsonl'))]
 
+class AttributeSchemaBuilder:
+  # schema = {"name": type, ...}
+  schema = {}
+  schema_order = {}
+
+  def scan(self, attributes):
+    for key, value in attributes.items():
+      if key not in self.schema:
+        self.schema[key] = type(value)
+      else:
+        t_val = type(value)
+        t_schema = type(self.schema[key])
+        if t_val != t_schema:
+          if t_schema == None:
+            self.schema[key] = t_val
+          if t_val == float and t_schema == int:
+            self.schema[key] = float
+          if t_val == int and t_schema == bool:
+            self.schema[key] = int
+  def finalise(self):
+    self.schema_order = dict(zip(self.schema.keys(), range(len(self.schema.keys()))))
+
+schema_builder = AttributeSchemaBuilder()
+
+for cj_feature in cj_features:
+  # scan attributes
+  for cj_object in cj_feature["CityObjects"].values():
+    if "attributes" in cj_object:
+      schema_builder.scan(cj_object["attributes"])
+schema_builder.finalise()
+
 fb_features = []
 for cj_feature in cj_features:
   fb_features.append(create_feature(cj_feature))
@@ -283,7 +351,7 @@ for cj_feature in cj_features:
 with open('file.cfb', 'wb') as file:
   # Write the byte data to the file
   file.write(create_magic_bytes(0,1))
-  header_buf = create_header(cj_metadata, features_count=len(fb_features))
+  header_buf = create_header(cj_metadata, features_count=len(fb_features), schema_builder=schema_builder)
   file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
   file.write(header_buf)
   for fb_feature in fb_features:
@@ -315,6 +383,9 @@ with open('file.cfb', 'rb') as f:
 
     # Access the data
     fcount = header.FeaturesCount()
+    for column in range(header.ColumnsLength()):
+      col = header.Columns(column)
+      print(f"Column {column}: {col.Name().decode('utf-8')}, {col.Type()}")
     # name = header.Name().decode('utf-8')
 
     # # Access the envelope array
