@@ -2,65 +2,69 @@ from flatCitybuf.ColumnType import ColumnType
 import struct
 
 class AttributeSchemaEncoder:
-  # schema = {"name": type, ...}
+  class Column:
+    type = None
+    order = None
+
+    def __init__(self, type, order):
+      self.order = order
+      self.type = type
+
+  # schema = {"name": Column, ...}
   schema = {}
-  schema_order = {}
 
   def add(self, attributes):
     for key, value in attributes.items():
       if key not in self.schema:
-        self.schema[key] = type(value)
+        self.schema[key] = self.Column(type(value), len(self.schema))
       else:
         t_val = type(value)
-        t_schema = type(self.schema[key])
+        t_schema = self.schema[key].type
         if t_val != t_schema:
           if t_schema == None:
-            self.schema[key] = t_val
+            self.schema[key] = self.Column(t_val, len(self.schema))
           if t_val == float and t_schema == int:
-            self.schema[key] = float
+            self.schema[key] = self.Column(float, len(self.schema))
           if t_val == int and t_schema == bool:
-            self.schema[key] = int
+            self.schema[key] = self.Column(int, len(self.schema))
 
   def get_cb_column_type(self, name):
-    if self.schema[name] == str:
+    if self.schema[name].type == str:
       return ColumnType.String
-    elif self.schema[name] == int:
+    elif self.schema[name].type == int:
       return ColumnType.Int
-    elif self.schema[name] == float:
+    elif self.schema[name].type == float:
       return ColumnType.Float
-    elif self.schema[name] == bool:
+    elif self.schema[name].type == bool:
       return ColumnType.Bool
     else:
       raise Exception("Type not supported")
     
   def encode_value(self, name, value):
     format = "=H" # don't add padding, unsigned short (2 bytes) is the column index
-    if self.schema[name] == str:
+    if self.schema[name].type == str:
       format += "I" # string length
       format += str(len(value)) # string length
       format += "s" # string
-    elif self.schema[name] == int:
+    elif self.schema[name].type == int:
       format += "i"
-    elif self.schema[name] == float:
+    elif self.schema[name].type == float:
       format += "f"
-    elif self.schema[name] == bool:
+    elif self.schema[name].type == bool:
       format += "?"
     else:
       raise Exception("Type not supported")
     
-    if self.schema[name] == str:
-      return struct.pack(format, self.schema_order[name], len(value), value.encode('utf-8'))
+    if self.schema[name].type == str:
+      return struct.pack(format, self.schema[name].order, len(value), value.encode('utf-8'))
     else:
-      return struct.pack(format, self.schema_order[name], value)
+      return struct.pack(format, self.schema[name].order, value)
 
   def encode_values(self, attributes):
     buf = b""
     for key, value in attributes.items():
       buf += self.encode_value(key, value)
     return buf
-    
-  def finalise(self):
-    self.schema_order = dict(zip(self.schema.keys(), range(len(self.schema.keys()))))
 
 class AttributeSchemaDecoder:
   schema = {}

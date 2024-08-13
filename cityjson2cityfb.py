@@ -319,14 +319,13 @@ for cj_feature in cj_features:
   for cj_object in cj_feature["CityObjects"].values():
     if "attributes" in cj_object:
       schema_encoder.add(cj_object["attributes"])
-schema_encoder.finalise()
 
 fb_features = []
 for cj_feature in cj_features:
   fb_features.append(create_feature(cj_feature, schema_encoder))
 
 # Open a file in binary write mode
-with open('file.cfb', 'wb') as file:
+with open('503100000000296.cb', 'wb') as file:
   # Write the byte data to the file
   file.write(create_magic_bytes(0,1))
   header_buf = create_header(cj_metadata, features_count=len(fb_features), schema_encoder=schema_encoder)
@@ -340,7 +339,7 @@ with open('file.cfb', 'wb') as file:
 MAGIC_NUMBER_SIZE = 8
 
 # Open the file and check if we can read the data
-with open('file.cfb', 'rb') as f:
+with open('503100000000296.cb', 'rb') as f:
     # Read the magic number
     magic_number = f.read(MAGIC_NUMBER_SIZE)
 

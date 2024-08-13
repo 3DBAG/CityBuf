@@ -69,6 +69,7 @@ table CityFBFeature {
 table CityObject {
   type:CityObjectType;
   id:string (key);
+  geographical_extent:GeographicalExtent;
   geometry:[Geometry];
   attributes:[ubyte];
   columns: [Column]; // Attribute columns schema (optional)
