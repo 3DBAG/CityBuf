@@ -1,0 +1,143 @@
+include "FCBHeader.fbs";
+
+namespace flatCitybuf;
+
+// TODO: add all the CityJSON object subtypes
+enum CityObjectType:ubyte { 
+  Bridge,
+  Building,
+  BuildingPart,
+  CityFurniture,
+  CityObjectGroup,
+  GenericCityObject,
+  LandUse,
+  OtherConstruction,
+  PlantCover,
+  SolitaryVegetationObject,
+  TINRelief,
+  Transportation,
+  Tunnel,
+  WaterBody
+}
+
+enum SemanticSurfaceType:ubyte {
+  // Building
+  RoofSurface, 
+  GroundSurface, 
+  WallSurface, 
+  ClosureSurface, 
+  OuterCeilingSurface, 
+  OuterFloorSurface, 
+  Window, 
+  Door, 
+  InteriorWallSurface, 
+  CeilingSurface, 
+  FloorSurface,
+  // WaterBody
+  WaterSurface,
+  WaterGroundSurface,
+  WaterClosureSurface,
+  // Transportation ("Road", "Railway", "TransportSquare")
+  TrafficArea,
+  AuxiliaryTrafficArea,
+  TransportationMarking,
+  TransportationHole
+}
+
+union Boundaries { 
+  MultiPoint,
+  MultiLineString,
+  MultiSurface,
+  CompositeSurface,
+  Solid,
+  MultiSolid,
+  CompositeSolid
+}
+
+struct Vertex {
+  x:int;
+  y:int;
+  z:int;
+}
+
+table CityFBFeature {
+  id:string;
+  objects:[CityObject];
+  vertices:[Vertex];
+}
+
+table CityObject {
+  type:CityObjectType;
+  id:string (key);
+  geometry:[Geometry];
+  attributes:[ubyte];
+  columns: [Column]; // Attribute columns schema (optional)
+  children:[string];
+  parents:[string];
+}
+
+table Geometry {
+  lod:string;
+  boundaries:Boundaries;
+  semantics_objects: [SemanticObject];
+}
+
+struct Point {
+  vertex:uint;
+  semantic_object_id:uint;
+}
+
+table MultiPoint {
+  points:[Point];
+}
+
+table LineString {
+  points:[uint];
+  semantic_object_id:uint;
+}
+
+table MultiLineString {
+  line_strings:[LineString];
+}
+
+table Ring {
+  indices:[uint];
+}
+
+table Surface {
+  rings:[Ring];
+  semantic_object_id:uint;
+}
+
+table MultiSurface {
+  surfaces:[Surface];
+}
+
+table CompositeSurface {
+  surfaces:[Surface];
+}
+
+table Shell {
+  surfaces:[Surface];
+}
+
+table Solid {
+  shells:[Shell];
+}
+
+table MultiSolid {
+  shells:[Solid];
+}
+
+table CompositeSolid {
+  shells:[Solid];
+}
+
+table SemanticObject {
+  type:SemanticSurfaceType;
+  attributes:[ubyte];
+  children:[uint];
+  parent:uint;
+}
+
+root_type CityFBFeature;
