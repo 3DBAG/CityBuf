@@ -13,8 +13,10 @@ class AttributeSchemaEncoder:
   # schema = {"name": Column, ...}
   schema = {}
 
-  def add(self, attributes):
+  def add(self, attributes, exclude=[]):
     for key, value in attributes.items():
+      if key in exclude:
+        continue
       if key not in self.schema:
         self.schema[key] = self.Column(type(value), len(self.schema))
       else:
@@ -60,9 +62,11 @@ class AttributeSchemaEncoder:
     else:
       return struct.pack(format, self.schema[name].order, value)
 
-  def encode_values(self, attributes):
+  def encode_values(self, attributes, exclude=[]):
     buf = b""
     for key, value in attributes.items():
+      if key in exclude:
+        continue
       buf += self.encode_value(key, value)
     return buf
 

@@ -100,8 +100,10 @@ def create_feature(cj_feature, schema_encoder=None):
         f_semantics_offsets = []
         if "surfaces" in semantics and "values" in semantics:
           for surface in semantics["surfaces"]:
+            f_attributes_offset = builder.CreateByteVector( schema_encoder.encode_values(surface, exclude=["type"]) )
             SemanticObject.Start(builder)
             SemanticObject.SemanticObjectAddType(builder, get_attribute_by_name(SemanticSurfaceType, surface["type"]))
+            SemanticObject.SemanticObjectAddAttributes(builder, f_attributes_offset)
             f_semantics_offsets.append(SemanticObject.End(builder))
 
           Geometry.StartSemanticsObjectsVector(builder, len(f_semantics_offsets))
@@ -152,8 +154,8 @@ def create_feature(cj_feature, schema_encoder=None):
       return Geometry.End(builder)
 
     has_children = "children" in cj_object
-    has_parents = "parents" in cj_object    
-    has_attributes = "attributes" in cj_object    
+    has_parents = "parents" in cj_object
+    has_attributes = "attributes" in cj_object
 
     f_id = builder.CreateString(cj_id)
 
@@ -320,6 +322,12 @@ for cj_feature in cj_features:
     if "attributes" in cj_object:
       schema_encoder.add(cj_object["attributes"])
 
+    if "geometry" in cj_object:
+      for geom in cj_object["geometry"]:
+        if "semantics" in geom:
+          for surface in geom["semantics"]["surfaces"]:
+              schema_encoder.add(surface, exclude=["type"])
+
 fb_features = []
 for cj_feature in cj_features:
   fb_features.append(create_feature(cj_feature, schema_encoder))
@@ -393,4 +401,4 @@ with open('503100000000296.cb', 'rb') as f:
           print(f"Geometry {j}: lod={geom.Lod()}, type={geom.BoundariesType()}")
           for k in range(geom.SemanticsObjectsLength()):
             sem = geom.SemanticsObjects(k)
-            print(f"SemanticObject {k}: type={sem.Type()}")
+            print(f"SemanticObject {k}: type={sem.Type()}, attributes:", schema_decoder.decode_attributes(sem.AttributesAsNumpy()))
