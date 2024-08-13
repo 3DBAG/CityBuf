@@ -10,6 +10,8 @@ import flatbuffers
 
 import struct
 
+from attributes import AttributeSchemaEncoder, AttributeSchemaDecoder
+
 def create_magic_bytes(major=0, minor=1):
   fcb = "FCB".encode('ascii')
   ma = major.to_bytes(1, byteorder='little')
@@ -85,8 +87,8 @@ def create_solid(builder, boundaries, semantics_values=None):
   Solid.AddShells(builder, f_shells_offset)
   return Solid.End(builder)
 
-def create_feature(cj_feature):
-  def create_object(builder, cj_id, cj_object):
+def create_feature(cj_feature, schema_encoder=None):
+  def create_object(builder, cj_id, cj_object, schema_encoder):
 
     def create_geometry(builder, geom):
       f_lod = builder.CreateString(geom["lod"])
@@ -151,10 +153,15 @@ def create_feature(cj_feature):
 
     has_children = "children" in cj_object
     has_parents = "parents" in cj_object    
+    has_attributes = "attributes" in cj_object    
 
     f_id = builder.CreateString(cj_id)
 
     # create attributes
+    if has_attributes and schema_encoder:
+      # iterate of object attributes and build a binary buffer; the attribute values encoded back to back, each preceded by a column index
+      buf_attributes = schema_encoder.encode_values(cj_object["attributes"])
+      f_attributes_offset = builder.CreateByteVector(buf_attributes)
 
     # create parent string
     if has_parents:
@@ -196,6 +203,8 @@ def create_feature(cj_feature):
     CityObject.AddId(builder, f_id)
 
     # attributes, columns
+    if has_attributes:
+      CityObject.AddAttributes(builder, f_attributes_offset)
 
     # Geometries
     CityObject.AddGeometry(builder, f_geometries_offset)
@@ -223,7 +232,7 @@ def create_feature(cj_feature):
 
   f_object_offsets = []
   for (cj_id, cj_object) in cj_feature["CityObjects"].items():
-    f_object_offsets.append(create_object(builder, cj_id, cj_object))
+    f_object_offsets.append(create_object(builder, cj_id, cj_object, schema_encoder))
   
   CityFBFeature.StartObjectsVector(builder, len(cj_feature["CityObjects"]))
   for offset in reversed(f_object_offsets):  # FlatBuffers requires reverse order when creating vectors
@@ -241,7 +250,7 @@ def create_feature(cj_feature):
 
   return builder.Output()
 
-def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features_count=3, schema_builder=None):
+def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features_count=3, schema_encoder=None):
   # Create a FlatBuffer builder
   builder = flatbuffers.Builder(1024)
 
@@ -265,7 +274,7 @@ def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features
   crs_offset = Crs.CrsEnd(builder)
 
   fb_columns = []
-  for key, type in schema_builder.schema.items():
+  for key, _ in schema_encoder.schema.items():
     f_name = builder.CreateString(key)
     # f_title = builder.CreateString(key)
     # f_description = builder.CreateString(key)
@@ -273,16 +282,7 @@ def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features
 
     Column.Start(builder)
     Column.AddName(builder, f_name)
-    if type == str:
-      f_type = ColumnType.String
-    elif type == int:
-      f_type = ColumnType.Int
-    elif type == float:
-      f_type = ColumnType.Float
-    elif type == bool:
-      f_type = ColumnType.Bool
-    else:
-      raise Exception("Type not supported")
+    f_type = schema_encoder.get_cb_column_type(key)
     Column.AddType(builder, f_type)
     # Column.AddTitle(builder, f_title)
     # Column.AddDescription(builder, f_description)
@@ -312,46 +312,24 @@ def create_header(cj_metadata, geographicalExtent=[8.5, 9.2, 7.3, 6.8], features
 cj_metadata = json.load(open('data/metadata.json'))
 cj_features = [json.load(open('data/503100000000296.city.jsonl'))]
 
-class AttributeSchemaBuilder:
-  # schema = {"name": type, ...}
-  schema = {}
-  schema_order = {}
-
-  def scan(self, attributes):
-    for key, value in attributes.items():
-      if key not in self.schema:
-        self.schema[key] = type(value)
-      else:
-        t_val = type(value)
-        t_schema = type(self.schema[key])
-        if t_val != t_schema:
-          if t_schema == None:
-            self.schema[key] = t_val
-          if t_val == float and t_schema == int:
-            self.schema[key] = float
-          if t_val == int and t_schema == bool:
-            self.schema[key] = int
-  def finalise(self):
-    self.schema_order = dict(zip(self.schema.keys(), range(len(self.schema.keys()))))
-
-schema_builder = AttributeSchemaBuilder()
+schema_encoder = AttributeSchemaEncoder()
 
 for cj_feature in cj_features:
   # scan attributes
   for cj_object in cj_feature["CityObjects"].values():
     if "attributes" in cj_object:
-      schema_builder.scan(cj_object["attributes"])
-schema_builder.finalise()
+      schema_encoder.add(cj_object["attributes"])
+schema_encoder.finalise()
 
 fb_features = []
 for cj_feature in cj_features:
-  fb_features.append(create_feature(cj_feature))
+  fb_features.append(create_feature(cj_feature, schema_encoder))
 
 # Open a file in binary write mode
 with open('file.cfb', 'wb') as file:
   # Write the byte data to the file
   file.write(create_magic_bytes(0,1))
-  header_buf = create_header(cj_metadata, features_count=len(fb_features), schema_builder=schema_builder)
+  header_buf = create_header(cj_metadata, features_count=len(fb_features), schema_encoder=schema_encoder)
   file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
   file.write(header_buf)
   for fb_feature in fb_features:
@@ -382,10 +360,10 @@ with open('file.cfb', 'rb') as f:
     header = Header.Header.GetRootAsHeader(header_buf, 0)
 
     # Access the data
+    schema_decoder = AttributeSchemaDecoder(header)
+    print(schema_decoder.schema)
+
     fcount = header.FeaturesCount()
-    for column in range(header.ColumnsLength()):
-      col = header.Columns(column)
-      print(f"Column {column}: {col.Name().decode('utf-8')}, {col.Type()}")
     # name = header.Name().decode('utf-8')
 
     # # Access the envelope array
@@ -408,6 +386,9 @@ with open('file.cfb', 'rb') as f:
       for i in range(feature.ObjectsLength()):
         obj = feature.Objects(i)
         print(f"Object {i}: id={obj.Id().decode('utf-8')}, type={obj.Type()}")
+        if not obj.AttributesIsNone():
+          print("Attributes:", schema_decoder.decode_attributes(obj.AttributesAsNumpy()))
+
         for j in range(obj.GeometryLength()):
           geom = obj.Geometry(j)
           print(f"Geometry {j}: lod={geom.Lod()}, type={geom.BoundariesType()}")
