@@ -42,6 +42,7 @@ struct Geometry;
 struct GeometryBuilder;
 
 struct Point;
+struct PointBuilder;
 
 struct MultiPoint;
 struct MultiPointBuilder;
@@ -479,29 +480,6 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vertex FLATBUFFERS_FINAL_CLASS {
 };
 FLATBUFFERS_STRUCT_END(Vertex, 12);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Point FLATBUFFERS_FINAL_CLASS {
- private:
-  uint32_t vertex_;
-  uint32_t semantic_object_id_;
-
- public:
-  Point()
-      : vertex_(0),
-        semantic_object_id_(0) {
-  }
-  Point(uint32_t _vertex, uint32_t _semantic_object_id)
-      : vertex_(::flatbuffers::EndianScalar(_vertex)),
-        semantic_object_id_(::flatbuffers::EndianScalar(_semantic_object_id)) {
-  }
-  uint32_t vertex() const {
-    return ::flatbuffers::EndianScalar(vertex_);
-  }
-  uint32_t semantic_object_id() const {
-    return ::flatbuffers::EndianScalar(semantic_object_id_);
-  }
-};
-FLATBUFFERS_STRUCT_END(Point, 8);
-
 struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ColumnBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -919,11 +897,12 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TYPE = 4,
     VT_ID = 6,
-    VT_GEOMETRY = 8,
-    VT_ATTRIBUTES = 10,
-    VT_COLUMNS = 12,
-    VT_CHILDREN = 14,
-    VT_PARENTS = 16
+    VT_GEOGRAPHICAL_EXTENT = 8,
+    VT_GEOMETRY = 10,
+    VT_ATTRIBUTES = 12,
+    VT_COLUMNS = 14,
+    VT_CHILDREN = 16,
+    VT_PARENTS = 18
   };
   flatCitybuf::CityObjectType type() const {
     return static_cast<flatCitybuf::CityObjectType>(GetField<uint8_t>(VT_TYPE, 0));
@@ -942,6 +921,9 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     if (id()->c_str() < _id) return -1;
     if (_id < id()->c_str()) return 1;
     return 0;
+  }
+  const flatCitybuf::GeographicalExtent *geographical_extent() const {
+    return GetStruct<const flatCitybuf::GeographicalExtent *>(VT_GEOGRAPHICAL_EXTENT);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Geometry>> *geometry() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Geometry>> *>(VT_GEOMETRY);
@@ -963,6 +945,7 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffsetRequired(verifier, VT_ID) &&
            verifier.VerifyString(id()) &&
+           VerifyField<flatCitybuf::GeographicalExtent>(verifier, VT_GEOGRAPHICAL_EXTENT, 8) &&
            VerifyOffset(verifier, VT_GEOMETRY) &&
            verifier.VerifyVector(geometry()) &&
            verifier.VerifyVectorOfTables(geometry()) &&
@@ -990,6 +973,9 @@ struct CityObjectBuilder {
   }
   void add_id(::flatbuffers::Offset<::flatbuffers::String> id) {
     fbb_.AddOffset(CityObject::VT_ID, id);
+  }
+  void add_geographical_extent(const flatCitybuf::GeographicalExtent *geographical_extent) {
+    fbb_.AddStruct(CityObject::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
   }
   void add_geometry(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Geometry>>> geometry) {
     fbb_.AddOffset(CityObject::VT_GEOMETRY, geometry);
@@ -1022,6 +1008,7 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObject(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     flatCitybuf::CityObjectType type = flatCitybuf::CityObjectType_Bridge,
     ::flatbuffers::Offset<::flatbuffers::String> id = 0,
+    const flatCitybuf::GeographicalExtent *geographical_extent = nullptr,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Geometry>>> geometry = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> attributes = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Column>>> columns = 0,
@@ -1033,6 +1020,7 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObject(
   builder_.add_columns(columns);
   builder_.add_attributes(attributes);
   builder_.add_geometry(geometry);
+  builder_.add_geographical_extent(geographical_extent);
   builder_.add_id(id);
   builder_.add_type(type);
   return builder_.Finish();
@@ -1042,6 +1030,7 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObjectDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     flatCitybuf::CityObjectType type = flatCitybuf::CityObjectType_Bridge,
     const char *id = nullptr,
+    const flatCitybuf::GeographicalExtent *geographical_extent = nullptr,
     const std::vector<::flatbuffers::Offset<flatCitybuf::Geometry>> *geometry = nullptr,
     const std::vector<uint8_t> *attributes = nullptr,
     const std::vector<::flatbuffers::Offset<flatCitybuf::Column>> *columns = nullptr,
@@ -1057,6 +1046,7 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObjectDirect(
       _fbb,
       type,
       id__,
+      geographical_extent,
       geometry__,
       attributes__,
       columns__,
@@ -1205,18 +1195,70 @@ inline ::flatbuffers::Offset<Geometry> CreateGeometryDirect(
       semantics_objects__);
 }
 
+struct Point FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PointBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_INDEX = 4,
+    VT_SEMANTIC_OBJECT_ID = 6
+  };
+  uint32_t index() const {
+    return GetField<uint32_t>(VT_INDEX, 0);
+  }
+  uint32_t semantic_object_id() const {
+    return GetField<uint32_t>(VT_SEMANTIC_OBJECT_ID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_INDEX, 4) &&
+           VerifyField<uint32_t>(verifier, VT_SEMANTIC_OBJECT_ID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct PointBuilder {
+  typedef Point Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_index(uint32_t index) {
+    fbb_.AddElement<uint32_t>(Point::VT_INDEX, index, 0);
+  }
+  void add_semantic_object_id(uint32_t semantic_object_id) {
+    fbb_.AddElement<uint32_t>(Point::VT_SEMANTIC_OBJECT_ID, semantic_object_id, 0);
+  }
+  explicit PointBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Point> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Point>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Point> CreatePoint(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t index = 0,
+    uint32_t semantic_object_id = 0) {
+  PointBuilder builder_(_fbb);
+  builder_.add_semantic_object_id(semantic_object_id);
+  builder_.add_index(index);
+  return builder_.Finish();
+}
+
 struct MultiPoint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MultiPointBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POINTS = 4
   };
-  const ::flatbuffers::Vector<const flatCitybuf::Point *> *points() const {
-    return GetPointer<const ::flatbuffers::Vector<const flatCitybuf::Point *> *>(VT_POINTS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Point>> *points() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Point>> *>(VT_POINTS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_POINTS) &&
            verifier.VerifyVector(points()) &&
+           verifier.VerifyVectorOfTables(points()) &&
            verifier.EndTable();
   }
 };
@@ -1225,7 +1267,7 @@ struct MultiPointBuilder {
   typedef MultiPoint Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_points(::flatbuffers::Offset<::flatbuffers::Vector<const flatCitybuf::Point *>> points) {
+  void add_points(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Point>>> points) {
     fbb_.AddOffset(MultiPoint::VT_POINTS, points);
   }
   explicit MultiPointBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -1241,7 +1283,7 @@ struct MultiPointBuilder {
 
 inline ::flatbuffers::Offset<MultiPoint> CreateMultiPoint(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<const flatCitybuf::Point *>> points = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Point>>> points = 0) {
   MultiPointBuilder builder_(_fbb);
   builder_.add_points(points);
   return builder_.Finish();
@@ -1249,8 +1291,8 @@ inline ::flatbuffers::Offset<MultiPoint> CreateMultiPoint(
 
 inline ::flatbuffers::Offset<MultiPoint> CreateMultiPointDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatCitybuf::Point> *points = nullptr) {
-  auto points__ = points ? _fbb.CreateVectorOfStructs<flatCitybuf::Point>(*points) : 0;
+    const std::vector<::flatbuffers::Offset<flatCitybuf::Point>> *points = nullptr) {
+  auto points__ = points ? _fbb.CreateVector<::flatbuffers::Offset<flatCitybuf::Point>>(*points) : 0;
   return flatCitybuf::CreateMultiPoint(
       _fbb,
       points__);
@@ -1259,19 +1301,19 @@ inline ::flatbuffers::Offset<MultiPoint> CreateMultiPointDirect(
 struct LineString FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef LineStringBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_POINTS = 4,
+    VT_INDICES = 4,
     VT_SEMANTIC_OBJECT_ID = 6
   };
-  const ::flatbuffers::Vector<uint32_t> *points() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_POINTS);
+  const ::flatbuffers::Vector<uint32_t> *indices() const {
+    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_INDICES);
   }
   uint32_t semantic_object_id() const {
     return GetField<uint32_t>(VT_SEMANTIC_OBJECT_ID, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_POINTS) &&
-           verifier.VerifyVector(points()) &&
+           VerifyOffset(verifier, VT_INDICES) &&
+           verifier.VerifyVector(indices()) &&
            VerifyField<uint32_t>(verifier, VT_SEMANTIC_OBJECT_ID, 4) &&
            verifier.EndTable();
   }
@@ -1281,8 +1323,8 @@ struct LineStringBuilder {
   typedef LineString Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_points(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> points) {
-    fbb_.AddOffset(LineString::VT_POINTS, points);
+  void add_indices(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> indices) {
+    fbb_.AddOffset(LineString::VT_INDICES, indices);
   }
   void add_semantic_object_id(uint32_t semantic_object_id) {
     fbb_.AddElement<uint32_t>(LineString::VT_SEMANTIC_OBJECT_ID, semantic_object_id, 0);
@@ -1300,22 +1342,22 @@ struct LineStringBuilder {
 
 inline ::flatbuffers::Offset<LineString> CreateLineString(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> points = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> indices = 0,
     uint32_t semantic_object_id = 0) {
   LineStringBuilder builder_(_fbb);
   builder_.add_semantic_object_id(semantic_object_id);
-  builder_.add_points(points);
+  builder_.add_indices(indices);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<LineString> CreateLineStringDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<uint32_t> *points = nullptr,
+    const std::vector<uint32_t> *indices = nullptr,
     uint32_t semantic_object_id = 0) {
-  auto points__ = points ? _fbb.CreateVector<uint32_t>(*points) : 0;
+  auto indices__ = indices ? _fbb.CreateVector<uint32_t>(*indices) : 0;
   return flatCitybuf::CreateLineString(
       _fbb,
-      points__,
+      indices__,
       semantic_object_id);
 }
 

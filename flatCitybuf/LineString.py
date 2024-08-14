@@ -26,7 +26,7 @@ class LineString(object):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # LineString
-    def Points(self, j: int):
+    def Indices(self, j: int):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             a = self._tab.Vector(o)
@@ -34,21 +34,21 @@ class LineString(object):
         return 0
 
     # LineString
-    def PointsAsNumpy(self):
+    def IndicesAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
         return 0
 
     # LineString
-    def PointsLength(self) -> int:
+    def IndicesLength(self) -> int:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # LineString
-    def PointsIsNone(self) -> bool:
+    def IndicesIsNone(self) -> bool:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         return o == 0
 
@@ -65,17 +65,17 @@ def LineStringStart(builder: flatbuffers.Builder):
 def Start(builder: flatbuffers.Builder):
     LineStringStart(builder)
 
-def LineStringAddPoints(builder: flatbuffers.Builder, points: int):
-    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(points), 0)
+def LineStringAddIndices(builder: flatbuffers.Builder, indices: int):
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(indices), 0)
 
-def AddPoints(builder: flatbuffers.Builder, points: int):
-    LineStringAddPoints(builder, points)
+def AddIndices(builder: flatbuffers.Builder, indices: int):
+    LineStringAddIndices(builder, indices)
 
-def LineStringStartPointsVector(builder, numElems: int) -> int:
+def LineStringStartIndicesVector(builder, numElems: int) -> int:
     return builder.StartVector(4, numElems, 4)
 
-def StartPointsVector(builder, numElems: int) -> int:
-    return LineStringStartPointsVector(builder, numElems)
+def StartIndicesVector(builder, numElems: int) -> int:
+    return LineStringStartIndicesVector(builder, numElems)
 
 def LineStringAddSemanticObjectId(builder: flatbuffers.Builder, semanticObjectId: int):
     builder.PrependUint32Slot(1, semanticObjectId, 0)

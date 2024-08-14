@@ -6,6 +6,7 @@ import flatbuffers
 from flatbuffers.compat import import_numpy
 from typing import Any
 from flatCitybuf.Column import Column
+from flatCitybuf.GeographicalExtent import GeographicalExtent
 from flatCitybuf.Geometry import Geometry
 from typing import Optional
 np = import_numpy()
@@ -43,8 +44,18 @@ class CityObject(object):
         return None
 
     # CityObject
-    def Geometry(self, j: int) -> Optional[Geometry]:
+    def GeographicalExtent(self) -> Optional[GeographicalExtent]:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            x = o + self._tab.Pos
+            obj = GeographicalExtent()
+            obj.Init(self._tab.Bytes, x)
+            return obj
+        return None
+
+    # CityObject
+    def Geometry(self, j: int) -> Optional[Geometry]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -56,19 +67,19 @@ class CityObject(object):
 
     # CityObject
     def GeometryLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
     def GeometryIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         return o == 0
 
     # CityObject
     def Attributes(self, j: int):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.Get(flatbuffers.number_types.Uint8Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 1))
@@ -76,26 +87,26 @@ class CityObject(object):
 
     # CityObject
     def AttributesAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint8Flags, o)
         return 0
 
     # CityObject
     def AttributesLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
     def AttributesIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         return o == 0
 
     # CityObject
     def Columns(self, j: int) -> Optional[Column]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -107,19 +118,19 @@ class CityObject(object):
 
     # CityObject
     def ColumnsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
     def ColumnsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         return o == 0
 
     # CityObject
     def Children(self, j: int):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.String(a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
@@ -127,19 +138,19 @@ class CityObject(object):
 
     # CityObject
     def ChildrenLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
     def ChildrenIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         return o == 0
 
     # CityObject
     def Parents(self, j: int):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.String(a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
@@ -147,18 +158,18 @@ class CityObject(object):
 
     # CityObject
     def ParentsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
     def ParentsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         return o == 0
 
 def CityObjectStart(builder: flatbuffers.Builder):
-    builder.StartObject(7)
+    builder.StartObject(8)
 
 def Start(builder: flatbuffers.Builder):
     CityObjectStart(builder)
@@ -175,8 +186,14 @@ def CityObjectAddId(builder: flatbuffers.Builder, id: int):
 def AddId(builder: flatbuffers.Builder, id: int):
     CityObjectAddId(builder, id)
 
+def CityObjectAddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
+    builder.PrependStructSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(geographicalExtent), 0)
+
+def AddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
+    CityObjectAddGeographicalExtent(builder, geographicalExtent)
+
 def CityObjectAddGeometry(builder: flatbuffers.Builder, geometry: int):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(geometry), 0)
+    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(geometry), 0)
 
 def AddGeometry(builder: flatbuffers.Builder, geometry: int):
     CityObjectAddGeometry(builder, geometry)
@@ -188,7 +205,7 @@ def StartGeometryVector(builder, numElems: int) -> int:
     return CityObjectStartGeometryVector(builder, numElems)
 
 def CityObjectAddAttributes(builder: flatbuffers.Builder, attributes: int):
-    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(attributes), 0)
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(attributes), 0)
 
 def AddAttributes(builder: flatbuffers.Builder, attributes: int):
     CityObjectAddAttributes(builder, attributes)
@@ -200,7 +217,7 @@ def StartAttributesVector(builder, numElems: int) -> int:
     return CityObjectStartAttributesVector(builder, numElems)
 
 def CityObjectAddColumns(builder: flatbuffers.Builder, columns: int):
-    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(columns), 0)
+    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(columns), 0)
 
 def AddColumns(builder: flatbuffers.Builder, columns: int):
     CityObjectAddColumns(builder, columns)
@@ -212,7 +229,7 @@ def StartColumnsVector(builder, numElems: int) -> int:
     return CityObjectStartColumnsVector(builder, numElems)
 
 def CityObjectAddChildren(builder: flatbuffers.Builder, children: int):
-    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(children), 0)
+    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(children), 0)
 
 def AddChildren(builder: flatbuffers.Builder, children: int):
     CityObjectAddChildren(builder, children)
@@ -224,7 +241,7 @@ def StartChildrenVector(builder, numElems: int) -> int:
     return CityObjectStartChildrenVector(builder, numElems)
 
 def CityObjectAddParents(builder: flatbuffers.Builder, parents: int):
-    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(parents), 0)
+    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(parents), 0)
 
 def AddParents(builder: flatbuffers.Builder, parents: int):
     CityObjectAddParents(builder, parents)

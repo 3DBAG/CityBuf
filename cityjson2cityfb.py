@@ -1,9 +1,29 @@
 import json
 
-from flatCitybuf import Header, CityFBFeature, CityObject, Crs, Geometry, Solid, Boundaries, Shell, Ring, Surface, MultiSurface, CompositeSurface, MultiSolid, CompositeSolid, SemanticObject, Column, Vector
+from flatCitybuf import \
+  Header, \
+  CityFBFeature,  \
+  CityObject,  \
+  Crs,  \
+  Geometry,  \
+  Solid,  \
+  Boundaries,  \
+  Shell,  \
+  Ring,  \
+  Surface,  \
+  MultiSurface,  \
+  CompositeSurface,  \
+  MultiSolid,  \
+  CompositeSolid,  \
+  MultiLineString, \
+  LineString, \
+  MultiPoint,  \
+  Point,  \
+  SemanticObject,  \
+  Column,  \
+  Vector
 from flatCitybuf.SemanticSurfaceType import SemanticSurfaceType
 from flatCitybuf.CityObjectType import CityObjectType
-from flatCitybuf.ColumnType import ColumnType
 from flatCitybuf.Vertex import CreateVertex
 from flatCitybuf.Transform import CreateTransform
 from flatCitybuf.GeographicalExtent import CreateGeographicalExtent
@@ -15,15 +35,66 @@ import numpy as np
 from attributes import AttributeSchemaEncoder, AttributeSchemaDecoder
 
 def create_magic_bytes(major=0, minor=1):
-  fcb = "FCB".encode('ascii')
+  cb = "CB".encode('ascii')
   ma = major.to_bytes(1, byteorder='little')
   mi = minor.to_bytes(1, byteorder='little')
 
   # Convert ASCII string to bytes
-  return fcb + ma + fcb + mi
+  return cb + ma + cb + mi
 
 def get_attribute_by_name(class_type, attribute_name):
     return getattr(class_type, attribute_name, None)
+
+def create_point(builder, index, semantics_id=None):
+  Point.Start(builder)
+  Point.AddIndex(builder, index)
+  if semantics_id:
+    Point.AddSemanticObjectId(builder, semantics_id)
+  return Point.End(builder)
+
+def create_multipoint(builder, boundaries, semantics_values=None):
+  f_points = []
+  if semantics_values:
+    for index, sem in zip(boundaries, semantics_values):
+      f_points.append(create_point(builder, index, sem))
+  else:
+    for index in boundaries:
+      f_points.append(create_point(builder, index))
+
+  MultiPoint.StartPointsVector(builder, len(f_points))
+  for point_offset in reversed(f_points):
+    builder.PrependUOffsetTRelative(point_offset)
+  f_points_offset = builder.EndVector()
+
+  MultiPoint.Start(builder)
+  MultiPoint.AddPoints(builder, f_points_offset)
+  return MultiPoint.End(builder)
+
+def create_linestring(builder, boundaries, semantics_id=None):
+  LineString.StartIndicesVector(builder, len(boundaries))
+  for index in reversed(boundaries):  # FlatBuffers requires reverse order when creating vectors
+    builder.PrependUint32(index)
+  f_indices_offset = builder.EndVector()
+
+  LineString.Start(builder)
+  LineString.AddIndices(builder, f_indices_offset)
+  if semantics_id:
+    LineString.AddSemanticObjectId(builder, semantics_id)
+  return LineString.End(builder)
+
+def create_multilinestring(builder, boundaries, semantics_values=None):
+  f_linestrings = []
+  if semantic_values:
+    for linestring, sem in zip(geom["boundaries"], semantic_values):
+      f_linestrings.append(create_linestring(builder, linestring, sem))
+  else:
+    for linestring in geom["boundaries"]:
+      f_linestrings.append(create_linestring(builder, linestring))
+  
+  MultiLineString.StartLinestringsVector(builder, len(f_linestrings))
+  for linestring_offset in reversed(f_linestrings):
+    builder.PrependUOffsetTRelative(linestring_offset)
+  return builder.EndVector()
 
 def create_ring(builder, boundaries):
   Ring.StartIndicesVector(builder, len(boundaries))
@@ -89,6 +160,36 @@ def create_solid(builder, boundaries, semantics_values=None):
   Solid.AddShells(builder, f_shells_offset)
   return Solid.End(builder)
 
+def create_polysolid(builder, boundaries, semantics_values=None):
+  f_solids = []
+  if semantics_values:
+    for solid, sem in zip(geom["boundaries"], semantics_values):
+      f_solids.append(create_solid(builder, solid, sem))
+  else:
+    for solid in geom["boundaries"]:
+      f_solids.append(create_solid(builder, solid))
+
+  # here it doesn't matter if it's MultiSolid or CompositeSolid, under the hood they are the same
+  MultiSolid.StartSolidsVector(builder, len(f_solids))
+  for solid_offset in reversed(f_solids):
+    builder.PrependUOffsetTRelative(solid_offset)
+  return builder.EndVector()
+
+def create_polysurface(builder, boundaries, semantics_values=None):
+  f_surfaces = []
+  if semantics_values:
+    for surface, sem in zip(boundaries, semantics_values):
+      f_surfaces.append(create_surface(builder, surface, sem))
+  else:
+    for surface in boundaries:
+      f_surfaces.append(create_surface(builder, surface))
+
+  # here it doesn't matter if it's MultiSurface or CompositeSurface, under the hood they are the same
+  MultiSurface.StartSurfacesVector(builder, len(f_surfaces))
+  for surface_offset in reversed(f_surfaces):
+    builder.PrependUOffsetTRelative(surface_offset)
+  return builder.EndVector()
+
 def create_feature(cj_feature, schema_encoder=None):
   def create_object(builder, cj_id, cj_object, schema_encoder):
 
@@ -123,27 +224,16 @@ def create_feature(cj_feature, schema_encoder=None):
         f_boundaries_offset = create_solid(builder, geom["boundaries"], semantic_values)
 
       elif geom["type"] == "MultiSurface" or geom["type"] == "CompositeSurface":
-        f_surfaces = []
-        for surface in geom["boundaries"]:
-          f_surfaces.append(create_surface(builder, surface, semantic_values))
-
-        # here it doesn't matter if it's MultiSurface or CompositeSurface, under the hood they are the same
-        MultiSurface.StartSurfacesVector(builder, len(f_surfaces))
-        for surface_offset in reversed(f_surfaces):
-          builder.PrependUOffsetTRelative(surface_offset)
-        f_boundaries_offset = builder.EndVector()        
+        f_boundaries_offset = create_polysurface(builder, geom["boundaries"], semantic_values)
 
       elif geom["type"] == "MultiSolid" or geom["type"] == "CompositeSolid":
-        f_solids = []
-        for solid in geom["boundaries"]:
-          f_solids.append(create_solid(builder, solid, semantic_values))
+        f_boundaries_offset = create_polysolid(builder, geom["boundaries"], semantic_values)
 
-        # here it doesn't matter if it's MultiSolid or CompositeSolid, under the hood they are the same
-        MultiSolid.StartSolidsVector(builder, len(f_solids))
-        for solid_offset in reversed(f_solids):
-          builder.PrependUOffsetTRelative(solid_offset)
-        f_boundaries_offset = builder.EndVector()
-      
+      elif geom["type"] == "MultiLineString":
+        f_boundaries_offset = create_multilinestring(builder, geom["boundaries"], semantic_values)
+
+      elif geom["type"] == "MultiPoint":
+        f_boundaries_offset = create_multipoint(builder, geom["boundaries"], semantic_values)
       else:
         raise Exception("Geometry type not supported")
       
@@ -358,17 +448,17 @@ with open('503100000000296.cb', 'wb') as file:
     file.write(fb_feature)
 
 # Define the number of bytes for the magic number
-MAGIC_NUMBER_SIZE = 8
+MAGIC_NUMBER_SIZE = 6
 
 # Open the file and check if we can read the data
 with open('503100000000296.cb', 'rb') as f:
     # Read the magic number
     magic_number = f.read(MAGIC_NUMBER_SIZE)
 
-    if magic_number[:3] == b'FCB' and magic_number[4:7] == b'FCB':
+    if magic_number[:2] == b'CB' and magic_number[3:5] == b'CB':
         print("Magic number is valid")
-        print("Major version:", magic_number[3])
-        print("Minor version:", magic_number[7])
+        print("Major version:", magic_number[2])
+        print("Minor version:", magic_number[5])
     
     # Read the rest of the file (the FlatBuffer data)
     header_length = f.read(4)

@@ -83,8 +83,8 @@ table Geometry {
   semantics_objects: [SemanticObject];
 }
 
-struct Point {
-  vertex:uint;
+table Point {
+  index:uint;
   semantic_object_id:uint;
 }
 
@@ -93,7 +93,7 @@ table MultiPoint {
 }
 
 table LineString {
-  points:[uint];
+  indices:[uint];
   semantic_object_id:uint;
 }
 

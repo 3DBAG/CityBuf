@@ -11,20 +11,54 @@ class Point(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def SizeOf(cls) -> int:
-        return 8
+    def GetRootAs(cls, buf, offset: int = 0):
+        n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
+        x = Point()
+        x.Init(buf, n + offset)
+        return x
 
+    @classmethod
+    def GetRootAsPoint(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # Point
     def Init(self, buf: bytes, pos: int):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # Point
-    def Vertex(self): return self._tab.Get(flatbuffers.number_types.Uint32Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
-    # Point
-    def SemanticObjectId(self): return self._tab.Get(flatbuffers.number_types.Uint32Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(4))
+    def Index(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+        return 0
 
-def CreatePoint(builder, vertex, semanticObjectId):
-    builder.Prep(4, 8)
-    builder.PrependUint32(semanticObjectId)
-    builder.PrependUint32(vertex)
-    return builder.Offset()
+    # Point
+    def SemanticObjectId(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+        return 0
+
+def PointStart(builder: flatbuffers.Builder):
+    builder.StartObject(2)
+
+def Start(builder: flatbuffers.Builder):
+    PointStart(builder)
+
+def PointAddIndex(builder: flatbuffers.Builder, index: int):
+    builder.PrependUint32Slot(0, index, 0)
+
+def AddIndex(builder: flatbuffers.Builder, index: int):
+    PointAddIndex(builder, index)
+
+def PointAddSemanticObjectId(builder: flatbuffers.Builder, semanticObjectId: int):
+    builder.PrependUint32Slot(1, semanticObjectId, 0)
+
+def AddSemanticObjectId(builder: flatbuffers.Builder, semanticObjectId: int):
+    PointAddSemanticObjectId(builder, semanticObjectId)
+
+def PointEnd(builder: flatbuffers.Builder) -> int:
+    return builder.EndObject()
+
+def End(builder: flatbuffers.Builder) -> int:
+    return PointEnd(builder)

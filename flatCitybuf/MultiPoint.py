@@ -32,7 +32,8 @@ class MultiPoint(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Vector(o)
-            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 8
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
+            x = self._tab.Indirect(x)
             obj = Point()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -63,7 +64,7 @@ def AddPoints(builder: flatbuffers.Builder, points: int):
     MultiPointAddPoints(builder, points)
 
 def MultiPointStartPointsVector(builder, numElems: int) -> int:
-    return builder.StartVector(8, numElems, 4)
+    return builder.StartVector(4, numElems, 4)
 
 def StartPointsVector(builder, numElems: int) -> int:
     return MultiPointStartPointsVector(builder, numElems)

@@ -15,7 +15,7 @@ Binary format to efficiently store city objects inspired by CityJSON and FlatGeo
 ## Design
 A FlatCityBuf (fcb) file is binary encoded and has the following parts (very similar to flatgeobuf):
 
-1. Magic byte FCB. The first 8 bytes of a fcb file are a signature, containing: ASCII F , C, B, followed by the spec major version (currently 01), then F,C,B again, then the spec patch version (currently 00).
+1. Magic byte CB. The first 6 bytes of a cb file are a signature, containing: ASCII C, B, followed by the spec major version (currently 01), then C,B again, then the spec patch version (currently 00).
 2. Header, see `FCBHeader.fbs`, a length-prefixed flatbuffer record
 3. Data, see `FCBFeature.fbs`. a concatenation of length-prefixed flabuffer records.
 

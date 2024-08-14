@@ -1040,130 +1040,6 @@ impl<'a> Vertex {
 
 }
 
-// struct Point, aligned to 4
-#[repr(transparent)]
-#[derive(Clone, Copy, PartialEq)]
-pub struct Point(pub [u8; 8]);
-impl Default for Point { 
-  fn default() -> Self { 
-    Self([0; 8])
-  }
-}
-impl core::fmt::Debug for Point {
-  fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-    f.debug_struct("Point")
-      .field("vertex", &self.vertex())
-      .field("semantic_object_id", &self.semantic_object_id())
-      .finish()
-  }
-}
-
-impl flatbuffers::SimpleToVerifyInSlice for Point {}
-impl<'a> flatbuffers::Follow<'a> for Point {
-  type Inner = &'a Point;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    <&'a Point>::follow(buf, loc)
-  }
-}
-impl<'a> flatbuffers::Follow<'a> for &'a Point {
-  type Inner = &'a Point;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::follow_cast_ref::<Point>(buf, loc)
-  }
-}
-impl<'b> flatbuffers::Push for Point {
-    type Output = Point;
-    #[inline]
-    unsafe fn push(&self, dst: &mut [u8], _written_len: usize) {
-        let src = ::core::slice::from_raw_parts(self as *const Point as *const u8, Self::size());
-        dst.copy_from_slice(src);
-    }
-}
-
-impl<'a> flatbuffers::Verifiable for Point {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.in_buffer::<Self>(pos)
-  }
-}
-
-impl<'a> Point {
-  #[allow(clippy::too_many_arguments)]
-  pub fn new(
-    vertex: u32,
-    semantic_object_id: u32,
-  ) -> Self {
-    let mut s = Self([0; 8]);
-    s.set_vertex(vertex);
-    s.set_semantic_object_id(semantic_object_id);
-    s
-  }
-
-  pub fn vertex(&self) -> u32 {
-    let mut mem = core::mem::MaybeUninit::<<u32 as EndianScalar>::Scalar>::uninit();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    EndianScalar::from_little_endian(unsafe {
-      core::ptr::copy_nonoverlapping(
-        self.0[0..].as_ptr(),
-        mem.as_mut_ptr() as *mut u8,
-        core::mem::size_of::<<u32 as EndianScalar>::Scalar>(),
-      );
-      mem.assume_init()
-    })
-  }
-
-  pub fn set_vertex(&mut self, x: u32) {
-    let x_le = x.to_little_endian();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    unsafe {
-      core::ptr::copy_nonoverlapping(
-        &x_le as *const _ as *const u8,
-        self.0[0..].as_mut_ptr(),
-        core::mem::size_of::<<u32 as EndianScalar>::Scalar>(),
-      );
-    }
-  }
-
-  pub fn semantic_object_id(&self) -> u32 {
-    let mut mem = core::mem::MaybeUninit::<<u32 as EndianScalar>::Scalar>::uninit();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    EndianScalar::from_little_endian(unsafe {
-      core::ptr::copy_nonoverlapping(
-        self.0[4..].as_ptr(),
-        mem.as_mut_ptr() as *mut u8,
-        core::mem::size_of::<<u32 as EndianScalar>::Scalar>(),
-      );
-      mem.assume_init()
-    })
-  }
-
-  pub fn set_semantic_object_id(&mut self, x: u32) {
-    let x_le = x.to_little_endian();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    unsafe {
-      core::ptr::copy_nonoverlapping(
-        &x_le as *const _ as *const u8,
-        self.0[4..].as_mut_ptr(),
-        core::mem::size_of::<<u32 as EndianScalar>::Scalar>(),
-      );
-    }
-  }
-
-}
-
 pub enum ColumnOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1843,11 +1719,12 @@ impl<'a> flatbuffers::Follow<'a> for CityObject<'a> {
 impl<'a> CityObject<'a> {
   pub const VT_TYPE_: flatbuffers::VOffsetT = 4;
   pub const VT_ID: flatbuffers::VOffsetT = 6;
-  pub const VT_GEOMETRY: flatbuffers::VOffsetT = 8;
-  pub const VT_ATTRIBUTES: flatbuffers::VOffsetT = 10;
-  pub const VT_COLUMNS: flatbuffers::VOffsetT = 12;
-  pub const VT_CHILDREN: flatbuffers::VOffsetT = 14;
-  pub const VT_PARENTS: flatbuffers::VOffsetT = 16;
+  pub const VT_GEOGRAPHICAL_EXTENT: flatbuffers::VOffsetT = 8;
+  pub const VT_GEOMETRY: flatbuffers::VOffsetT = 10;
+  pub const VT_ATTRIBUTES: flatbuffers::VOffsetT = 12;
+  pub const VT_COLUMNS: flatbuffers::VOffsetT = 14;
+  pub const VT_CHILDREN: flatbuffers::VOffsetT = 16;
+  pub const VT_PARENTS: flatbuffers::VOffsetT = 18;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1864,6 +1741,7 @@ impl<'a> CityObject<'a> {
     if let Some(x) = args.columns { builder.add_columns(x); }
     if let Some(x) = args.attributes { builder.add_attributes(x); }
     if let Some(x) = args.geometry { builder.add_geometry(x); }
+    if let Some(x) = args.geographical_extent { builder.add_geographical_extent(x); }
     if let Some(x) = args.id { builder.add_id(x); }
     builder.add_type_(args.type_);
     builder.finish()
@@ -1893,6 +1771,13 @@ impl<'a> CityObject<'a> {
   pub fn key_compare_with_value(&self, val: & str) -> ::core::cmp::Ordering {
     let key = self.id();
     key.cmp(val)
+  }
+  #[inline]
+  pub fn geographical_extent(&self) -> Option<&'a GeographicalExtent> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<GeographicalExtent>(CityObject::VT_GEOGRAPHICAL_EXTENT, None)}
   }
   #[inline]
   pub fn geometry(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Geometry<'a>>>> {
@@ -1940,6 +1825,7 @@ impl flatbuffers::Verifiable for CityObject<'_> {
     v.visit_table(pos)?
      .visit_field::<CityObjectType>("type_", Self::VT_TYPE_, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("id", Self::VT_ID, true)?
+     .visit_field::<GeographicalExtent>("geographical_extent", Self::VT_GEOGRAPHICAL_EXTENT, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Geometry>>>>("geometry", Self::VT_GEOMETRY, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("attributes", Self::VT_ATTRIBUTES, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Column>>>>("columns", Self::VT_COLUMNS, false)?
@@ -1952,6 +1838,7 @@ impl flatbuffers::Verifiable for CityObject<'_> {
 pub struct CityObjectArgs<'a> {
     pub type_: CityObjectType,
     pub id: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub geographical_extent: Option<&'a GeographicalExtent>,
     pub geometry: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Geometry<'a>>>>>,
     pub attributes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
     pub columns: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Column<'a>>>>>,
@@ -1964,6 +1851,7 @@ impl<'a> Default for CityObjectArgs<'a> {
     CityObjectArgs {
       type_: CityObjectType::Bridge,
       id: None, // required field
+      geographical_extent: None,
       geometry: None,
       attributes: None,
       columns: None,
@@ -1985,6 +1873,10 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CityObjectBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_id(&mut self, id: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityObject::VT_ID, id);
+  }
+  #[inline]
+  pub fn add_geographical_extent(&mut self, geographical_extent: &GeographicalExtent) {
+    self.fbb_.push_slot_always::<&GeographicalExtent>(CityObject::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
   }
   #[inline]
   pub fn add_geometry(&mut self, geometry: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Geometry<'b >>>>) {
@@ -2027,6 +1919,7 @@ impl core::fmt::Debug for CityObject<'_> {
     let mut ds = f.debug_struct("CityObject");
       ds.field("type_", &self.type_());
       ds.field("id", &self.id());
+      ds.field("geographical_extent", &self.geographical_extent());
       ds.field("geometry", &self.geometry());
       ds.field("attributes", &self.attributes());
       ds.field("columns", &self.columns());
@@ -2352,6 +2245,120 @@ impl core::fmt::Debug for Geometry<'_> {
       ds.finish()
   }
 }
+pub enum PointOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Point<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Point<'a> {
+  type Inner = Point<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> Point<'a> {
+  pub const VT_INDEX: flatbuffers::VOffsetT = 4;
+  pub const VT_SEMANTIC_OBJECT_ID: flatbuffers::VOffsetT = 6;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    Point { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args PointArgs
+  ) -> flatbuffers::WIPOffset<Point<'bldr>> {
+    let mut builder = PointBuilder::new(_fbb);
+    builder.add_semantic_object_id(args.semantic_object_id);
+    builder.add_index(args.index);
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn index(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(Point::VT_INDEX, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn semantic_object_id(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(Point::VT_SEMANTIC_OBJECT_ID, Some(0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for Point<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<u32>("index", Self::VT_INDEX, false)?
+     .visit_field::<u32>("semantic_object_id", Self::VT_SEMANTIC_OBJECT_ID, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct PointArgs {
+    pub index: u32,
+    pub semantic_object_id: u32,
+}
+impl<'a> Default for PointArgs {
+  #[inline]
+  fn default() -> Self {
+    PointArgs {
+      index: 0,
+      semantic_object_id: 0,
+    }
+  }
+}
+
+pub struct PointBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PointBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_index(&mut self, index: u32) {
+    self.fbb_.push_slot::<u32>(Point::VT_INDEX, index, 0);
+  }
+  #[inline]
+  pub fn add_semantic_object_id(&mut self, semantic_object_id: u32) {
+    self.fbb_.push_slot::<u32>(Point::VT_SEMANTIC_OBJECT_ID, semantic_object_id, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PointBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    PointBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Point<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for Point<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("Point");
+      ds.field("index", &self.index());
+      ds.field("semantic_object_id", &self.semantic_object_id());
+      ds.finish()
+  }
+}
 pub enum MultiPointOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2386,11 +2393,11 @@ impl<'a> MultiPoint<'a> {
 
 
   #[inline]
-  pub fn points(&self) -> Option<flatbuffers::Vector<'a, Point>> {
+  pub fn points(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Point<'a>>>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Point>>>(MultiPoint::VT_POINTS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Point>>>>(MultiPoint::VT_POINTS, None)}
   }
 }
 
@@ -2401,13 +2408,13 @@ impl flatbuffers::Verifiable for MultiPoint<'_> {
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Point>>>("points", Self::VT_POINTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Point>>>>("points", Self::VT_POINTS, false)?
      .finish();
     Ok(())
   }
 }
 pub struct MultiPointArgs<'a> {
-    pub points: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Point>>>,
+    pub points: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Point<'a>>>>>,
 }
 impl<'a> Default for MultiPointArgs<'a> {
   #[inline]
@@ -2424,7 +2431,7 @@ pub struct MultiPointBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> MultiPointBuilder<'a, 'b, A> {
   #[inline]
-  pub fn add_points(&mut self, points: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Point>>) {
+  pub fn add_points(&mut self, points: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Point<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MultiPoint::VT_POINTS, points);
   }
   #[inline]
@@ -2465,7 +2472,7 @@ impl<'a> flatbuffers::Follow<'a> for LineString<'a> {
 }
 
 impl<'a> LineString<'a> {
-  pub const VT_POINTS: flatbuffers::VOffsetT = 4;
+  pub const VT_INDICES: flatbuffers::VOffsetT = 4;
   pub const VT_SEMANTIC_OBJECT_ID: flatbuffers::VOffsetT = 6;
 
   #[inline]
@@ -2479,17 +2486,17 @@ impl<'a> LineString<'a> {
   ) -> flatbuffers::WIPOffset<LineString<'bldr>> {
     let mut builder = LineStringBuilder::new(_fbb);
     builder.add_semantic_object_id(args.semantic_object_id);
-    if let Some(x) = args.points { builder.add_points(x); }
+    if let Some(x) = args.indices { builder.add_indices(x); }
     builder.finish()
   }
 
 
   #[inline]
-  pub fn points(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+  pub fn indices(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(LineString::VT_POINTS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(LineString::VT_INDICES, None)}
   }
   #[inline]
   pub fn semantic_object_id(&self) -> u32 {
@@ -2507,21 +2514,21 @@ impl flatbuffers::Verifiable for LineString<'_> {
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("points", Self::VT_POINTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("indices", Self::VT_INDICES, false)?
      .visit_field::<u32>("semantic_object_id", Self::VT_SEMANTIC_OBJECT_ID, false)?
      .finish();
     Ok(())
   }
 }
 pub struct LineStringArgs<'a> {
-    pub points: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub indices: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
     pub semantic_object_id: u32,
 }
 impl<'a> Default for LineStringArgs<'a> {
   #[inline]
   fn default() -> Self {
     LineStringArgs {
-      points: None,
+      indices: None,
       semantic_object_id: 0,
     }
   }
@@ -2533,8 +2540,8 @@ pub struct LineStringBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> LineStringBuilder<'a, 'b, A> {
   #[inline]
-  pub fn add_points(&mut self, points: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(LineString::VT_POINTS, points);
+  pub fn add_indices(&mut self, indices: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(LineString::VT_INDICES, indices);
   }
   #[inline]
   pub fn add_semantic_object_id(&mut self, semantic_object_id: u32) {
@@ -2558,7 +2565,7 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> LineStringBuilder<'a, 'b, A> {
 impl core::fmt::Debug for LineString<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("LineString");
-      ds.field("points", &self.points());
+      ds.field("indices", &self.indices());
       ds.field("semantic_object_id", &self.semantic_object_id());
       ds.finish()
   }
