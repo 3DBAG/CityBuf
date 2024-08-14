@@ -403,133 +403,142 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
 
   return builder.Output()
 
-cj_metadata = json.load(open('data/metadata.json'))
-cj_features = [json.load(open('data/503100000000296.city.jsonl'))]
+def convert_cjseq2cb(cjseq_path, cb_path):
+  cj_features = []
+  with open(cjseq_path, "r") as fo:
+    cj_metadata = json.loads(fo.readline())
+    for feature_str in fo:
+        cj_features.append(json.loads(feature_str))
 
-schema_encoder = AttributeSchemaEncoder()
+  schema_encoder = AttributeSchemaEncoder()
 
-# scan attributes and geographical extents
-global_extent = np.ndarray((2, 3), dtype=np.float64)
-global_extent[0] = np.inf
-global_extent[1] = -np.inf
-for cj_feature in cj_features:
-  for cj_object in cj_feature["CityObjects"].values():
-    if "geographicalExtent" in cj_object:
-      fext = np.ndarray((2, 3), dtype=np.float64)
-      fext[0] = cj_object["geographicalExtent"][0:3]
-      fext[1] = cj_object["geographicalExtent"][3:6]
-      global_extent[0] = np.minimum(global_extent[0], fext[0])
-      global_extent[1] = np.maximum(global_extent[1], fext[1])
+  # scan attributes and geographical extents
+  global_extent = np.ndarray((2, 3), dtype=np.float64)
+  global_extent[0] = np.inf
+  global_extent[1] = -np.inf
+  for cj_feature in cj_features:
+    for cj_object in cj_feature["CityObjects"].values():
+      if "geographicalExtent" in cj_object:
+        fext = np.ndarray((2, 3), dtype=np.float64)
+        fext[0] = cj_object["geographicalExtent"][0:3]
+        fext[1] = cj_object["geographicalExtent"][3:6]
+        global_extent[0] = np.minimum(global_extent[0], fext[0])
+        global_extent[1] = np.maximum(global_extent[1], fext[1])
 
-    if "attributes" in cj_object:
-      schema_encoder.add(cj_object["attributes"])
+      if "attributes" in cj_object:
+        schema_encoder.add(cj_object["attributes"])
 
-    if "geometry" in cj_object:
-      for geom in cj_object["geometry"]:
-        if "semantics" in geom:
-          for surface in geom["semantics"]["surfaces"]:
-              schema_encoder.add(surface, exclude=["type"])
+      if "geometry" in cj_object:
+        for geom in cj_object["geometry"]:
+          if "semantics" in geom:
+            for surface in geom["semantics"]["surfaces"]:
+                schema_encoder.add(surface, exclude=["type"])
 
-fb_features = []
-for cj_feature in cj_features:
-  fb_features.append(create_feature(cj_feature, schema_encoder))
+  fb_features = []
+  for cj_feature in cj_features:
+    fb_features.append(create_feature(cj_feature, schema_encoder))
 
-# Open a file in binary write mode
-with open('503100000000296.cb', 'wb') as file:
-  # Write the byte data to the file
-  file.write(create_magic_bytes(0,1))
-  header_buf = create_header(cj_metadata, geographical_extent=global_extent, features_count=len(fb_features), schema_encoder=schema_encoder)
-  file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
-  file.write(header_buf)
-  for fb_feature in fb_features:
-    file.write(len(fb_feature).to_bytes(4, byteorder='little', signed=False))
-    file.write(fb_feature)
+  # Open a file in binary write mode
+  with open(cb_path, 'wb') as file:
+    # Write the byte data to the file
+    file.write(create_magic_bytes(0,1))
+    header_buf = create_header(cj_metadata, geographical_extent=global_extent, features_count=len(fb_features), schema_encoder=schema_encoder)
+    file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
+    file.write(header_buf)
+    for fb_feature in fb_features:
+      file.write(len(fb_feature).to_bytes(4, byteorder='little', signed=False))
+      file.write(fb_feature)
 
-# Define the number of bytes for the magic number
-MAGIC_NUMBER_SIZE = 6
+def print_cb(cb_path):
+  # Define the number of bytes for the magic number
+  MAGIC_NUMBER_SIZE = 6
 
-# Open the file and check if we can read the data
-with open('503100000000296.cb', 'rb') as f:
-    # Read the magic number
-    magic_number = f.read(MAGIC_NUMBER_SIZE)
+  # Open the file and check if we can read the data
+  with open(cb_path, 'rb') as f:
+      # Read the magic number
+      magic_number = f.read(MAGIC_NUMBER_SIZE)
 
-    if magic_number[:2] == b'CB' and magic_number[3:5] == b'CB':
-        print("Magic number is valid")
-        print("Major version:", magic_number[2])
-        print("Minor version:", magic_number[5])
-    
-    # Read the rest of the file (the FlatBuffer data)
-    header_length = f.read(4)
-    header_length = struct.unpack('<I', header_length)[0]
-    print("Header length:", header_length)
+      if magic_number[:2] == b'CB' and magic_number[3:5] == b'CB':
+          print("Magic number is valid")
+          print("Major version:", magic_number[2])
+          print("Minor version:", magic_number[5])
+      
+      # Read the rest of the file (the FlatBuffer data)
+      header_length = f.read(4)
+      header_length = struct.unpack('<I', header_length)[0]
+      print("Header length:", header_length)
 
-    header_buf = f.read(header_length)
+      header_buf = f.read(header_length)
 
-    # Get a pointer to the root object inside the FlatBuffer
-    header = Header.Header.GetRootAsHeader(header_buf, 0)
+      # Get a pointer to the root object inside the FlatBuffer
+      header = Header.Header.GetRootAsHeader(header_buf, 0)
 
-    # Access the data
+      # Access the data
 
-    # Print schema
-    schema_decoder = AttributeSchemaDecoder(header)
-    print(schema_decoder.schema)
+      # Print schema
+      schema_decoder = AttributeSchemaDecoder(header)
+      print(schema_decoder.schema)
 
-    # name = header.Name().decode('utf-8')
+      # name = header.Name().decode('utf-8')
 
-    # Print GeographicalExtent
-    extent = header.GeographicalExtent()
-    emin = Vector.Vector()
-    emax = Vector.Vector()
-    extent.Min(emin)
-    extent.Max(emax)
-    print(f"GeographicalExtent: {emin.X()}, {emin.Y()}, {emin.Z()} | {emax.X()}, {emax.Y()}, {emax.Z()}")
+      # Print GeographicalExtent
+      extent = header.GeographicalExtent()
+      emin = Vector.Vector()
+      emax = Vector.Vector()
+      extent.Min(emin)
+      extent.Max(emax)
+      print(f"GeographicalExtent: {emin.X()}, {emin.Y()}, {emin.Z()} | {emax.X()}, {emax.Y()}, {emax.Z()}")
 
-    # Print Transform
-    transform = header.Transform()
-    Scale = Vector.Vector()
-    Translate = Vector.Vector()
-    transform.Scale(Scale)
-    transform.Translate(Translate)
-    print(f"Transform: {Scale.X()}, {Scale.Y()}, {Scale.Z()} | {Translate.X()}, {Translate.Y()}, {Translate.Z()}")
+      # Print Transform
+      transform = header.Transform()
+      Scale = Vector.Vector()
+      Translate = Vector.Vector()
+      transform.Scale(Scale)
+      transform.Translate(Translate)
+      print(f"Transform: {Scale.X()}, {Scale.Y()}, {Scale.Z()} | {Translate.X()}, {Translate.Y()}, {Translate.Z()}")
 
-    # Print feature count
-    fcount = header.FeaturesCount()
-    print(f"FeaturesCount: {fcount}")
+      # Print feature count
+      fcount = header.FeaturesCount()
+      print(f"FeaturesCount: {fcount}")
 
-    # Print Crs
-    crs = header.Crs()
-    print(f"CRS: {crs.Authority().decode('utf-8')}/{crs.Version()}/{crs.Code()}")
+      # Print Crs
+      crs = header.Crs()
+      print(f"CRS: {crs.Authority().decode('utf-8')}/{crs.Version()}/{crs.Code()}")
 
-    for i in range(fcount):
-      feature_length = f.read(4)
-      feature_length = struct.unpack('<I', feature_length)[0]
-      feature_buf = f.read(feature_length)
-      feature = CityFBFeature.CityFBFeature.GetRootAsCityFBFeature(feature_buf, 0)
-      print(f"Feature length: {feature_length} bytes")
-      print(f"Feature id: {feature.Id().decode('utf-8')}")
-      print(f"Vertex count: {feature.VerticesLength()}")
-      # for i in range(feature.VerticesLength()):
-      #   print(f"Vertex {i}: {feature.Vertices(i).X()}, {feature.Vertices(i).Y()}, {feature.Vertices(i).Z()}")
+      for i in range(fcount):
+        feature_length = f.read(4)
+        feature_length = struct.unpack('<I', feature_length)[0]
+        feature_buf = f.read(feature_length)
+        feature = CityFBFeature.CityFBFeature.GetRootAsCityFBFeature(feature_buf, 0)
+        print(f"Feature length: {feature_length} bytes")
+        print(f"Feature id: {feature.Id().decode('utf-8')}")
+        print(f"Vertex count: {feature.VerticesLength()}")
+        # for i in range(feature.VerticesLength()):
+        #   print(f"Vertex {i}: {feature.Vertices(i).X()}, {feature.Vertices(i).Y()}, {feature.Vertices(i).Z()}")
 
-      for i in range(feature.ObjectsLength()):
-        obj = feature.Objects(i)
-        print(f"Object {i}: id={obj.Id().decode('utf-8')}, type={obj.Type()}")
-        if not obj.AttributesIsNone():
-          print("Attributes:", schema_decoder.decode_attributes(obj.AttributesAsNumpy()))
+        for i in range(feature.ObjectsLength()):
+          obj = feature.Objects(i)
+          print(f"Object {i}: id={obj.Id().decode('utf-8')}, type={obj.Type()}")
+          if not obj.AttributesIsNone():
+            print("Attributes:", schema_decoder.decode_attributes(obj.AttributesAsNumpy()))
 
-        for j in range(obj.GeometryLength()):
-          geom = obj.Geometry(j)
-          print(f"Geometry {j}: lod={geom.Lod()}, type={geom.BoundariesType()}")
-          print(f"GeometryType: {geom.BoundariesType()}")
-          if geom.BoundariesType() == Boundaries.Boundaries.Solid:
-            # create Solid object
-            solid = Solid.Solid()
-            solid.Init(geom.Boundaries().Bytes, geom.Boundaries().Pos)
-            for ii in range(solid.Shells(0).Surfaces(0).Rings(0).IndicesLength()):
-              print(f"First ring indices: {solid.Shells(0).Surfaces(0).Rings(0).Indices(ii)}")
-            
-          print(geom.Boundaries())
+          for j in range(obj.GeometryLength()):
+            geom = obj.Geometry(j)
+            print(f"Geometry {j}: lod={geom.Lod()}, type={geom.BoundariesType()}")
+            print(f"GeometryType: {geom.BoundariesType()}")
+            if geom.BoundariesType() == Boundaries.Boundaries.Solid:
+              # create Solid object
+              solid = Solid.Solid()
+              solid.Init(geom.Boundaries().Bytes, geom.Boundaries().Pos)
+              for ii in range(solid.Shells(0).Surfaces(0).Rings(0).IndicesLength()):
+                print(f"First ring indices: {solid.Shells(0).Surfaces(0).Rings(0).Indices(ii)}")
+              
+            print(geom.Boundaries())
 
-          for k in range(geom.SemanticsObjectsLength()):
-            sem = geom.SemanticsObjects(k)
-            print(f"SemanticObject {k}: type={sem.Type()}, attributes:", schema_decoder.decode_attributes(sem.AttributesAsNumpy()))
+            for k in range(geom.SemanticsObjectsLength()):
+              sem = geom.SemanticsObjects(k)
+              print(f"SemanticObject {k}: type={sem.Type()}, attributes:", schema_decoder.decode_attributes(sem.AttributesAsNumpy()))
+
+if __name__ == "__main__":
+  convert_cjseq2cb('data/one_feature.city.jsonl', 'data/one_feature.cb')
+  print_cb('data/one_feature.cb')

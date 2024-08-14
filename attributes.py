@@ -1,5 +1,6 @@
 from flatCitybuf.ColumnType import ColumnType
 import struct
+import logging
 
 class AttributeSchemaEncoder:
   class Column:
@@ -39,10 +40,17 @@ class AttributeSchemaEncoder:
       return ColumnType.Float
     elif self.schema[name].type == bool:
       return ColumnType.Bool
+    elif self.schema[name].type == type(None):
+      logging.warning("Type not set for column " + name + ". Defaulting to string")
+      return ColumnType.String
     else:
       raise Exception("Type not supported")
     
   def encode_value(self, name, value):
+    # handle null values by not writing anything
+    if value == None:
+      return b""
+    
     format = "=H" # don't add padding, unsigned short (2 bytes) is the column index
     if self.schema[name].type == str:
       format += "I" # string length
