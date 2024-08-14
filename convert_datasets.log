@@ -1,0 +1,240 @@
+==3BAG
+WARNING:root:Type not set for column eindgeldigheid. Defaulting to string
+WARNING:root:Type not set for column eindregistratie. Defaulting to string
+WARNING:root:Type not set for column tijdstipeindregistratielv. Defaulting to string
+WARNING:root:Type not set for column tijdstipinactief. Defaulting to string
+WARNING:root:Type not set for column tijdstipinactieflv. Defaulting to string
+WARNING:root:Type not set for column tijdstipnietbaglv. Defaulting to string
+Using schema:
+	b3_dak_type, <class 'str'>
+	b3_h_dak_50p, <class 'float'>
+	b3_h_dak_70p, <class 'float'>
+	b3_h_dak_max, <class 'float'>
+	b3_h_dak_min, <class 'float'>
+	b3_h_maaiveld, <class 'float'>
+	b3_kas_warenhuis, <class 'bool'>
+	b3_mutatie_ahn3_ahn4, <class 'bool'>
+	b3_nodata_fractie_ahn3, <class 'float'>
+	b3_nodata_fractie_ahn4, <class 'float'>
+	b3_nodata_radius_ahn3, <class 'float'>
+	b3_nodata_radius_ahn4, <class 'float'>
+	b3_puntdichtheid_ahn3, <class 'float'>
+	b3_puntdichtheid_ahn4, <class 'float'>
+	b3_pw_bron, <class 'str'>
+	b3_pw_datum, <class 'int'>
+	b3_pw_selectie_reden, <class 'str'>
+	b3_reconstructie_onvolledig, <class 'bool'>
+	b3_rmse_lod12, <class 'float'>
+	b3_rmse_lod13, <class 'float'>
+	b3_rmse_lod22, <class 'float'>
+	b3_val3dity_lod12, <class 'str'>
+	b3_val3dity_lod13, <class 'str'>
+	b3_val3dity_lod22, <class 'str'>
+	b3_volume_lod12, <class 'float'>
+	b3_volume_lod13, <class 'float'>
+	b3_volume_lod22, <class 'float'>
+	begingeldigheid, <class 'str'>
+	documentdatum, <class 'str'>
+	documentnummer, <class 'str'>
+	eindgeldigheid, <class 'NoneType'>
+	eindregistratie, <class 'NoneType'>
+	geconstateerd, <class 'bool'>
+	identificatie, <class 'str'>
+	oorspronkelijkbouwjaar, <class 'int'>
+	status, <class 'str'>
+	tijdstipeindregistratielv, <class 'NoneType'>
+	tijdstipinactief, <class 'NoneType'>
+	tijdstipinactieflv, <class 'NoneType'>
+	tijdstipnietbaglv, <class 'NoneType'>
+	tijdstipregistratie, <class 'str'>
+	tijdstipregistratielv, <class 'str'>
+	voorkomenidentificatie, <class 'int'>
+	on_footprint_edge, <class 'bool'>
+==3DBV
+Using schema:
+	eindregistratie, <class 'bool'>
+	objectid, <class 'int'>
+	objecteindtijd, <class 'bool'>
+	relatievehoogteligging, <class 'float'>
+	p_punt_datum, <class 'bool'>
+	3df_class, <class 'str'>
+	3df_id, <class 'str'>
+	aantal_punten, <class 'int'>
+	bgt_functie, <class 'str'>
+	bgt_fysiekvoorkomen, <class 'str'>
+	bgt_status, <class 'str'>
+	bronhouder, <class 'str'>
+	identificatienamespace, <class 'str'>
+	inonderzoek, <class 'str'>
+	lokaalid, <class 'str'>
+	lv_publicatiedatum, <class 'str'>
+	objectbegintijd, <class 'str'>
+	plus_functiewegdeel, <class 'str'>
+	plus_fysiekvoorkomen, <class 'str'>
+	plus_status, <class 'str'>
+	tijdstipregistratie, <class 'str'>
+	wegdeeloptalud, <class 'str'>
+	aanduidingrecordcorrectie, <class 'str'>
+	aanduidingrecordinactief, <class 'str'>
+	bagpandid, <class 'str'>
+	baseheight, <class 'float'>
+	begindatumtijdvakgeldigheid, <class 'str'>
+	bouwjaar, <class 'str'>
+	documentdatum, <class 'str'>
+	documentnummer, <class 'str'>
+	einddatumtijdvakgeldigheid, <class 'str'>
+	officieel, <class 'str'>
+	pandstatus, <class 'str'>
+	roofheight, <class 'float'>
+	shape_area, <class 'str'>
+	shape_length, <class 'str'>
+	begroeidterreindeeloptalud, <class 'str'>
+	bgt_type, <class 'str'>
+	namespace, <class 'str'>
+	plus_type, <class 'str'>
+	identificatiebagpnd, <class 'str'>
+	numaanduidingreeks_1ident1, <class 'str'>
+	numaanduidingreeks_1posit1, <class 'str'>
+	numaanduidingreeks_1posit3, <class 'str'>
+	numaanduidingreeks_1posit5, <class 'str'>
+	numaanduidingreeks_2ident1, <class 'str'>
+	numaanduidingreeks_2posit1, <class 'str'>
+	numaanduidingreeks_2posit3, <class 'str'>
+	numaanduidingreeks_2posit5, <class 'str'>
+	numaanduidingreeks_3ident1, <class 'str'>
+	numaanduidingreeks_3posit1, <class 'str'>
+	numaanduidingreeks_3posit3, <class 'str'>
+	numaanduidingreeks_3posit5, <class 'str'>
+	nummeraanduidingreeks_1ident, <class 'str'>
+	nummeraanduidingreeks_1tekst, <class 'str'>
+	nummeraanduidingreeks_2ident, <class 'str'>
+	nummeraanduidingreeks_2tekst, <class 'str'>
+	nummeraanduidingreeks_3ident, <class 'str'>
+	nummeraanduidingreeks_3tekst, <class 'str'>
+	onbegroeidterreindeeloptalud, <class 'str'>
+	hoortbijtypeoverbrugging, <class 'str'>
+	overbruggingisbeweegbaar, <class 'str'>
+	typeoverbruggingsdeel, <class 'str'>
+	ondersteunendwegdeeloptalud, <class 'str'>
+	plus_functie, <class 'str'>
+==Helsinki
+WARNING:root:No CRS found in input metadata
+Using schema:
+	BREC_BuildingHeightNN, <class 'float'>
+	BREC_RoofNames, <class 'str'>
+	CODE, <class 'str'>
+	C_KAYTTARK, <class 'str'>
+	GroundLevel, <class 'float'>
+	HighestRoof, <class 'float'>
+	ID, <class 'float'>
+	Integrate_LoD[1], <class 'dict'>
+	KG_KRAKENN, <class 'int'>
+	Katuosoite, <class 'str'>
+	Kayttotarkoitus, <class 'str'>
+	Kerroksia, <class 'float'>
+	Kerrosala, <class 'float'>
+	Kokonaisala, <class 'int'>
+	LowestRoof, <class 'float'>
+	RATU, <class 'int'>
+	REPAIRED, <class 'str'>
+	Rakennuksen_tila, <class 'str'>
+	Rakennusaine, <class 'str'>
+	TILA_KOODI, <class 'int'>
+	Tilavuus, <class 'int'>
+	UUID, <class 'str'>
+	VTJ_PRT, <class 'str'>
+	Valmistunut, <class 'str'>
+	creationDate, <class 'str'>
+	measuredHeight, <class 'float'>
+	roofType, <class 'str'>
+	Area, <class 'float'>
+	FaceUUID, <class 'str'>
+	RoofOrientation, <class 'float'>
+	RoofPitch, <class 'float'>
+	ZMax, <class 'float'>
+	ZMaxASL, <class 'float'>
+	ZMin, <class 'float'>
+	ZMinASL, <class 'float'>
+	id, <class 'str'>
+	Integrate_LoD[], <class 'dict'>
+==Ingolstadt
+Using schema:
+	creationDate, <class 'str'>
+	dataAvailable, <class 'str'>
+	measuredHeight, <class 'float'>
+	klumMaterialClass, <class 'str'>
+	klumMaterialIndex, <class 'str'>
+	materialUncertainty, <class 'float'>
+	@cityeditor:layer, <class 'str'>
+	frameKlumMaterialClass, <class 'str'>
+	frameKlumMaterialIndex, <class 'str'>
+	frameMaterialUncertainty, <class 'float'>
+	id, <class 'str'>
+	paneMaterialClass, <class 'str'>
+	frameMaterialClass, <class 'str'>
+	relationToConstruction, <class 'str'>
+	materialClass, <class 'str'>
+	materialName, <class 'str'>
+	frameMaterialName, <class 'str'>
+	name, <class 'str'>
+	opendrive_identifier_modelDate, <class 'str'>
+	opendrive_identifier_modelName, <class 'str'>
+	opendrive_identifier_modelVendor, <class 'str'>
+	opendrive_identifier_roadId, <class 'str'>
+	opendrive_identifier_roadObjectId, <class 'str'>
+	opendrive_identifier_roadObjectName, <class 'str'>
+	opendrive_identifier_sourceFileHashSha256, <class 'str'>
+	opendrive_identifier_sourceFileName, <class 'str'>
+	opendrive_roadObject_dynamic, <class 'str'>
+	opendrive_roadObject_orientation, <class 'str'>
+	opendrive_roadObject_type, <class 'str'>
+	opendrive_road_length, <class 'str'>
+	opendrive_road_rule, <class 'str'>
+	CreationDate, <class 'str'>
+	DataAvailable, <class 'str'>
+	opendrive_dynamic, <class 'str'>
+	opendrive_id, <class 'str'>
+	opendrive_name, <class 'str'>
+	opendrive_orientation, <class 'str'>
+	opendrive_type, <class 'str'>
+==Montréal
+WARNING:root:No CRS found in input metadata
+Using schema:
+==NYC
+WARNING:root:No CRS found in input metadata
+Using schema:
+	BIN, <class 'str'>
+	DOITT_ID, <class 'str'>
+	SOURCE_ID, <class 'str'>
+==Rotterdam
+Using schema:
+	TerrainHeight, <class 'float'>
+	bron_geo, <class 'str'>
+	bron_tex, <class 'str'>
+	status, <class 'str'>
+	voll_tex, <class 'str'>
+==Vienna
+Using schema:
+        Blattnummer, <class 'str'>
+        HoeheDach, <class 'str'>
+        HoeheGrund, <class 'str'>
+        NiedrigsteTraufeDesGebaeudes, <class 'str'>
+        creationDate, <class 'str'>
+        measuredHeight, <class 'float'>
+        roofType, <class 'str'>
+        Flaeche, <class 'str'>
+        FlaechenUUID, <class 'str'>
+        Dachneigung, <class 'str'>
+        Dachorientierung, <class 'str'>
+WARNING:root:No CRS found in input metadata
+==Zurich
+Using schema:
+        FileCreationDate, <class 'str'>
+        GebaeudeStatus, <class 'int'>
+        Herkunft, <class 'str'>
+        QualitaetStatus, <class 'int'>
+        Region, <class 'int'>
+        class, <class 'str'>
+        creationDate, <class 'str'>
+        Geomtype, <class 'int'>
+WARNING:root:No CRS found in input metadata

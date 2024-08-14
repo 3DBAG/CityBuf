@@ -30,6 +30,7 @@ from flatCitybuf.GeographicalExtent import CreateGeographicalExtent
 import flatbuffers
 
 import struct
+import argparse, logging
 import numpy as np
 
 from attributes import AttributeSchemaEncoder, AttributeSchemaDecoder
@@ -84,14 +85,14 @@ def create_linestring(builder, boundaries, semantics_id=None):
 
 def create_multilinestring(builder, boundaries, semantics_values=None):
   f_linestrings = []
-  if semantic_values:
-    for linestring, sem in zip(geom["boundaries"], semantic_values):
+  if semantics_values:
+    for linestring, sem in zip(boundaries, semantics_values):
       f_linestrings.append(create_linestring(builder, linestring, sem))
   else:
-    for linestring in geom["boundaries"]:
+    for linestring in boundaries:
       f_linestrings.append(create_linestring(builder, linestring))
   
-  MultiLineString.StartLinestringsVector(builder, len(f_linestrings))
+  MultiLineString.StartLineStringsVector(builder, len(f_linestrings))
   for linestring_offset in reversed(f_linestrings):
     builder.PrependUOffsetTRelative(linestring_offset)
   return builder.EndVector()
@@ -246,6 +247,7 @@ def create_feature(cj_feature, schema_encoder=None):
     has_children = "children" in cj_object
     has_parents = "parents" in cj_object
     has_attributes = "attributes" in cj_object
+    has_geometry = "geometry" in cj_object
 
     f_id = builder.CreateString(cj_id)
 
@@ -278,15 +280,18 @@ def create_feature(cj_feature, schema_encoder=None):
       f_children_offset = builder.EndVector()
 
     # create geometries
-    f_geoms = []
-    for geom in cj_object["geometry"]:
-      f_geoms.append(create_geometry(builder, geom))
+    if has_geometry:
+      f_geoms = []
+      for geom in cj_object["geometry"]:
+        if geom["type"] == "GeometryInstance":
+          raise Exception("GeometryInstance is not supported at the moment")
+        f_geoms.append(create_geometry(builder, geom))
 
-    # Create the geometries vector
-    CityObject.StartGeometryVector(builder, len(cj_object["geometry"]))
-    for geom in reversed(f_geoms):  # FlatBuffers requires reverse order when creating vectors
-      builder.PrependUOffsetTRelative(geom)
-    f_geometries_offset = builder.EndVector()
+      # Create the geometries vector
+      CityObject.StartGeometryVector(builder, len(cj_object["geometry"]))
+      for geom in reversed(f_geoms):  # FlatBuffers requires reverse order when creating vectors
+        builder.PrependUOffsetTRelative(geom)
+      f_geometries_offset = builder.EndVector()
     
     CityObject.Start(builder)
     # type
@@ -299,7 +304,8 @@ def create_feature(cj_feature, schema_encoder=None):
       CityObject.AddAttributes(builder, f_attributes_offset)
 
     # Geometries
-    CityObject.AddGeometry(builder, f_geometries_offset)
+    if has_geometry:
+      CityObject.AddGeometry(builder, f_geometries_offset)
 
     # children
     if has_children:
@@ -354,16 +360,19 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   tt = cj_metadata['transform']['translate']
 
   # Create the CRS table in the buffer
-  cj_crs = cj_metadata['metadata']['referenceSystem']
-  authority, version, code = cj_crs.split('/')[-3:]
+  crs_offset = None
+  if 'metadata' in cj_metadata:
+    if 'referenceSystem' in cj_metadata['metadata']:
+      cj_crs = cj_metadata['metadata']['referenceSystem']
+      authority, version, code = cj_crs.split('/')[-3:]
   
-  authority_cfb = builder.CreateString(authority)
+      authority_cfb = builder.CreateString(authority)
 
-  crs = Crs.CrsStart(builder)
-  Crs.CrsAddAuthority(builder, authority_cfb)
-  Crs.CrsAddVersion(builder, int(version))
-  Crs.CrsAddCode(builder, int(code))
-  crs_offset = Crs.CrsEnd(builder)
+      crs = Crs.CrsStart(builder)
+      Crs.CrsAddAuthority(builder, authority_cfb)
+      Crs.CrsAddVersion(builder, int(version))
+      Crs.CrsAddCode(builder, int(code))
+      crs_offset = Crs.CrsEnd(builder)
 
   fb_columns = []
   for key, _ in schema_encoder.schema.items():
@@ -393,7 +402,10 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   # Header.AddName(builder, name)
   Header.AddFeaturesCount(builder, features_count)
   Header.HeaderAddTransform(builder, CreateTransform(builder, ts[0], ts[1], ts[2], tt[0], tt[1], tt[2]))
-  Header.HeaderAddCrs(builder, crs_offset)
+  if crs_offset:
+    Header.HeaderAddCrs(builder, crs_offset)
+  else:
+    logging.warning("No CRS found in input metadata")
   Header.HeaderAddColumns(builder, f_columns_offset)
   gmin, gmax = geographical_extent
   Header.HeaderAddGeographicalExtent(builder, CreateGeographicalExtent(builder, gmin[0], gmin[1], gmin[2], gmax[0], gmax[1], gmax[2]))
@@ -403,27 +415,35 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
 
   return builder.Output()
 
-def convert_cjseq2cb(cjseq_path, cb_path):
+def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
   cj_features = []
   with open(cjseq_path, "r") as fo:
     cj_metadata = json.loads(fo.readline())
     for feature_str in fo:
         cj_features.append(json.loads(feature_str))
 
-  schema_encoder = AttributeSchemaEncoder()
+  schema_encoder = AttributeSchemaEncoder(pretyped_attributes)
 
   # scan attributes and geographical extents
   global_extent = np.ndarray((2, 3), dtype=np.float64)
-  global_extent[0] = np.inf
-  global_extent[1] = -np.inf
+  get_extent_from_features = True
+  if "metadata" in cj_metadata:
+    if "geographicalExtent" in cj_metadata["metadata"]:
+      global_extent[0] = cj_metadata["metadata"]["geographicalExtent"][0:3]
+      global_extent[1] = cj_metadata["metadata"]["geographicalExtent"][3:6]
+      get_extent_from_features = False
+    else:
+      global_extent[0] = np.inf
+      global_extent[1] = -np.inf
   for cj_feature in cj_features:
     for cj_object in cj_feature["CityObjects"].values():
-      if "geographicalExtent" in cj_object:
-        fext = np.ndarray((2, 3), dtype=np.float64)
-        fext[0] = cj_object["geographicalExtent"][0:3]
-        fext[1] = cj_object["geographicalExtent"][3:6]
-        global_extent[0] = np.minimum(global_extent[0], fext[0])
-        global_extent[1] = np.maximum(global_extent[1], fext[1])
+      if get_extent_from_features:
+        if "geographicalExtent" in cj_object:
+          fext = np.ndarray((2, 3), dtype=np.float64)
+          fext[0] = cj_object["geographicalExtent"][0:3]
+          fext[1] = cj_object["geographicalExtent"][3:6]
+          global_extent[0] = np.minimum(global_extent[0], fext[0])
+          global_extent[1] = np.maximum(global_extent[1], fext[1])
 
       if "attributes" in cj_object:
         schema_encoder.add(cj_object["attributes"])
@@ -433,6 +453,10 @@ def convert_cjseq2cb(cjseq_path, cb_path):
           if "semantics" in geom:
             for surface in geom["semantics"]["surfaces"]:
                 schema_encoder.add(surface, exclude=["type"])
+
+  print("Using schema:")
+  for name, value in schema_encoder.schema.items():
+    print(f"\t{name}, {value.type}")
 
   fb_features = []
   for cj_feature in cj_features:
@@ -533,12 +557,30 @@ def print_cb(cb_path):
               for ii in range(solid.Shells(0).Surfaces(0).Rings(0).IndicesLength()):
                 print(f"First ring indices: {solid.Shells(0).Surfaces(0).Rings(0).Indices(ii)}")
               
-            print(geom.Boundaries())
-
             for k in range(geom.SemanticsObjectsLength()):
               sem = geom.SemanticsObjects(k)
               print(f"SemanticObject {k}: type={sem.Type()}, attributes:", schema_decoder.decode_attributes(sem.AttributesAsNumpy()))
 
 if __name__ == "__main__":
-  convert_cjseq2cb('data/one_feature.city.jsonl', 'data/one_feature.cb')
-  print_cb('data/one_feature.cb')
+  arg = argparse.ArgumentParser(description='Convert CityJSON sequence to CityBuffer')
+  arg.add_argument('cjseq', help='CityJSON sequence file')
+  arg.add_argument('cb', help='CityBuffer file')
+  arg.add_argument('--schema', help='Predifine attribute types, important in case type cannot be unambiguously inferred from the data', type=str)
+  args = arg.parse_args()
+
+  pretyped_attributes = {}
+  if args.schema:
+    type_map = {
+      'str': str,
+      'int': int,
+      'float': float,
+      'bool': bool,
+      'json': dict,
+      # Add other types as needed
+    }
+    for pair in args.schema.split(','):
+      name, atype = pair.split(':')
+      pretyped_attributes[name] = type_map[atype]
+      
+  convert_cjseq2cb(args.cjseq, args.cb, pretyped_attributes)
+  # print_cb(args.cb)

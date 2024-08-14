@@ -1,6 +1,7 @@
 from flatCitybuf.ColumnType import ColumnType
 import struct
 import logging
+import json
 
 class AttributeSchemaEncoder:
   class Column:
@@ -13,10 +14,18 @@ class AttributeSchemaEncoder:
 
   # schema = {"name": Column, ...}
   schema = {}
+  pretyped_names = []
+
+  def __init__(self, pretyped_attributes={}):
+    for key, value in pretyped_attributes.items():
+      self.schema[key] = self.Column(value, len(self.schema))
+      self.pretyped_names = pretyped_attributes.keys()
 
   def add(self, attributes, exclude=[]):
     for key, value in attributes.items():
       if key in exclude:
+        continue
+      if key in self.pretyped_names:
         continue
       if key not in self.schema:
         self.schema[key] = self.Column(type(value), len(self.schema))
@@ -26,10 +35,15 @@ class AttributeSchemaEncoder:
         if t_val != t_schema:
           if t_schema == None:
             self.schema[key] = self.Column(t_val, len(self.schema))
-          if t_val == float and t_schema == int:
+          elif t_val == float and t_schema == int:
             self.schema[key] = self.Column(float, len(self.schema))
-          if t_val == int and t_schema == bool:
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to float")
+          elif t_val == int and t_schema == bool:
             self.schema[key] = self.Column(int, len(self.schema))
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to int")
+          elif t_val == str and t_schema == int:
+            self.schema[key] = self.Column(str, len(self.schema))
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to string")
 
   def get_cb_column_type(self, name):
     if self.schema[name].type == str:
@@ -40,6 +54,8 @@ class AttributeSchemaEncoder:
       return ColumnType.Float
     elif self.schema[name].type == bool:
       return ColumnType.Bool
+    elif self.schema[name].type == dict:
+      return ColumnType.Json
     elif self.schema[name].type == type(None):
       logging.warning("Type not set for column " + name + ". Defaulting to string")
       return ColumnType.String
@@ -53,19 +69,32 @@ class AttributeSchemaEncoder:
     
     format = "=H" # don't add padding, unsigned short (2 bytes) is the column index
     if self.schema[name].type == str:
+      if name in self.pretyped_names and type(value) != str:
+        value = str(value)
       format += "I" # string length
       format += str(len(value)) # string length
       format += "s" # string
     elif self.schema[name].type == int:
       format += "i"
+      if name in self.pretyped_names and type(value) != int:
+        value = int(value)
     elif self.schema[name].type == float:
       format += "f"
+      if name in self.pretyped_names and type(value) != float:
+        value = float(value)
     elif self.schema[name].type == bool:
       format += "?"
+      if name in self.pretyped_names and type(value) != bool:
+        value = bool(value)
+    elif self.schema[name].type == dict:
+      value = json.dumps(value, separators=(',', ':'))
+      format += "I" # string length
+      format += str(len(value)) # string length
+      format += "s" # string
     else:
       raise Exception("Type not supported")
     
-    if self.schema[name].type == str:
+    if self.schema[name].type == str or self.schema[name].type == dict:
       return struct.pack(format, self.schema[name].order, len(value), value.encode('utf-8'))
     else:
       return struct.pack(format, self.schema[name].order, value)
@@ -112,6 +141,10 @@ class AttributeSchemaDecoder:
       elif attr_type == ColumnType.Bool:
         value = struct.unpack('?', buffer[ib:ib+1])[0]
         ib += 1
+      elif attr_type == ColumnType.Json:
+        value_length = struct.unpack('I', buffer[ib:ib+4])[0]
+        value = json.loads(buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8'))
+        ib += 4 + value_length
       else:
         raise Exception("Type not supported")
       attributes[self.schema[column_index][0]] = value
