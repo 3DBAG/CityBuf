@@ -111,8 +111,6 @@ def create_surface(builder, boundaries, semantics_id=None):
   for ring in boundaries:
     f_rings.append(create_ring(builder, ring))
   
-  # TODO add semantics
-
   Surface.StartRingsVector(builder, len(f_rings))
   for ring_offset in reversed(f_rings):
     builder.PrependUOffsetTRelative(ring_offset)

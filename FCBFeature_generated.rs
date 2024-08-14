@@ -158,13 +158,24 @@ impl flatbuffers::SimpleToVerifyInSlice for ColumnType {}
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_CITY_OBJECT_TYPE: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_CITY_OBJECT_TYPE: u8 = 13;
+pub const ENUM_MAX_CITY_OBJECT_TYPE: u8 = 32;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_CITY_OBJECT_TYPE: [CityObjectType; 14] = [
+pub const ENUM_VALUES_CITY_OBJECT_TYPE: [CityObjectType; 33] = [
   CityObjectType::Bridge,
+  CityObjectType::BridgePart,
+  CityObjectType::BridgeInstallation,
+  CityObjectType::BridgeConstructiveElement,
+  CityObjectType::BridgeRoom,
+  CityObjectType::BridgeFurniture,
   CityObjectType::Building,
   CityObjectType::BuildingPart,
+  CityObjectType::BuildingInstallation,
+  CityObjectType::BuildingConstructiveElement,
+  CityObjectType::BuildingFurniture,
+  CityObjectType::BuildingStorey,
+  CityObjectType::BuildingRoom,
+  CityObjectType::BuildingUnit,
   CityObjectType::CityFurniture,
   CityObjectType::CityObjectGroup,
   CityObjectType::GenericCityObject,
@@ -173,8 +184,16 @@ pub const ENUM_VALUES_CITY_OBJECT_TYPE: [CityObjectType; 14] = [
   CityObjectType::PlantCover,
   CityObjectType::SolitaryVegetationObject,
   CityObjectType::TINRelief,
-  CityObjectType::Transportation,
+  CityObjectType::Road,
+  CityObjectType::Railway,
+  CityObjectType::Waterway,
+  CityObjectType::TransportSquare,
   CityObjectType::Tunnel,
+  CityObjectType::TunnelPart,
+  CityObjectType::TunnelInstallation,
+  CityObjectType::TunnelConstructiveElement,
+  CityObjectType::TunnelHollowSpace,
+  CityObjectType::TunnelFurniture,
   CityObjectType::WaterBody,
 ];
 
@@ -184,26 +203,56 @@ pub struct CityObjectType(pub u8);
 #[allow(non_upper_case_globals)]
 impl CityObjectType {
   pub const Bridge: Self = Self(0);
-  pub const Building: Self = Self(1);
-  pub const BuildingPart: Self = Self(2);
-  pub const CityFurniture: Self = Self(3);
-  pub const CityObjectGroup: Self = Self(4);
-  pub const GenericCityObject: Self = Self(5);
-  pub const LandUse: Self = Self(6);
-  pub const OtherConstruction: Self = Self(7);
-  pub const PlantCover: Self = Self(8);
-  pub const SolitaryVegetationObject: Self = Self(9);
-  pub const TINRelief: Self = Self(10);
-  pub const Transportation: Self = Self(11);
-  pub const Tunnel: Self = Self(12);
-  pub const WaterBody: Self = Self(13);
+  pub const BridgePart: Self = Self(1);
+  pub const BridgeInstallation: Self = Self(2);
+  pub const BridgeConstructiveElement: Self = Self(3);
+  pub const BridgeRoom: Self = Self(4);
+  pub const BridgeFurniture: Self = Self(5);
+  pub const Building: Self = Self(6);
+  pub const BuildingPart: Self = Self(7);
+  pub const BuildingInstallation: Self = Self(8);
+  pub const BuildingConstructiveElement: Self = Self(9);
+  pub const BuildingFurniture: Self = Self(10);
+  pub const BuildingStorey: Self = Self(11);
+  pub const BuildingRoom: Self = Self(12);
+  pub const BuildingUnit: Self = Self(13);
+  pub const CityFurniture: Self = Self(14);
+  pub const CityObjectGroup: Self = Self(15);
+  pub const GenericCityObject: Self = Self(16);
+  pub const LandUse: Self = Self(17);
+  pub const OtherConstruction: Self = Self(18);
+  pub const PlantCover: Self = Self(19);
+  pub const SolitaryVegetationObject: Self = Self(20);
+  pub const TINRelief: Self = Self(21);
+  pub const Road: Self = Self(22);
+  pub const Railway: Self = Self(23);
+  pub const Waterway: Self = Self(24);
+  pub const TransportSquare: Self = Self(25);
+  pub const Tunnel: Self = Self(26);
+  pub const TunnelPart: Self = Self(27);
+  pub const TunnelInstallation: Self = Self(28);
+  pub const TunnelConstructiveElement: Self = Self(29);
+  pub const TunnelHollowSpace: Self = Self(30);
+  pub const TunnelFurniture: Self = Self(31);
+  pub const WaterBody: Self = Self(32);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 13;
+  pub const ENUM_MAX: u8 = 32;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::Bridge,
+    Self::BridgePart,
+    Self::BridgeInstallation,
+    Self::BridgeConstructiveElement,
+    Self::BridgeRoom,
+    Self::BridgeFurniture,
     Self::Building,
     Self::BuildingPart,
+    Self::BuildingInstallation,
+    Self::BuildingConstructiveElement,
+    Self::BuildingFurniture,
+    Self::BuildingStorey,
+    Self::BuildingRoom,
+    Self::BuildingUnit,
     Self::CityFurniture,
     Self::CityObjectGroup,
     Self::GenericCityObject,
@@ -212,16 +261,35 @@ impl CityObjectType {
     Self::PlantCover,
     Self::SolitaryVegetationObject,
     Self::TINRelief,
-    Self::Transportation,
+    Self::Road,
+    Self::Railway,
+    Self::Waterway,
+    Self::TransportSquare,
     Self::Tunnel,
+    Self::TunnelPart,
+    Self::TunnelInstallation,
+    Self::TunnelConstructiveElement,
+    Self::TunnelHollowSpace,
+    Self::TunnelFurniture,
     Self::WaterBody,
   ];
   /// Returns the variant's name or "" if unknown.
   pub fn variant_name(self) -> Option<&'static str> {
     match self {
       Self::Bridge => Some("Bridge"),
+      Self::BridgePart => Some("BridgePart"),
+      Self::BridgeInstallation => Some("BridgeInstallation"),
+      Self::BridgeConstructiveElement => Some("BridgeConstructiveElement"),
+      Self::BridgeRoom => Some("BridgeRoom"),
+      Self::BridgeFurniture => Some("BridgeFurniture"),
       Self::Building => Some("Building"),
       Self::BuildingPart => Some("BuildingPart"),
+      Self::BuildingInstallation => Some("BuildingInstallation"),
+      Self::BuildingConstructiveElement => Some("BuildingConstructiveElement"),
+      Self::BuildingFurniture => Some("BuildingFurniture"),
+      Self::BuildingStorey => Some("BuildingStorey"),
+      Self::BuildingRoom => Some("BuildingRoom"),
+      Self::BuildingUnit => Some("BuildingUnit"),
       Self::CityFurniture => Some("CityFurniture"),
       Self::CityObjectGroup => Some("CityObjectGroup"),
       Self::GenericCityObject => Some("GenericCityObject"),
@@ -230,8 +298,16 @@ impl CityObjectType {
       Self::PlantCover => Some("PlantCover"),
       Self::SolitaryVegetationObject => Some("SolitaryVegetationObject"),
       Self::TINRelief => Some("TINRelief"),
-      Self::Transportation => Some("Transportation"),
+      Self::Road => Some("Road"),
+      Self::Railway => Some("Railway"),
+      Self::Waterway => Some("Waterway"),
+      Self::TransportSquare => Some("TransportSquare"),
       Self::Tunnel => Some("Tunnel"),
+      Self::TunnelPart => Some("TunnelPart"),
+      Self::TunnelInstallation => Some("TunnelInstallation"),
+      Self::TunnelConstructiveElement => Some("TunnelConstructiveElement"),
+      Self::TunnelHollowSpace => Some("TunnelHollowSpace"),
+      Self::TunnelFurniture => Some("TunnelFurniture"),
       Self::WaterBody => Some("WaterBody"),
       _ => None,
     }
@@ -1724,7 +1800,8 @@ impl<'a> CityObject<'a> {
   pub const VT_ATTRIBUTES: flatbuffers::VOffsetT = 12;
   pub const VT_COLUMNS: flatbuffers::VOffsetT = 14;
   pub const VT_CHILDREN: flatbuffers::VOffsetT = 16;
-  pub const VT_PARENTS: flatbuffers::VOffsetT = 18;
+  pub const VT_CHILDREN_ROLES: flatbuffers::VOffsetT = 18;
+  pub const VT_PARENTS: flatbuffers::VOffsetT = 20;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1737,6 +1814,7 @@ impl<'a> CityObject<'a> {
   ) -> flatbuffers::WIPOffset<CityObject<'bldr>> {
     let mut builder = CityObjectBuilder::new(_fbb);
     if let Some(x) = args.parents { builder.add_parents(x); }
+    if let Some(x) = args.children_roles { builder.add_children_roles(x); }
     if let Some(x) = args.children { builder.add_children(x); }
     if let Some(x) = args.columns { builder.add_columns(x); }
     if let Some(x) = args.attributes { builder.add_attributes(x); }
@@ -1808,6 +1886,13 @@ impl<'a> CityObject<'a> {
     unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>(CityObject::VT_CHILDREN, None)}
   }
   #[inline]
+  pub fn children_roles(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>(CityObject::VT_CHILDREN_ROLES, None)}
+  }
+  #[inline]
   pub fn parents(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>> {
     // Safety:
     // Created from valid Table for this object
@@ -1830,6 +1915,7 @@ impl flatbuffers::Verifiable for CityObject<'_> {
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("attributes", Self::VT_ATTRIBUTES, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Column>>>>("columns", Self::VT_COLUMNS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<&'_ str>>>>("children", Self::VT_CHILDREN, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<&'_ str>>>>("children_roles", Self::VT_CHILDREN_ROLES, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<&'_ str>>>>("parents", Self::VT_PARENTS, false)?
      .finish();
     Ok(())
@@ -1843,6 +1929,7 @@ pub struct CityObjectArgs<'a> {
     pub attributes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
     pub columns: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Column<'a>>>>>,
     pub children: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>,
+    pub children_roles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>,
     pub parents: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>,
 }
 impl<'a> Default for CityObjectArgs<'a> {
@@ -1856,6 +1943,7 @@ impl<'a> Default for CityObjectArgs<'a> {
       attributes: None,
       columns: None,
       children: None,
+      children_roles: None,
       parents: None,
     }
   }
@@ -1895,6 +1983,10 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CityObjectBuilder<'a, 'b, A> {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityObject::VT_CHILDREN, children);
   }
   #[inline]
+  pub fn add_children_roles(&mut self, children_roles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<&'b  str>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityObject::VT_CHILDREN_ROLES, children_roles);
+  }
+  #[inline]
   pub fn add_parents(&mut self, parents: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<&'b  str>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityObject::VT_PARENTS, parents);
   }
@@ -1924,6 +2016,7 @@ impl core::fmt::Debug for CityObject<'_> {
       ds.field("attributes", &self.attributes());
       ds.field("columns", &self.columns());
       ds.field("children", &self.children());
+      ds.field("children_roles", &self.children_roles());
       ds.field("parents", &self.parents());
       ds.finish()
   }

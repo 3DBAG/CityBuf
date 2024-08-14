@@ -151,28 +151,58 @@ inline const char *EnumNameColumnType(ColumnType e) {
 
 enum CityObjectType : uint8_t {
   CityObjectType_Bridge = 0,
-  CityObjectType_Building = 1,
-  CityObjectType_BuildingPart = 2,
-  CityObjectType_CityFurniture = 3,
-  CityObjectType_CityObjectGroup = 4,
-  CityObjectType_GenericCityObject = 5,
-  CityObjectType_LandUse = 6,
-  CityObjectType_OtherConstruction = 7,
-  CityObjectType_PlantCover = 8,
-  CityObjectType_SolitaryVegetationObject = 9,
-  CityObjectType_TINRelief = 10,
-  CityObjectType_Transportation = 11,
-  CityObjectType_Tunnel = 12,
-  CityObjectType_WaterBody = 13,
+  CityObjectType_BridgePart = 1,
+  CityObjectType_BridgeInstallation = 2,
+  CityObjectType_BridgeConstructiveElement = 3,
+  CityObjectType_BridgeRoom = 4,
+  CityObjectType_BridgeFurniture = 5,
+  CityObjectType_Building = 6,
+  CityObjectType_BuildingPart = 7,
+  CityObjectType_BuildingInstallation = 8,
+  CityObjectType_BuildingConstructiveElement = 9,
+  CityObjectType_BuildingFurniture = 10,
+  CityObjectType_BuildingStorey = 11,
+  CityObjectType_BuildingRoom = 12,
+  CityObjectType_BuildingUnit = 13,
+  CityObjectType_CityFurniture = 14,
+  CityObjectType_CityObjectGroup = 15,
+  CityObjectType_GenericCityObject = 16,
+  CityObjectType_LandUse = 17,
+  CityObjectType_OtherConstruction = 18,
+  CityObjectType_PlantCover = 19,
+  CityObjectType_SolitaryVegetationObject = 20,
+  CityObjectType_TINRelief = 21,
+  CityObjectType_Road = 22,
+  CityObjectType_Railway = 23,
+  CityObjectType_Waterway = 24,
+  CityObjectType_TransportSquare = 25,
+  CityObjectType_Tunnel = 26,
+  CityObjectType_TunnelPart = 27,
+  CityObjectType_TunnelInstallation = 28,
+  CityObjectType_TunnelConstructiveElement = 29,
+  CityObjectType_TunnelHollowSpace = 30,
+  CityObjectType_TunnelFurniture = 31,
+  CityObjectType_WaterBody = 32,
   CityObjectType_MIN = CityObjectType_Bridge,
   CityObjectType_MAX = CityObjectType_WaterBody
 };
 
-inline const CityObjectType (&EnumValuesCityObjectType())[14] {
+inline const CityObjectType (&EnumValuesCityObjectType())[33] {
   static const CityObjectType values[] = {
     CityObjectType_Bridge,
+    CityObjectType_BridgePart,
+    CityObjectType_BridgeInstallation,
+    CityObjectType_BridgeConstructiveElement,
+    CityObjectType_BridgeRoom,
+    CityObjectType_BridgeFurniture,
     CityObjectType_Building,
     CityObjectType_BuildingPart,
+    CityObjectType_BuildingInstallation,
+    CityObjectType_BuildingConstructiveElement,
+    CityObjectType_BuildingFurniture,
+    CityObjectType_BuildingStorey,
+    CityObjectType_BuildingRoom,
+    CityObjectType_BuildingUnit,
     CityObjectType_CityFurniture,
     CityObjectType_CityObjectGroup,
     CityObjectType_GenericCityObject,
@@ -181,18 +211,37 @@ inline const CityObjectType (&EnumValuesCityObjectType())[14] {
     CityObjectType_PlantCover,
     CityObjectType_SolitaryVegetationObject,
     CityObjectType_TINRelief,
-    CityObjectType_Transportation,
+    CityObjectType_Road,
+    CityObjectType_Railway,
+    CityObjectType_Waterway,
+    CityObjectType_TransportSquare,
     CityObjectType_Tunnel,
+    CityObjectType_TunnelPart,
+    CityObjectType_TunnelInstallation,
+    CityObjectType_TunnelConstructiveElement,
+    CityObjectType_TunnelHollowSpace,
+    CityObjectType_TunnelFurniture,
     CityObjectType_WaterBody
   };
   return values;
 }
 
 inline const char * const *EnumNamesCityObjectType() {
-  static const char * const names[15] = {
+  static const char * const names[34] = {
     "Bridge",
+    "BridgePart",
+    "BridgeInstallation",
+    "BridgeConstructiveElement",
+    "BridgeRoom",
+    "BridgeFurniture",
     "Building",
     "BuildingPart",
+    "BuildingInstallation",
+    "BuildingConstructiveElement",
+    "BuildingFurniture",
+    "BuildingStorey",
+    "BuildingRoom",
+    "BuildingUnit",
     "CityFurniture",
     "CityObjectGroup",
     "GenericCityObject",
@@ -201,8 +250,16 @@ inline const char * const *EnumNamesCityObjectType() {
     "PlantCover",
     "SolitaryVegetationObject",
     "TINRelief",
-    "Transportation",
+    "Road",
+    "Railway",
+    "Waterway",
+    "TransportSquare",
     "Tunnel",
+    "TunnelPart",
+    "TunnelInstallation",
+    "TunnelConstructiveElement",
+    "TunnelHollowSpace",
+    "TunnelFurniture",
     "WaterBody",
     nullptr
   };
@@ -902,7 +959,8 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ATTRIBUTES = 12,
     VT_COLUMNS = 14,
     VT_CHILDREN = 16,
-    VT_PARENTS = 18
+    VT_CHILDREN_ROLES = 18,
+    VT_PARENTS = 20
   };
   flatCitybuf::CityObjectType type() const {
     return static_cast<flatCitybuf::CityObjectType>(GetField<uint8_t>(VT_TYPE, 0));
@@ -937,6 +995,9 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *children() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_CHILDREN);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *children_roles() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_CHILDREN_ROLES);
+  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *parents() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_PARENTS);
   }
@@ -957,6 +1018,9 @@ struct CityObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_CHILDREN) &&
            verifier.VerifyVector(children()) &&
            verifier.VerifyVectorOfStrings(children()) &&
+           VerifyOffset(verifier, VT_CHILDREN_ROLES) &&
+           verifier.VerifyVector(children_roles()) &&
+           verifier.VerifyVectorOfStrings(children_roles()) &&
            VerifyOffset(verifier, VT_PARENTS) &&
            verifier.VerifyVector(parents()) &&
            verifier.VerifyVectorOfStrings(parents()) &&
@@ -989,6 +1053,9 @@ struct CityObjectBuilder {
   void add_children(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> children) {
     fbb_.AddOffset(CityObject::VT_CHILDREN, children);
   }
+  void add_children_roles(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> children_roles) {
+    fbb_.AddOffset(CityObject::VT_CHILDREN_ROLES, children_roles);
+  }
   void add_parents(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> parents) {
     fbb_.AddOffset(CityObject::VT_PARENTS, parents);
   }
@@ -1013,9 +1080,11 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObject(
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> attributes = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<flatCitybuf::Column>>> columns = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> children = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> children_roles = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> parents = 0) {
   CityObjectBuilder builder_(_fbb);
   builder_.add_parents(parents);
+  builder_.add_children_roles(children_roles);
   builder_.add_children(children);
   builder_.add_columns(columns);
   builder_.add_attributes(attributes);
@@ -1035,12 +1104,14 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObjectDirect(
     const std::vector<uint8_t> *attributes = nullptr,
     const std::vector<::flatbuffers::Offset<flatCitybuf::Column>> *columns = nullptr,
     const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *children = nullptr,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *children_roles = nullptr,
     const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *parents = nullptr) {
   auto id__ = id ? _fbb.CreateString(id) : 0;
   auto geometry__ = geometry ? _fbb.CreateVector<::flatbuffers::Offset<flatCitybuf::Geometry>>(*geometry) : 0;
   auto attributes__ = attributes ? _fbb.CreateVector<uint8_t>(*attributes) : 0;
   auto columns__ = columns ? _fbb.CreateVector<::flatbuffers::Offset<flatCitybuf::Column>>(*columns) : 0;
   auto children__ = children ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*children) : 0;
+  auto children_roles__ = children_roles ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*children_roles) : 0;
   auto parents__ = parents ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*parents) : 0;
   return flatCitybuf::CreateCityObject(
       _fbb,
@@ -1051,6 +1122,7 @@ inline ::flatbuffers::Offset<CityObject> CreateCityObjectDirect(
       attributes__,
       columns__,
       children__,
+      children_roles__,
       parents__);
 }
 

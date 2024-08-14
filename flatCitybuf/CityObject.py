@@ -149,7 +149,7 @@ class CityObject(object):
         return o == 0
 
     # CityObject
-    def Parents(self, j: int):
+    def ChildrenRoles(self, j: int):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             a = self._tab.Vector(o)
@@ -157,19 +157,39 @@ class CityObject(object):
         return ""
 
     # CityObject
-    def ParentsLength(self) -> int:
+    def ChildrenRolesLength(self) -> int:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # CityObject
-    def ParentsIsNone(self) -> bool:
+    def ChildrenRolesIsNone(self) -> bool:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         return o == 0
 
+    # CityObject
+    def Parents(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.String(a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return ""
+
+    # CityObject
+    def ParentsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # CityObject
+    def ParentsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        return o == 0
+
 def CityObjectStart(builder: flatbuffers.Builder):
-    builder.StartObject(8)
+    builder.StartObject(9)
 
 def Start(builder: flatbuffers.Builder):
     CityObjectStart(builder)
@@ -240,8 +260,20 @@ def CityObjectStartChildrenVector(builder, numElems: int) -> int:
 def StartChildrenVector(builder, numElems: int) -> int:
     return CityObjectStartChildrenVector(builder, numElems)
 
+def CityObjectAddChildrenRoles(builder: flatbuffers.Builder, childrenRoles: int):
+    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(childrenRoles), 0)
+
+def AddChildrenRoles(builder: flatbuffers.Builder, childrenRoles: int):
+    CityObjectAddChildrenRoles(builder, childrenRoles)
+
+def CityObjectStartChildrenRolesVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartChildrenRolesVector(builder, numElems: int) -> int:
+    return CityObjectStartChildrenRolesVector(builder, numElems)
+
 def CityObjectAddParents(builder: flatbuffers.Builder, parents: int):
-    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(parents), 0)
+    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(parents), 0)
 
 def AddParents(builder: flatbuffers.Builder, parents: int):
     CityObjectAddParents(builder, parents)
