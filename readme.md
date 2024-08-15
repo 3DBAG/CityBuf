@@ -132,5 +132,5 @@ The sum of the runtimes grouped by format is:
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
 - Investigate/Add support for CityJSON geometry templates, textures and extensions
-- Could try to reuse the same strings within a feature, instead of always creating a new string even if the same string occurs many times.
+- Could try to reuse the same attribute value strings within a feature, instead of always creating a new string even if the same string occurs many times.
 - Look at support for enum attributes
