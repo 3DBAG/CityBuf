@@ -54,8 +54,8 @@ Table below gives the full results.
 
 This is an extension of the benchmark given in https://github.com/cityjson/paper_cjseq. Some dataset were excluded:
 - Railway is not included because it uses geometry templates. 
-- Helsinki_tex not included because it uses textures. 
-Both features are currently not supported in CityBuf so not fair to include/compare.
+- Helsinki_tex included because it uses textures. (TODO: remove Rotterdam/Montréal they also have textures)
+Both features are currently not supported in CityBuf so not fair to include/compare. 
 
 All using a python implementation on MacOS. CPU: M1 Pro 12 Core.
 
