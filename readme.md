@@ -118,10 +118,15 @@ The sum of the file sizes grouped by format is:
 - **CityJSONSeq**: 1092.8 MB
 - **CityBuf**: 891.3 MB
 
+The sum of the runtimes grouped by format is:
+- **CityJSON**: 22.31 seconds
+- **CityJSONSeq**: 11.04 seconds
+- **CityBuf**: 4.54 seconds
+
 ## Conclusion Benchmark
-- CityBuf always gives the smallest file size
-- CityBuf is always the fastest in the read test
-- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower. Notice that the RSS includes program code, which in case of city buf is already 21MB, therefore this is the minimum RSS value in the table for CityBuf.
+- CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
+- CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
+- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower. Notice that the RSS includes program code, which in case of city buf is already 21MB, therefore this is the minimum RSS value in the table for CityBuf. This skewes this metric.
 
 # Ideas for future work
 - Implement a spatial index, could be the same as FlatGeofbuf
