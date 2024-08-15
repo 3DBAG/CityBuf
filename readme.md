@@ -85,7 +85,7 @@ All using a python implementation
 
 | Dataset     | Format        | Max RSS (MB)          | Read test (s)       | File Size (MB) |
 |-------------|---------------|-----------------------|---------------------|----------------|
-| **3DBAG**   | CityJSON      | 76.515625             | 0.14                | 6.           |
+| **3DBAG**   | CityJSON      | 76.515625             | 0.14                | 6.7            |
 |             | CityJSONSeq   | 16.5                  | 0.10                | 5.9            |
 |             | CityBuf       | 21.515625             | 0.08                | 4.5            |
 | **3DBV**    | CityJSON      | 3822.671875           | 7.57                | 378            |
