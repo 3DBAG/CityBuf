@@ -1,11 +1,11 @@
 import struct
 
-from flatCitybuf import \
+from CityBuf_ import \
   Header, \
   CityFBFeature
 
 class CityBufReader:
-  MAGIC_NUMBER_SIZE = 6
+  MAGIC_NUMBER_SIZE = 8
 
   def __init__(self, file):
     self.f = file
@@ -19,9 +19,9 @@ class CityBufReader:
     self.f.seek(0)
     magic_number = self.f.read(self.MAGIC_NUMBER_SIZE)
 
-    if magic_number[:2] == b'CB' and magic_number[3:5] == b'CB':
-      self.version_major = magic_number[2]
-      self.version_minor = magic_number[5]
+    if magic_number[:3] == b'FCB' and magic_number[4:7] == b'FCB':
+      self.version_major = magic_number[3]
+      self.version_minor = magic_number[7]
     else:
       raise Exception('Invalid magic number')
 

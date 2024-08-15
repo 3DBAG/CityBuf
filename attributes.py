@@ -1,4 +1,4 @@
-from flatCitybuf.ColumnType import ColumnType
+from CityBuf_.ColumnType import ColumnType
 import struct
 import logging
 import json

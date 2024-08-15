@@ -1,4 +1,4 @@
-namespace flatCitybuf;
+namespace CityBuf_;
 
 enum ColumnType: ubyte {
   Byte,                         // Signed 8-bit integer

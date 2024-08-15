@@ -4,7 +4,7 @@ from sys import argv
 import resource
 import CityBufReader
 
-from flatCitybuf import Boundaries
+from CityBuf_.GeometryType import GeometryType
 
 fpath = argv[1]
 
@@ -25,9 +25,9 @@ with open(fpath, "rb") as file:
             obj = feature.Objects(i)
             for j in range(obj.GeometryLength()):
                 geom = obj.Geometry(j)
-                if geom.BoundariesType() == Boundaries.Boundaries.Solid:
+                if geom.Type() == GeometryType.Solid:
                     no_solid += 1
-                elif geom.BoundariesType() == Boundaries.Boundaries.MultiSurface:
+                elif geom.Type() == GeometryType.MultiSurface:
                     no_msurface += 1
 
 memory = resource.getrusage(resource.RUSAGE_SELF)

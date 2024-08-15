@@ -50,12 +50,16 @@ Using schema:
 	tijdstipregistratielv, <class 'str'>
 	voorkomenidentificatie, <class 'int'>
 	on_footprint_edge, <class 'bool'>
+Total feature count: 1110
 Total vertex size: 0.9496536254882812
 Total attributes size: 0.39853668212890625
-Total geometry size: 4.222991943359375
-Total indices size: 1.6042003631591797
+Total geometry size: 2.7574081420898438
+Total indices size: 1.3589324951171875
+Total indices count: 351793
+bytes per index: 4.050518344594691
 Total semantic objects size: 0.29665374755859375
-Total boundaries size: 3.7886428833007812
+Total boundaries size: 2.2150230407714844
+Total nested geometry structures count: 0
 ==3DBV
 Using schema:
 	eindregistratie, <class 'bool'>
@@ -123,12 +127,16 @@ Using schema:
 	typeoverbruggingsdeel, <class 'str'>
 	ondersteunendwegdeeloptalud, <class 'str'>
 	plus_functie, <class 'str'>
+Total feature count: 71634
 Total vertex size: 57.41238784790039
 Total attributes size: 21.164112091064453
-Total geometry size: 357.9666328430176
-Total indices size: 128.6372833251953
+Total geometry size: 195.41387939453125
+Total indices size: 96.75122451782227
+Total indices count: 25291119
+bytes per index: 4.011329510568512
 Total semantic objects size: 0.0
-Total boundaries size: 354.960750579834
+Total boundaries size: 191.2502098083496
+Total nested geometry structures count: 0
 ==Helsinki
 WARNING:root:No CRS found in input metadata
 Using schema:
@@ -169,55 +177,95 @@ Using schema:
 	ZMinASL, <class 'float'>
 	id, <class 'str'>
 	Integrate_LoD[], <class 'dict'>
+Total feature count: 77231
+Total vertex size: 35.074432373046875
+Total attributes size: 37.47145080566406
+Total geometry size: 230.0563850402832
+Total indices size: 41.282405853271484
+Total indices count: 10667437
+bytes per index: 4.057932566182486
+Total semantic objects size: 156.0457649230957
+Total boundaries size: 64.28681564331055
+Total nested geometry structures count: 0
 ==Ingolstadt
 Using schema:
-	creationDate, <class 'str'>
-	dataAvailable, <class 'str'>
-	measuredHeight, <class 'float'>
-	klumMaterialClass, <class 'str'>
-	klumMaterialIndex, <class 'str'>
-	materialUncertainty, <class 'float'>
-	@cityeditor:layer, <class 'str'>
-	frameKlumMaterialClass, <class 'str'>
-	frameKlumMaterialIndex, <class 'str'>
-	frameMaterialUncertainty, <class 'float'>
-	id, <class 'str'>
-	paneMaterialClass, <class 'str'>
-	frameMaterialClass, <class 'str'>
-	relationToConstruction, <class 'str'>
-	materialClass, <class 'str'>
-	materialName, <class 'str'>
-	frameMaterialName, <class 'str'>
-	name, <class 'str'>
-	opendrive_identifier_modelDate, <class 'str'>
-	opendrive_identifier_modelName, <class 'str'>
-	opendrive_identifier_modelVendor, <class 'str'>
-	opendrive_identifier_roadId, <class 'str'>
-	opendrive_identifier_roadObjectId, <class 'str'>
-	opendrive_identifier_roadObjectName, <class 'str'>
-	opendrive_identifier_sourceFileHashSha256, <class 'str'>
-	opendrive_identifier_sourceFileName, <class 'str'>
-	opendrive_roadObject_dynamic, <class 'str'>
-	opendrive_roadObject_orientation, <class 'str'>
-	opendrive_roadObject_type, <class 'str'>
-	opendrive_road_length, <class 'str'>
-	opendrive_road_rule, <class 'str'>
-	CreationDate, <class 'str'>
-	DataAvailable, <class 'str'>
-	opendrive_dynamic, <class 'str'>
-	opendrive_id, <class 'str'>
-	opendrive_name, <class 'str'>
-	opendrive_orientation, <class 'str'>
-	opendrive_type, <class 'str'>
+        creationDate, <class 'str'>
+        dataAvailable, <class 'str'>
+        measuredHeight, <class 'float'>
+        klumMaterialClass, <class 'str'>
+        klumMaterialIndex, <class 'str'>
+        materialUncertainty, <class 'float'>
+        @cityeditor:layer, <class 'str'>
+        frameKlumMaterialClass, <class 'str'>
+        frameKlumMaterialIndex, <class 'str'>
+        frameMaterialUncertainty, <class 'float'>
+        id, <class 'str'>
+        paneMaterialClass, <class 'str'>
+        frameMaterialClass, <class 'str'>
+        relationToConstruction, <class 'str'>
+        materialClass, <class 'str'>
+        materialName, <class 'str'>
+        frameMaterialName, <class 'str'>
+        name, <class 'str'>
+        opendrive_identifier_modelDate, <class 'str'>
+        opendrive_identifier_modelName, <class 'str'>
+        opendrive_identifier_modelVendor, <class 'str'>
+        opendrive_identifier_roadId, <class 'str'>
+        opendrive_identifier_roadObjectId, <class 'str'>
+        opendrive_identifier_roadObjectName, <class 'str'>
+        opendrive_identifier_sourceFileHashSha256, <class 'str'>
+        opendrive_identifier_sourceFileName, <class 'str'>
+        opendrive_roadObject_dynamic, <class 'str'>
+        opendrive_roadObject_orientation, <class 'str'>
+        opendrive_roadObject_type, <class 'str'>
+        opendrive_road_length, <class 'str'>
+        opendrive_road_rule, <class 'str'>
+        CreationDate, <class 'str'>
+        DataAvailable, <class 'str'>
+        opendrive_dynamic, <class 'str'>
+        opendrive_id, <class 'str'>
+        opendrive_name, <class 'str'>
+        opendrive_orientation, <class 'str'>
+        opendrive_type, <class 'str'>
+Total feature count: 55
+Total vertex size: 1.0073013305664062
+Total attributes size: 0.018100738525390625
+Total geometry size: 2.2512168884277344
+Total indices size: 1.1653366088867188
+Total indices count: 305081
+bytes per index: 4.0053100651958005
+Total semantic objects size: 0.183746337890625
+Total boundaries size: 2.0493927001953125
+Total nested geometry structures count: 0
 ==Montréal
 WARNING:root:No CRS found in input metadata
 Using schema:
+Total feature count: 294
+Total vertex size: 0.3701019287109375
+Total attributes size: 0.0
+Total geometry size: 1.7353401184082031
+Total indices size: 0.7251319885253906
+Total indices count: 189795
+bytes per index: 4.0061961590136725
+Total semantic objects size: 0.02130889892578125
+Total boundaries size: 1.6938438415527344
+Total nested geometry structures count: 0
 ==NYC
 WARNING:root:No CRS found in input metadata
 Using schema:
 	BIN, <class 'str'>
 	DOITT_ID, <class 'str'>
 	SOURCE_ID, <class 'str'>
+Total feature count: 23777
+Total vertex size: 12.039993286132812
+Total attributes size: 1.0868415832519531
+Total geometry size: 60.67698287963867
+Total indices size: 12.101768493652344
+Total indices count: 3148629
+bytes per index: 4.0302061627457535
+Total semantic objects size: 37.37358093261719
+Total boundaries size: 21.670764923095703
+Total nested geometry structures count: 0
 ==Rotterdam
 Using schema:
 	TerrainHeight, <class 'float'>
@@ -225,28 +273,58 @@ Using schema:
 	bron_tex, <class 'str'>
 	status, <class 'str'>
 	voll_tex, <class 'str'>
+Total feature count: 853
+Total vertex size: 0.30857086181640625
+Total attributes size: 0.08134841918945312
+Total geometry size: 0.6356697082519531
+Total indices size: 0.2692756652832031
+Total indices count: 69736
+bytes per index: 4.048927383274062
+Total semantic objects size: 0.061824798583984375
+Total boundaries size: 0.5152740478515625
+Total nested geometry structures count: 0
 ==Vienna
-Using schema:
-        Blattnummer, <class 'str'>
-        HoeheDach, <class 'str'>
-        HoeheGrund, <class 'str'>
-        NiedrigsteTraufeDesGebaeudes, <class 'str'>
-        creationDate, <class 'str'>
-        measuredHeight, <class 'float'>
-        roofType, <class 'str'>
-        Flaeche, <class 'str'>
-        FlaechenUUID, <class 'str'>
-        Dachneigung, <class 'str'>
-        Dachorientierung, <class 'str'>
 WARNING:root:No CRS found in input metadata
+Using schema:
+	Blattnummer, <class 'str'>
+	HoeheDach, <class 'str'>
+	HoeheGrund, <class 'str'>
+	NiedrigsteTraufeDesGebaeudes, <class 'str'>
+	creationDate, <class 'str'>
+	measuredHeight, <class 'float'>
+	roofType, <class 'str'>
+	Flaeche, <class 'str'>
+	FlaechenUUID, <class 'str'>
+	Dachneigung, <class 'str'>
+	Dachorientierung, <class 'str'>
+Total feature count: 307
+Total vertex size: 0.5416641235351562
+Total attributes size: 0.087371826171875
+Total geometry size: 3.285938262939453
+Total indices size: 1.02679443359375
+Total indices count: 266964
+bytes per index: 4.033023179155242
+Total semantic objects size: 1.6291389465332031
+Total boundaries size: 1.5526046752929688
+Total nested geometry structures count: 0
 ==Zurich
-Using schema:
-        FileCreationDate, <class 'str'>
-        GebaeudeStatus, <class 'int'>
-        Herkunft, <class 'str'>
-        QualitaetStatus, <class 'int'>
-        Region, <class 'int'>
-        class, <class 'str'>
-        creationDate, <class 'str'>
-        Geomtype, <class 'int'>
 WARNING:root:No CRS found in input metadata
+Using schema:
+	FileCreationDate, <class 'str'>
+	GebaeudeStatus, <class 'int'>
+	Herkunft, <class 'str'>
+	QualitaetStatus, <class 'int'>
+	Region, <class 'int'>
+	class, <class 'str'>
+	creationDate, <class 'str'>
+	Geomtype, <class 'int'>
+Total feature count: 52834
+Total vertex size: 40.99449157714844
+Total attributes size: 7.9488372802734375
+Total geometry size: 112.34601593017578
+Total indices size: 34.87144088745117
+Total indices count: 8995474
+bytes per index: 4.064861507020086
+Total semantic objects size: 37.41288375854492
+Total boundaries size: 67.04668807983398
+Total nested geometry structures count: 0

@@ -1,6 +1,6 @@
-include "FCBHeader.fbs";
+include "CityBufHeader.fbs";
 
-namespace flatCitybuf;
+namespace CityBuf_;
 
 enum CityObjectType:ubyte { 
   Bridge,
@@ -68,7 +68,7 @@ enum SemanticSurfaceType:ubyte {
   TransportationHole
 }
 
-union Boundaries { 
+enum GeometryType:ubyte { 
   MultiPoint,
   MultiLineString,
   MultiSurface,
@@ -85,78 +85,38 @@ struct Vertex {
 }
 
 table CityFBFeature {
-  id:string;
+  id:string (key, required);
   objects:[CityObject];
   vertices:[Vertex];
 }
 
 table CityObject {
   type:CityObjectType;
-  id:string (key);
+  id:string (key, required);
   geographical_extent:GeographicalExtent;
   geometry:[Geometry];
   attributes:[ubyte];
-  columns: [Column]; // Attribute columns schema (optional)
+  columns:[Column]; // Attribute columns schema (optional)
   children:[string];
   children_roles:[string]; // for CityObjectGroup only
   parents:[string];
 }
 
 table Geometry {
+  type:GeometryType;
   lod:string;
-  boundaries:Boundaries;
-  semantics_objects: [SemanticObject];
-}
+  
+  // these are lengths (one per geometric structure) in the boundaries list
+  // depending on the geometry_type, different fields are used
+  solids:[uint];
+  shells:[uint];
+  surfaces:[uint];
+  strings:[uint]; // Rings or LineStrings
 
-table Point {
-  index:uint;
-  semantic_object_id:uint;
-}
+  boundaries:[uint]; // flat list of vertex indices
+  semantics:[uint]; // flat list of semantic object indices
 
-table MultiPoint {
-  points:[Point];
-}
-
-table LineString {
-  indices:[uint];
-  semantic_object_id:uint;
-}
-
-table MultiLineString {
-  line_strings:[LineString];
-}
-
-table Ring {
-  indices:[uint];
-}
-
-table Surface {
-  rings:[Ring];
-  semantic_object_id:uint;
-}
-
-table MultiSurface {
-  surfaces:[Surface];
-}
-
-table CompositeSurface {
-  surfaces:[Surface];
-}
-
-table Shell {
-  surfaces:[Surface];
-}
-
-table Solid {
-  shells:[Shell];
-}
-
-table MultiSolid {
-  shells:[Solid];
-}
-
-table CompositeSolid {
-  shells:[Solid];
+  semantics_objects:[SemanticObject];
 }
 
 table SemanticObject {
