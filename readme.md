@@ -1,7 +1,6 @@
 # CityBuf Introduction
 Binary variant of [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
-
 ## Goals
 The primary goals of CityBuf are
 1. be very fast to write/read,
@@ -16,6 +15,32 @@ Don't really care:
 1. efficient in-place modifications of existing files
 2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
 
+# CityBuf file layout
+A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
+
+1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 02).
+2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
+3. Data. A concatenation of length-prefixed flabuffer records (see `CityBufFeature.fbs`).
+
+The length prefixes are `Uint32`.
+
+Any 64-bit flatbuffer value contained anywhere in the file (for example coordinates) is aligned to 8 bytes from the start of the file or feature to allow for direct memory access.
+
+Encoding of any string value is assumed to be UTF-8.
+
+## CityBufFeatures
+The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features).
+
+Specificalities:
+- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
+
+ Currently not supported are Geometry templates, Appearance and Extensions. Geometry templates and textures should be straighforward to add to the CityBuf specification. For extensions it is not immediately clear how that would work within CityBuf.
+
+## Attributes
+To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
+
+- u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
+- Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
@@ -75,33 +100,6 @@ The sum of the runtimes grouped by format is:
 - **CityJSON**: 22.31 seconds
 - **CityJSONSeq**: 11.04 seconds
 - **CityBuf**: 4.54 seconds
-
-# CityBuf file layout
-A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
-
-1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 02).
-2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
-3. Data. A concatenation of length-prefixed flabuffer records (see `CityBufFeature.fbs`).
-
-The length prefixes are `Uint32`.
-
-Any 64-bit flatbuffer value contained anywhere in the file (for example coordinates) is aligned to 8 bytes from the start of the file or feature to allow for direct memory access.
-
-Encoding of any string value is assumed to be UTF-8.
-
-## CityBufFeatures
-The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features).
-
-Specificalities:
-- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
-
- Currently not supported are Geometry templates, Appearance and Extensions. Geometry templates and textures should be straighforward to add to the CityBuf specification. For extensions it is not immediately clear how that would work within CityBuf.
-
-## Attributes
-To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
-
-- u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
-- Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
 # Implementation status
 There are the following Python scripts:
