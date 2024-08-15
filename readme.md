@@ -49,15 +49,13 @@ Encoding of any string value is assumed to be UTF-8.
 The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. Not supported are Geometry templates, Appearance and Extensions. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features for now).
 
 ## Attributes
-To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): an column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
+To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
 
 - u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
-Compared to CityJSON this reduces the required storage size and reading speed especially in case we have many feature with the same set of attributes (no need to repeat/read the same attribute names many times).
-
 # Implementation status
-Currently the whole CityBuf standard has been implemented in python. This includes
+Currently the whole CityBuf specification has been implemented in python. This includes
   - `cjseq2citybuf.py`: a script to convert `.city.jsonl` to a `.cb` file.
   - `attributes.py`: python code to encode and decode the custom attribute buffers
   - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
@@ -73,7 +71,7 @@ What is missing:
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
 
-Takeaways:
+Summary of main findings:
 - CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
 - In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower.
 - CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
