@@ -34,7 +34,7 @@ The features in the Data portion of an CityBuf file are modelled after [CityJSON
 Specificalities:
 - `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
 
- Currently not supported are Geometry templates, Appearance and Extensions. Geometry templates and textures should be straighforward to add to the CityBuf specification. For extensions it is not immediately clear how that would work within CityBuf.
+ Currently not supported are CityJSON's Geometry templates, appearance and extensions. Geometry templates and appearance are straighforward to add to the CityBuf specification. For extensions it is not immediately clear how that would work within CityBuf.
 
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
