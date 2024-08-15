@@ -11,7 +11,7 @@ class CityBufReader:
     self.f = file
     self.f.seek(0)
     self.read_magic_number()
-    self.pos_header = MAGIC_NUMBER_SIZE
+    self.pos_header = self.MAGIC_NUMBER_SIZE
     self.read_header()
     self.pos_data = self.f.tell()
   
