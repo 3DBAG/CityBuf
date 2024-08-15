@@ -128,7 +128,7 @@ The sum of the runtimes grouped by format is:
 - **CityBuf**: 4.54 seconds
 
 # Ideas for future work
-- Implement a spatial index, could be the same as FlatGeofbuf
+- Implement a spatial index, could be the same as FlatGeoBuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
 - Investigate/Add support for CityJSON geometry templates, textures and extensions
