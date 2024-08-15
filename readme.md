@@ -65,7 +65,7 @@ Currently the whole CityBuf standard has been implemented in python. This includ
 
 What is missing:
  - script to convert from `.cb` to `.city.jsonl`
- - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed. In 
+ - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
  Other TODO:
  - review header metadata specification, make sure this is fully compatible with CityJSON
