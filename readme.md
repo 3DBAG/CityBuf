@@ -48,6 +48,9 @@ Encoding of any string value is assumed to be UTF-8.
 ## CityBufFeatures
 The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. Not supported are Geometry templates, Appearance and Extensions. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features for now).
 
+Specificalities:
+- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
+
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
 
@@ -55,16 +58,16 @@ To store attribute values we adopt [the approach from flatgeobuf](https://worace
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
 # Implementation status
-Currently the whole CityBuf specification has been implemented in python. This includes
-  - `cjseq2citybuf.py`: a script to convert `.city.jsonl` to a `.cb` file.
-  - `attributes.py`: python code to encode and decode the custom attribute buffers
-  - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
-  - a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
+There are the following Python scripts:
+- `cjseq2citybuf.py`: a script to convert `.city.jsonl` to a `.cb` file.
+- `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
+- a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
+- a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
 
-What is missing:
- - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
+Other languages than Python, eg. C++, have so far received no attention. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
 TODO:
+ - implement encoding/decoding of remaining attribute types
  - review header metadata specification, make sure this is fully compatible with CityJSON
  - script to convert from `.cb` to `.city.jsonl`. And check if we get back the same `.city.jsonl` file when doing a roundtrip conversion (`.city.jsonl` > `.cb` > `.city.jsonl`)
 
