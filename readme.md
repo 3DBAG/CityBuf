@@ -1,11 +1,11 @@
 # CityBuf Introduction
-Binary variant of [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
+Binary variant of [CityJSONSeq](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
 ## Goals
 The primary goals of CityBuf are
-1. be very fast to write/read,
+1. be very fast to write/read features in a streaming fashion,
 2. have a very low memory footprint wile reading large files,
-3. lossless conversion to/from CityJSONSequence files (.city.jsonl),
+3. lossless conversion to/from CityJSONSeq files (.city.jsonl),
 4. use strongly typed attributes. This prevents type ambiguity as can happen with cityjson (eg 3DBV dataset has several issues, eg. inconsistent objectid (both string and int is used), or all values of an attribute are `null` (so not possible to deduce type)). This is important for lossles conversion to GIS formats (eg `gpkg`), and other reading applications where strong types are relevant.
 
 Secondary goals:
@@ -13,7 +13,7 @@ Secondary goals:
 
 Don't really care:
 1. efficient in-place modifications of existing files
-2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
+2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSeq.
 
 # CityBuf file layout
 A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
@@ -43,7 +43,7 @@ To store attribute values we adopt [the approach from flatgeobuf](https://worace
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
 # Benchmark
-This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
+This Benchmark compares CityBuf to CityJSON and CityJSONSeq. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
 
 Summary of main findings:
 - CityBuf is always the fastest in the read test. Overall ~5x faster than CityJSON and ~2x faster than CityJSONSeq.
@@ -55,6 +55,7 @@ Table below gives the full results.
 This is an extension of the benchmark given in https://github.com/cityjson/paper_cjseq. Some dataset were excluded:
 - Railway is not included because it uses geometry templates. 
 - Helsinki_tex included because it uses textures. (TODO: remove Rotterdam/Montréal they also have textures)
+
 Both features are currently not supported in CityBuf so not fair to include/compare. 
 
 All using a python implementation on MacOS. CPU: M1 Pro 12 Core.
