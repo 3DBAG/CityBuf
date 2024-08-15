@@ -78,7 +78,7 @@ Based on https://github.com/cityjson/paper_cjseq.
 
 Both features are currently not supported in CityBuf so not fair to include/compare.
 
-## Read test Max Resident Set Size, runtime, and filesize
+## Read test (max resident set size, runtime) and filesize
 - NB: In python importing flatbuffers module increases rss already with ~10MB. Together with other imported modules this means the RSS starts at around 21MB before reading any CityBuf data.
 
 All using a python implementation
