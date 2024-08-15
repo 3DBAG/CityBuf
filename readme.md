@@ -113,6 +113,10 @@ All using a python implementation
 |             | CityJSONSeq   | 18.34375              | 2.45                | 247            |
 |             | CityBuf       | 22.328125             | 1.73                | 197            |
 
+The sum of the file sizes grouped by format is:
+- **CityJSON**: 1358.9 MB
+- **CityJSONSeq**: 1092.8 MB
+- **CityBuf**: 891.3 MB
 
 ## Conclusion Benchmark
 - CityBuf always gives the smallest file size
