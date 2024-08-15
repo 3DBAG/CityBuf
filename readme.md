@@ -115,13 +115,14 @@ All using a python implementation
 
 
 ## Conclusion Benchmark
-- CityBuf always gives (significantly) smaller file sizes
-- CityBuf is faster to read/access
-- In case of large features (3DBV dataset) the memory consumption of CityBuf is also significantly lower.
+- CityBuf always gives the smallest file size
+- CityBuf is always the fastest in the read test
+- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower. Notice that the RSS includes program code, which in case of city buf is already 21MB, therefore this is the minimum RSS value in the table for CityBuf.
 
 # Ideas for future work
 - Implement a spatial index, could be the same as FlatGeofbuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
+- Investigate/Add support for CityJSON geometry templates, textures and extensions
 - Could try to reuse the same strings within a feature, instead of always creating a new string even if the same string occurs many times.
 - Look at support for enum attributes
