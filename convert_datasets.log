@@ -50,6 +50,12 @@ Using schema:
 	tijdstipregistratielv, <class 'str'>
 	voorkomenidentificatie, <class 'int'>
 	on_footprint_edge, <class 'bool'>
+Total vertex size: 0.9496536254882812
+Total attributes size: 0.39853668212890625
+Total geometry size: 4.222991943359375
+Total indices size: 1.6042003631591797
+Total semantic objects size: 0.29665374755859375
+Total boundaries size: 3.7886428833007812
 ==3DBV
 Using schema:
 	eindregistratie, <class 'bool'>
@@ -117,6 +123,12 @@ Using schema:
 	typeoverbruggingsdeel, <class 'str'>
 	ondersteunendwegdeeloptalud, <class 'str'>
 	plus_functie, <class 'str'>
+Total vertex size: 57.41238784790039
+Total attributes size: 21.164112091064453
+Total geometry size: 357.9666328430176
+Total indices size: 128.6372833251953
+Total semantic objects size: 0.0
+Total boundaries size: 354.960750579834
 ==Helsinki
 WARNING:root:No CRS found in input metadata
 Using schema:

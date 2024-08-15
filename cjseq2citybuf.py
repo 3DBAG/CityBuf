@@ -47,8 +47,11 @@ def get_attribute_by_name(class_type, attribute_name):
     return getattr(class_type, attribute_name, None)
 
 def create_point(builder, index, semantics_id=None):
+  global total_indices_size
+  o = builder.Offset()
   Point.Start(builder)
   Point.AddIndex(builder, index)
+  total_indices_size += (builder.Offset() - o)
   if semantics_id:
     Point.AddSemanticObjectId(builder, semantics_id)
   return Point.End(builder)
@@ -72,10 +75,13 @@ def create_multipoint(builder, boundaries, semantics_values=None):
   return MultiPoint.End(builder)
 
 def create_linestring(builder, boundaries, semantics_id=None):
+  global total_indices_size
+  o = builder.Offset()
   LineString.StartIndicesVector(builder, len(boundaries))
   for index in reversed(boundaries):  # FlatBuffers requires reverse order when creating vectors
     builder.PrependUint32(index)
   f_indices_offset = builder.EndVector()
+  total_indices_size += (builder.Offset() - o)
 
   LineString.Start(builder)
   LineString.AddIndices(builder, f_indices_offset)
@@ -98,16 +104,24 @@ def create_multilinestring(builder, boundaries, semantics_values=None):
   return builder.EndVector()
 
 def create_ring(builder, boundaries):
+  global total_ring_count
+  total_ring_count += 1
+  global total_indices_size, total_indices_count
+  o = builder.Offset()
   Ring.StartIndicesVector(builder, len(boundaries))
   for index in reversed(boundaries):  # FlatBuffers requires reverse order when creating vectors
     builder.PrependUint32(index)
   f_indices_offset = builder.EndVector()
+  total_indices_size += (builder.Offset() - o)
+  total_indices_count += len(boundaries)
 
   Ring.Start(builder)
   Ring.AddIndices(builder, f_indices_offset)
   return Ring.End(builder)
 
 def create_surface(builder, boundaries, semantics_id=None):
+  global total_surface_count
+  total_surface_count += 1
   f_rings = []
   for ring in boundaries:
     f_rings.append(create_ring(builder, ring))
@@ -124,6 +138,8 @@ def create_surface(builder, boundaries, semantics_id=None):
   return Surface.End(builder)
 
 def create_shell(builder, boundaries, semantics_values=None):
+  global total_shell_count
+  total_shell_count += 1
   f_surfaces = []
   if semantics_values:
     for surface, sem in zip(boundaries, semantics_values):
@@ -142,6 +158,8 @@ def create_shell(builder, boundaries, semantics_values=None):
   return Shell.End(builder)
 
 def create_solid(builder, boundaries, semantics_values=None):
+  global total_solid_count
+  total_solid_count += 1
   f_shells = []
   if semantics_values:
     for shell, sem in zip(boundaries, semantics_values):
@@ -198,7 +216,8 @@ def create_feature(cj_feature, schema_encoder=None):
       semantic_values = None
       if "semantics" in geom:
         semantics = geom["semantics"]
-        # TODO add semantics
+        global total_semantics_size
+        o = builder.Offset()
         f_semantics_offsets = []
         if "surfaces" in semantics and "values" in semantics:
           for surface in semantics["surfaces"]:
@@ -212,12 +231,15 @@ def create_feature(cj_feature, schema_encoder=None):
           for offset in reversed(f_semantics_offsets):
             builder.PrependUOffsetTRelative(offset)
           f_semantics = builder.EndVector()
+          total_semantics_size += (builder.Offset() - o)
           semantic_values = semantics["values"]
 
         else:
           raise Exception("Semantics must have surfaces and values")
 
       # Create the boundaries field
+      global total_boundaries_size
+      o = builder.Offset()
       f_boundaries_offset = None
       if geom["type"] == "Solid":
         f_boundaries_offset = create_solid(builder, geom["boundaries"], semantic_values)
@@ -235,6 +257,7 @@ def create_feature(cj_feature, schema_encoder=None):
         f_boundaries_offset = create_multipoint(builder, geom["boundaries"], semantic_values)
       else:
         raise Exception("Geometry type not supported")
+      total_boundaries_size += (builder.Offset() - o)
       
       Geometry.Start(builder)
       Geometry.GeometryAddLod(builder, f_lod)
@@ -253,9 +276,12 @@ def create_feature(cj_feature, schema_encoder=None):
 
     # create attributes
     if has_attributes and schema_encoder:
+      global total_attributes_size
+      o = builder.Offset()
       # iterate of object attributes and build a binary buffer; the attribute values encoded back to back, each preceded by a column index
       buf_attributes = schema_encoder.encode_values(cj_object["attributes"])
       f_attributes_offset = builder.CreateByteVector(buf_attributes)
+      total_attributes_size += (builder.Offset() - o)
 
     # create parent string
     if has_parents:
@@ -281,6 +307,8 @@ def create_feature(cj_feature, schema_encoder=None):
 
     # create geometries
     if has_geometry:
+      global total_geometry_size
+      o = builder.Offset()
       f_geoms = []
       for geom in cj_object["geometry"]:
         if geom["type"] == "GeometryInstance":
@@ -292,6 +320,7 @@ def create_feature(cj_feature, schema_encoder=None):
       for geom in reversed(f_geoms):  # FlatBuffers requires reverse order when creating vectors
         builder.PrependUOffsetTRelative(geom)
       f_geometries_offset = builder.EndVector()
+      total_geometry_size += (builder.Offset() - o)
     
     CityObject.Start(builder)
     # type
@@ -323,10 +352,13 @@ def create_feature(cj_feature, schema_encoder=None):
   
   # should check if type is CityJSONFeature
 
+  o_init = builder.Offset()
   CityFBFeature.StartVerticesVector(builder, len(cj_feature["vertices"]))
   for v in reversed(cj_feature["vertices"]):  # FlatBuffers requires reverse order when creating vectors
       CreateVertex(builder, v[0], v[1], v[2])
   f_vertices_offset = builder.EndVector()
+  global total_vertex_size
+  total_vertex_size += (builder.Offset() - o_init)
 
   f_object_offsets = []
   for (cj_id, cj_object) in cj_feature["CityObjects"].items():
@@ -421,6 +453,9 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
     cj_metadata = json.loads(fo.readline())
     for feature_str in fo:
         cj_features.append(json.loads(feature_str))
+
+  global total_feature_count
+  total_feature_count = len(cj_features)
 
   schema_encoder = AttributeSchemaEncoder(pretyped_attributes)
 
@@ -581,6 +616,31 @@ if __name__ == "__main__":
     for pair in args.schema.split(','):
       name, atype = pair.split(':')
       pretyped_attributes[name] = type_map[atype]
-      
+  total_feature_count = 0
+  total_vertex_size = 0
+  total_geometry_size = 0
+  total_attributes_size = 0
+  total_indices_size = 0
+  total_indices_count = 0
+  total_semantics_size = 0
+  total_boundaries_size = 0
+  total_shell_count = 0
+  total_solid_count = 0
+  total_surface_count = 0
+  total_ring_count = 0
   convert_cjseq2cb(args.cjseq, args.cb, pretyped_attributes)
+  print("Total feature count:", total_feature_count)
+  print("Total vertex size:", total_vertex_size / 1024 / 1024)
+  print("Total attributes size:", total_attributes_size / 1024 / 1024)
+  print("Total geometry size:", total_geometry_size / 1024 / 1024)
+  print("Total indices size:", total_indices_size / 1024 / 1024)
+  print("Total indices count:", total_indices_count)
+  print("bytes per index:", total_indices_size / total_indices_count)
+  print("Total semantic objects size:", total_semantics_size / 1024 / 1024)
+  print("Total boundaries size:", total_boundaries_size / 1024 / 1024)
+  print("Total solid count:", total_solid_count)
+  print("Total shell count:", total_shell_count)
+  print("Total surface count:", total_surface_count)
+  print("Total ring count:", total_ring_count)
+  print("Total nested geometry structures count:", total_solid_count + total_shell_count + total_surface_count + total_ring_count)
   # print_cb(args.cb)

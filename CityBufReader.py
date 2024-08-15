@@ -27,10 +27,9 @@ class CityBufReader:
 
   def read_header(self):
     self.f.seek(self.pos_header)
-    header_length = struct.unpack('<I', self.f.read(4))[0]
-    # print(f"Header size: {header_length} bytes")
+    self.size_header = struct.unpack('<I', self.f.read(4))[0]
 
-    header_buf = self.f.read(header_length)
+    header_buf = self.f.read(self.size_header)
 
     # Get a pointer to the root object inside the FlatBuffer
     self.header = Header.Header.GetRootAsHeader(header_buf, 0)

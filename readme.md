@@ -44,8 +44,16 @@ To store attribute values we adopt the approach from flatgeobuf: an column schem
 use smallest possible number type for indices?
 
 # Benchmark
-Railway is not included because it uses geometry templates. Helsinki_tex not included because it uses textures. Both features are currently not supported in CityBuf so not fair to include/compare.
+Based on https://github.com/cityjson/paper_cjseq.
+
+- Railway is not included because it uses geometry templates. 
+- Helsinki_tex not included because it uses textures. 
+
+Both features are currently not supported in CityBuf so not fair to include/compare.
+
 ## RSS memory usage and time
+- NB: In python importing flatbuffers module increases rss already with ~10MB. Together with other imported modules this means the RSS starts at around 21MB before reading any CityBuf data.
+
 ```
 ==3DBAG
 76.828125
