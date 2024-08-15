@@ -114,12 +114,14 @@ TODO:
  - implement encoding/decoding of remaining attribute types
  - review header metadata specification, make sure this is fully compatible with CityJSON
  - script to convert from `.cb` to `.city.jsonl`. And check if we get back the same `.city.jsonl` file when doing a roundtrip conversion (`.city.jsonl` > `.cb` > `.city.jsonl`)
+ - add support for geometry templates
+ - add support for textures
 
 # Ideas for future work
 - Implement a spatial index, could be the same as FlatGeoBuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
-- Investigate/Add support for CityJSON geometry templates, textures and extensions
+- Investigate if/how to support CityJSON extensions
 - Could try to reuse the same attribute value strings within a feature, instead of always creating a new string even if the same string occurs many times.
 - Look at support for enum attributes
 
