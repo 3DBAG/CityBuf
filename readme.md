@@ -81,109 +81,38 @@ Both features are currently not supported in CityBuf so not fair to include/comp
 ## RSS memory usage and time
 - NB: In python importing flatbuffers module increases rss already with ~10MB. Together with other imported modules this means the RSS starts at around 21MB before reading any CityBuf data.
 
-Below the results (max RSS and runtime) for each dataset are given in the following order:
-1. CityJSON
-1. CityJSONSequence
-1. CityBuf
-
 All using a python implementation
 
-```
-==3DBAG
-76.515625
-        0.14 real         0.12 user         0.01 sys
-16.5
-        0.10 real         0.08 user         0.00 sys
-21.515625
-        0.08 real         0.07 user         0.01 sys
-==3DBV
-3822.671875
-        7.57 real         6.41 user         0.94 sys
-137.265625
-        3.97 real         3.82 user         0.13 sys
-38.9375
-        0.92 real         0.84 user         0.07 sys
-==Helsinki
-3760.109375
-        7.48 real         7.00 user         0.35 sys
-16.03125
-        3.37 real         3.25 user         0.10 sys
-22.3125
-        1.22 real         1.12 user         0.09 sys
-==Ingolstadt
-65.9375
-        0.09 real         0.08 user         0.00 sys
-21.734375
-        0.08 real         0.07 user         0.00 sys
-22.53125
-        0.06 real         0.04 user         0.00 sys
-==Montréal
-79.109375
-        0.12 real         0.10 user         0.01 sys
-20.484375
-        0.10 real         0.08 user         0.00 sys
-21.40625
-        0.05 real         0.04 user         0.00 sys
-==NYC
-937.703125
-        1.46 real         1.37 user         0.07 sys
-17.46875
-        0.83 real         0.79 user         0.03 sys
-21.765625
-        0.35 real         0.31 user         0.03 sys
-==Rotterdam
-42.5625
-        0.06 real         0.05 user         0.00 sys
-14.484375
-        0.06 real         0.05 user         0.00 sys
-22.265625
-        0.06 real         0.05 user         0.00 sys
-==Vienna
-59.390625
-        0.09 real         0.07 user         0.00 sys
-16.59375
-        0.08 real         0.07 user         0.00 sys
-21.59375
-        0.07 real         0.05 user         0.01 sys
-==Zurich
-2814.703125
-        5.30 real         4.97 user         0.22 sys
-18.34375
-        2.45 real         2.35 user         0.07 sys
-22.328125
-        1.73 real         1.66 user         0.06 sys
-```
+| City        | Format        | Max Resident Set Size | Real Time (seconds) | File Size (MB) |
+|-------------|---------------|-----------------------|---------------------|----------------|
+| **3DBAG**   | CityJSON      | 76.515625             | 0.14                | 6.7M           |
+|             | CityJSONSeq   | 16.5                  | 0.10                | 5.9M           |
+|             | CityBuf       | 21.515625             | 0.08                | 4.5M           |
+| **3DBV**    | CityJSON      | 3822.671875           | 7.57                | 378M           |
+|             | CityJSONSeq   | 137.265625            | 3.97                | 317M           |
+|             | CityBuf       | 38.9375               | 0.92                | 285M           |
+| **Helsinki**| CityJSON      | 3760.109375           | 7.48                | 572M           |
+|             | CityJSONSeq   | 16.03125              | 3.37                | 412M           |
+|             | CityBuf       | 22.3125               | 1.22                | 316M           |
+| **Ingolstadt**| CityJSON    | 65.9375               | 0.09                | 4.8M           |
+|             | CityJSONSeq   | 21.734375             | 0.08                | 3.8M           |
+|             | CityBuf       | 22.53125              | 0.06                | 3.3M           |
+| **Montréal**| CityJSON      | 79.109375             | 0.12                | 5.4M           |
+|             | CityJSONSeq   | 20.484375             | 0.10                | 4.6M           |
+|             | CityBuf       | 21.40625              | 0.05                | 2.1M           |
+| **NYC**     | CityJSON      | 937.703125            | 1.46                | 105M           |
+|             | CityJSONSeq   | 17.46875              | 0.83                | 95M            |
+|             | CityBuf       | 21.765625             | 0.35                | 78M            |
+| **Rotterdam**| CityJSON     | 42.5625               | 0.06                | 2.6M           |
+|             | CityJSONSeq   | 14.484375             | 0.06                | 2.7M           |
+|             | CityBuf       | 22.265625             | 0.06                | 1.2M           |
+| **Vienna**  | CityJSON      | 59.390625             | 0.09                | 5.4M           |
+|             | CityJSONSeq   | 16.59375              | 0.08                | 4.8M           |
+|             | CityBuf       | 21.59375              | 0.07                | 4.2M           |
+| **Zurich**  | CityJSON      | 2814.703125           | 5.30                | 279M           |
+|             | CityJSONSeq   | 18.34375              | 2.45                | 247M           |
+|             | CityBuf       | 22.328125             | 1.73                | 197M           |
 
-## File sizes
-```
-4.5M 3DBAG.cb
-6.7M 3DBAG.city.json
-5.9M 3DBAG.city.jsonl
-285M 3DBV.cb
-378M 3DBV.city.json
-317M 3DBV.city.jsonl
-316M Helsinki.cb
-572M Helsinki.city.json
-412M Helsinki.city.jsonl
-3.3M Ingolstadt.cb
-4.8M Ingolstadt.city.json
-3.8M Ingolstadt.city.jsonl
-2.1M Montréal.cb
-5.4M Montréal.city.json
-4.6M Montréal.city.jsonl
- 78M NYC.cb
-105M NYC.json
- 95M NYC.jsonl
-1.2M Rotterdam.cb
-2.6M Rotterdam.json
-2.7M Rotterdam.jsonl
-4.2M Vienna.cb
-5.4M Vienna.city.json
-4.8M Vienna.city.jsonl
-197M Zurich.cb
-279M Zurich.city.json
-247M Zurich.city.jsonl
-```
 
 ## Conclusion Benchmark
 - CityBuf always gives (significantly) smaller file sizes
