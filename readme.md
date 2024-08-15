@@ -83,35 +83,35 @@ Both features are currently not supported in CityBuf so not fair to include/comp
 
 All using a python implementation
 
-| City        | Format        | Max Resident Set Size | Real Time (seconds) | File Size (MB) |
+| Dataset     | Format        | Max RSS (MB)          | Read test (s)       | File Size (MB) |
 |-------------|---------------|-----------------------|---------------------|----------------|
-| **3DBAG**   | CityJSON      | 76.515625             | 0.14                | 6.7M           |
-|             | CityJSONSeq   | 16.5                  | 0.10                | 5.9M           |
-|             | CityBuf       | 21.515625             | 0.08                | 4.5M           |
-| **3DBV**    | CityJSON      | 3822.671875           | 7.57                | 378M           |
-|             | CityJSONSeq   | 137.265625            | 3.97                | 317M           |
-|             | CityBuf       | 38.9375               | 0.92                | 285M           |
-| **Helsinki**| CityJSON      | 3760.109375           | 7.48                | 572M           |
-|             | CityJSONSeq   | 16.03125              | 3.37                | 412M           |
-|             | CityBuf       | 22.3125               | 1.22                | 316M           |
-| **Ingolstadt**| CityJSON    | 65.9375               | 0.09                | 4.8M           |
-|             | CityJSONSeq   | 21.734375             | 0.08                | 3.8M           |
-|             | CityBuf       | 22.53125              | 0.06                | 3.3M           |
-| **Montréal**| CityJSON      | 79.109375             | 0.12                | 5.4M           |
-|             | CityJSONSeq   | 20.484375             | 0.10                | 4.6M           |
-|             | CityBuf       | 21.40625              | 0.05                | 2.1M           |
-| **NYC**     | CityJSON      | 937.703125            | 1.46                | 105M           |
-|             | CityJSONSeq   | 17.46875              | 0.83                | 95M            |
-|             | CityBuf       | 21.765625             | 0.35                | 78M            |
-| **Rotterdam**| CityJSON     | 42.5625               | 0.06                | 2.6M           |
-|             | CityJSONSeq   | 14.484375             | 0.06                | 2.7M           |
-|             | CityBuf       | 22.265625             | 0.06                | 1.2M           |
-| **Vienna**  | CityJSON      | 59.390625             | 0.09                | 5.4M           |
-|             | CityJSONSeq   | 16.59375              | 0.08                | 4.8M           |
-|             | CityBuf       | 21.59375              | 0.07                | 4.2M           |
-| **Zurich**  | CityJSON      | 2814.703125           | 5.30                | 279M           |
-|             | CityJSONSeq   | 18.34375              | 2.45                | 247M           |
-|             | CityBuf       | 22.328125             | 1.73                | 197M           |
+| **3DBAG**   | CityJSON      | 76.515625             | 0.14                | 6.           |
+|             | CityJSONSeq   | 16.5                  | 0.10                | 5.9            |
+|             | CityBuf       | 21.515625             | 0.08                | 4.5            |
+| **3DBV**    | CityJSON      | 3822.671875           | 7.57                | 378            |
+|             | CityJSONSeq   | 137.265625            | 3.97                | 317            |
+|             | CityBuf       | 38.9375               | 0.92                | 285            |
+| **Helsinki**| CityJSON      | 3760.109375           | 7.48                | 572            |
+|             | CityJSONSeq   | 16.03125              | 3.37                | 412            |
+|             | CityBuf       | 22.3125               | 1.22                | 316            |
+| **Ingolstadt**| CityJSON    | 65.9375               | 0.09                | 4.8            |
+|             | CityJSONSeq   | 21.734375             | 0.08                | 3.8            |
+|             | CityBuf       | 22.53125              | 0.06                | 3.3            |
+| **Montréal**| CityJSON      | 79.109375             | 0.12                | 5.4            |
+|             | CityJSONSeq   | 20.484375             | 0.10                | 4.6            |
+|             | CityBuf       | 21.40625              | 0.05                | 2.1            |
+| **NYC**     | CityJSON      | 937.703125            | 1.46                | 105            |
+|             | CityJSONSeq   | 17.46875              | 0.83                | 95             |
+|             | CityBuf       | 21.765625             | 0.35                | 78             |
+| **Rotterdam**| CityJSON     | 42.5625               | 0.06                | 2.6            |
+|             | CityJSONSeq   | 14.484375             | 0.06                | 2.7            |
+|             | CityBuf       | 22.265625             | 0.06                | 1.2            |
+| **Vienna**  | CityJSON      | 59.390625             | 0.09                | 5.4            |
+|             | CityJSONSeq   | 16.59375              | 0.08                | 4.8            |
+|             | CityBuf       | 21.59375              | 0.07                | 4.2            |
+| **Zurich**  | CityJSON      | 2814.703125           | 5.30                | 279            |
+|             | CityJSONSeq   | 18.34375              | 2.45                | 247            |
+|             | CityBuf       | 22.328125             | 1.73                | 197            |
 
 
 ## Conclusion Benchmark
