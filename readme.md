@@ -1,5 +1,6 @@
 # CityBuf Introduction
-Binary format to efficiently store [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
+Binary variant of [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
+
 
 ## Goals
 The primary goals of CityBuf are
