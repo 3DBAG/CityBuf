@@ -85,7 +85,7 @@ Both features are currently not supported in CityBuf so not fair to include/comp
 
 All using a python implementation on MacOS. CPU: M1 Pro 12 Core.
 
-**NB** the max RSS also includes program code, which in case of CityBuf is already 21MB (ie. this is the RSS just after the `import`s and before running the actual benchmark), therefore 21MB is the minimum RSS value in the table for CityBuf. The RSS values are therefore not representative of just the in-memory size of the loaded city objects, especially for the smaller datasets.
+**NB** the max RSS also includes program code, which in case of CityBuf is already 21MB (ie. this is the RSS just after the `import`s and before running the actual benchmark), therefore 21MB is the minimum RSS value in the table for CityBuf. The RSS values are therefore not representative of just the in-memory size of the loaded city objects, especially for the datasets with small features.
 
 | Dataset     | Format        | Read test Max RSS (MB) | Read test runtime (s) | File Size (MB) |
 |-------------|---------------|------------------------| ----------------------|----------------|
