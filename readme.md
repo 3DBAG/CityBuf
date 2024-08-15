@@ -13,6 +13,7 @@ Secondary goals:
 
 Don't really care:
 1. Efficient in-place modifications of existing files
+2. Quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
 
 ## references
 - CityJSON
@@ -21,7 +22,7 @@ Don't really care:
   - https://www.cityjson.org/dev/geom-arrays/
 - FlatGeobuf
   - https://github.com/flatgeobuf/flatgeobuf
-  - https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/
+  - https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/ (recommended reading about the cool features of FlatGeoBuf)
   - https://worace.works/2022/03/12/flatgeobuf-implementers-guide/
   - reference implementations attribute buffers:
     - https://github.com/gogama/flatgeobuf/blob/main/flatgeobuf/prop_reader.go
@@ -65,6 +66,9 @@ Currently the whole CityBuf standard has been implemented in python. This includ
 What is missing:
  - script to convert from `.cb` to `.city.jsonl`
  - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed. In 
+
+ Other TODO:
+ - review header metadata specification, make sure this is fully compatible with CityJSON
 
 # Benchmark
 Based on https://github.com/cityjson/paper_cjseq.
@@ -187,5 +191,8 @@ All using a python implementation
 - In case of large features (3DBV dataset) the memory consumption of CityBuf is also significantly lower.
 
 # Ideas for future work
+- Implement a spatial index, could be the same as FlatGeofbuf
+- Implement an Feature ID index
+- See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
 - Could try to reuse the same strings within a feature, instead of always creating a new string even if the same string occurs many times.
 - Look at support for enum attributes
