@@ -71,17 +71,23 @@ What is missing:
  - review header metadata specification, make sure this is fully compatible with CityJSON
 
 # Benchmark
-Based on https://github.com/cityjson/paper_cjseq.
+This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
 
+Takeaways:
+- CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
+- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower.
+- CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
+
+Table below gives the full results.
+
+This is an extension of the benchmark given in https://github.com/cityjson/paper_cjseq. Some dataset were excluded:
 - Railway is not included because it uses geometry templates. 
 - Helsinki_tex not included because it uses textures. 
-
 Both features are currently not supported in CityBuf so not fair to include/compare.
 
-## Read test (max resident set size, runtime) and filesize
-- NB: In python importing flatbuffers module increases rss already with ~10MB. Together with other imported modules this means the RSS starts at around 21MB before reading any CityBuf data.
-
 All using a python implementation on MacOS. CPU: M1 Pro 12 Core.
+
+**NB** the max RSS also includes program code, which in case of CityBuf is already 21MB (ie. this is the RSS just after the `import`s and before running the actual benchmark), therefore 21MB is the minimum RSS value in the table for CityBuf. The RSS values are therefore not representative of just the in-memory size of the loaded city objects, especially for the smaller datasets.
 
 | Dataset     | Format        | Read test Max RSS (MB) | Read test runtime (s) | File Size (MB) |
 |-------------|---------------|------------------------| ----------------------|----------------|
@@ -122,11 +128,6 @@ The sum of the runtimes grouped by format is:
 - **CityJSON**: 22.31 seconds
 - **CityJSONSeq**: 11.04 seconds
 - **CityBuf**: 4.54 seconds
-
-## Conclusion Benchmark
-- CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
-- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower. Notice that the RSS includes program code, which in case of city buf is already 21MB, therefore this is the minimum RSS value in the table for CityBuf. This skewes this metric.
-- CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
 
 # Ideas for future work
 - Implement a spatial index, could be the same as FlatGeofbuf
