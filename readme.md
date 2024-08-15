@@ -2,10 +2,10 @@
 Binary format to efficiently store [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
 ## Goals
-The primary goals of CityBuf:
-1. be very fast to write/read
-2. have a very low memory footprint wile reading large files
-3. Lossless conversion to/from CityJSONSequence files (.city.jsonl)
+The primary goals of CityBuf are
+1. be very fast to write/read,
+2. have a very low memory footprint wile reading large files,
+3. lossless conversion to/from CityJSONSequence files (.city.jsonl),
 4. use strongly typed attributes. This prevents type ambiguity as can happen with cityjson (eg 3DBV dataset has several issues, eg. inconsistent objectid (both string and int is used), or all values of an attribute are `null` (so not possible to deduce type)). This is important for lossles conversion to GIS formats (eg `gpkg`), and other reading application where strong types are relevant.
 
 Secondary goals:
@@ -15,8 +15,8 @@ Don't really care:
 1. Efficient in-place modifications of existing files
 2. Quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
 
-## references
-- CityJSON
+## References
+- CityJSON(Sequences)
   - https://www.cityjson.org/specs/2.0.1/
   - https://www.cityjson.org/cityjsonseq/
   - https://www.cityjson.org/dev/geom-arrays/
@@ -73,7 +73,7 @@ This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares th
 
 Summary of main findings:
 - CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
-- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower.
+- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower than both other formats.
 - CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
 
 Table below gives the full results.
