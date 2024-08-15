@@ -57,7 +57,7 @@ Compared to CityJSON this reduces the required storage size and reading speed es
 
 # Implementation status
 Currently the whole CityBuf standard has been implemented in python. This includes
-  - `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
+  - `cjseq2citybuf.py`: a script to convert `.city.jsonl` to a `.cb` file.
   - `attributes.py`: python code to encode and decode the custom attribute buffers
   - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
   - a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
