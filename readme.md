@@ -1,47 +1,70 @@
-# FlatCityBuf
+# CityBuf Introduction
+Binary format to efficiently store [CityJSONSequences](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
-Binary format to efficiently store city objects inspired by CityJSON and FlatGeobuf (which in turn uses flatbuffers).
+## Goals
+The primary goals of CityBuf:
+1. be very fast to write/read
+2. have a very low memory footprint wile reading large files
+3. Lossless conversion to/from CityJSONSequence files (.city.jsonl)
+4. use strongly typed attributes. This prevents type ambiguity as can happen with cityjson (eg 3DBV dataset has several issues, eg. inconsistent objectid (both string and int is used), or all values of an attribute are `null` (so not possible to deduce type)). This is important for lossles conversion to GIS formats (eg `gpkg`), and other reading application where strong types are relevant.
+
+Secondary goals:
+1. small file size (but, without compromising reading speed, so no compression etc)
+
+Don't really care:
+1. Efficient in-place modifications of existing files
 
 ## references
+- CityJSON
+  - https://www.cityjson.org/specs/2.0.1/
+  - https://www.cityjson.org/cityjsonseq/
+  - https://www.cityjson.org/dev/geom-arrays/
+- FlatGeobuf
+  - https://github.com/flatgeobuf/flatgeobuf
+  - https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/
+  - https://worace.works/2022/03/12/flatgeobuf-implementers-guide/
+  - reference implementations attribute buffers:
+    - https://github.com/gogama/flatgeobuf/blob/main/flatgeobuf/prop_reader.go
+    - https://github.com/OSGeo/gdal/blob/master/ogr/ogrsf_frmts/flatgeobuf/ogrflatgeobuflayer.cpp#L2058
+- flatbuffers
+  - https://github.com/google/flatbuffers
+  - https://flatbuffers.dev/flatbuffers_guide_writing_schema.html
+  - https://flatbuffers.dev/flatbuffers_internals.html
 
-- https://github.com/flatgeobuf/flatgeobuf
-- https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/
-- https://worace.works/2022/03/12/flatgeobuf-implementers-guide/
+# CityBuf file layout
+A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
 
-- https://www.cityjson.org/specs/2.0.1/
+1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 02).
+2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
+3. Data. A concatenation of length-prefixed flabuffer records (see `CityBufFeature.fbs`).
 
-- https://github.com/google/flatbuffers
-
-## Design
-A FlatCityBuf (fcb) file is binary encoded and has the following parts (very similar to flatgeobuf):
-
-1. Magic byte CB. The first 6 bytes of a cb file are a signature, containing: ASCII C, B, followed by the spec major version (currently 01), then C,B again, then the spec patch version (currently 00).
-2. Header, see `FCBHeader.fbs`, a length-prefixed flatbuffer record
-3. Data, see `FCBFeature.fbs`. a concatenation of length-prefixed flabuffer records.
-
-length prefixes are Uint32.
+The length prefixes are `Uint32`.
 
 Any 64-bit flatbuffer value contained anywhere in the file (for example coordinates) is aligned to 8 bytes to from the start of the file or feature to allow for direct memory access.
 
 Encoding of any string value is assumed to be UTF-8.
 
-### CityJSONFeatures
-The features in the Data portion of an fcb file are modelled after CityJSONFeatures. There is support for all the CityJSON geometry types and Semantic surfaces. Not supported are Geometry templates, Appearance and Extensions. One goal is to be able to do a lossless conversion to/from CityJSON features (excl appearance and extensions for now).
+## CityBufFeatures
+The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. Not supported are Geometry templates, Appearance and Extensions. One should be be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features for now).
 
-### Attributes
-To store attribute values we adopt the approach from flatgeobuf: an column schema that is stored in the columns vector field in the header (or locally inside the features, eg if  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
+## Attributes
+To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): an column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
 ```
 - u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 ```
+Compared to CityJSON this reduces the required storage size and reading speed especially in case we have many feature with the same set of attributes (no need to repeat/read the same attribute names many times).
 
-## vs cityjson
-- use enums for types insteads of repeating same string many times
-- binary
-- type is always known, no ambiguity as with cityjson (eg 3DBV has inconsistent objectid either string or int)
+# Implementation status
+Currently the whole CityBuf standard has been implemented in python. This includes
+  - `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
+  - `attributes.py`: python code to encode and decode the custom attribute buffers
+  - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
+  - a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
 
-## further optimisation
-use smallest possible number type for indices?
+What is missing:
+ - script to convert from `.cb` to `.city.jsonl`
+ - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed. In 
 
 # Benchmark
 Based on https://github.com/cityjson/paper_cjseq.
@@ -162,3 +185,7 @@ All using a python implementation
 - CityBuf always gives (significantly) smaller file sizes
 - CityBuf is faster to read/access
 - In case of large features (3DBV dataset) the memory consumption of CityBuf is also significantly lower.
+
+# Ideas for future work
+- Could try to reuse the same strings within a feature, instead of always creating a new string even if the same string occurs many times.
+- Look at support for enum attributes
