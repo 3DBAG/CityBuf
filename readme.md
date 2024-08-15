@@ -41,7 +41,7 @@ A CityBuf (`.cb`) file is binary encoded and consists of the following parts (ve
 
 The length prefixes are `Uint32`.
 
-Any 64-bit flatbuffer value contained anywhere in the file (for example coordinates) is aligned to 8 bytes to from the start of the file or feature to allow for direct memory access.
+Any 64-bit flatbuffer value contained anywhere in the file (for example coordinates) is aligned to 8 bytes from the start of the file or feature to allow for direct memory access.
 
 Encoding of any string value is assumed to be UTF-8.
 
@@ -62,11 +62,11 @@ Currently the whole CityBuf specification has been implemented in python. This i
   - a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
 
 What is missing:
- - script to convert from `.cb` to `.city.jsonl`
  - other languages than python, eg. C++. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
- Other TODO:
+TODO:
  - review header metadata specification, make sure this is fully compatible with CityJSON
+ - script to convert from `.cb` to `.city.jsonl`. And check if we get back the same `.city.jsonl` file when doing a roundtrip conversion (`.city.jsonl` > `.cb` > `.city.jsonl`)
 
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
