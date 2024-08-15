@@ -22,7 +22,7 @@ Don't really care:
   - https://www.cityjson.org/dev/geom-arrays/
 - FlatGeobuf
   - https://github.com/flatgeobuf/flatgeobuf
-  - https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/ (recommended reading about the cool features of FlatGeoBuf)
+  - https://worace.works/2022/02/23/kicking-the-tires-flatgeobuf/ (recommended reading about the cool features of flatbuffers/FlatGeoBuf)
   - https://worace.works/2022/03/12/flatgeobuf-implementers-guide/
   - reference implementations attribute buffers:
     - https://github.com/gogama/flatgeobuf/blob/main/flatgeobuf/prop_reader.go
