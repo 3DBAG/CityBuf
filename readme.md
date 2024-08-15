@@ -132,7 +132,6 @@ All using a python implementation
 4.5M 3DBAG.cb
 6.7M 3DBAG.city.json
 5.9M 3DBAG.city.jsonl
-4.5M 3DBAG_.cb
 285M 3DBV.cb
 378M 3DBV.city.json
 317M 3DBV.city.jsonl
