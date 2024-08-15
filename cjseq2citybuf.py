@@ -71,15 +71,11 @@ class GeometryData:
       self.indices += reversed(ring)
 
   def build_multi_string(self, strings, semantic_values=None):
+    for string in reversed(strings):
+      self.strings.append(len(string))
+      self.indices += reversed(string)
     if semantic_values:
-      for string in reversed(strings):
-        self.strings.append(len(string))
-        self.indices += reversed(string)
       self.semantics += reversed(semantic_values)
-    else:
-      for string in reversed(strings):
-        self.strings.append(len(string))
-        self.indices += reversed(string)
 
   def build_multi_point(self, multi_point, semantic_values=None):
     self.indices += reversed(multi_point)

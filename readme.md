@@ -9,11 +9,11 @@ The primary goals of CityBuf are
 4. use strongly typed attributes. This prevents type ambiguity as can happen with cityjson (eg 3DBV dataset has several issues, eg. inconsistent objectid (both string and int is used), or all values of an attribute are `null` (so not possible to deduce type)). This is important for lossles conversion to GIS formats (eg `gpkg`), and other reading applications where strong types are relevant.
 
 Secondary goals:
-1. small file size (but, without compromising reading speed, so no compression etc)
+1. keep file size as small as possible, but without compromising reading speed (so no compression etc)
 
 Don't really care:
-1. Efficient in-place modifications of existing files
-2. Quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
+1. efficient in-place modifications of existing files
+2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSequences.
 
 ## References
 - CityJSON(Sequences)
@@ -72,7 +72,7 @@ TODO:
 This Benchmark compares CityBuf to CityJSON and CityJSONSequence. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
 
 Summary of main findings:
-- CityBuf is always the fastest in the read test. Overall nearly 80% faster than CityJSON and 59% faster than CityJSONSeq.
+- CityBuf is always the fastest in the read test. Overall ~5x faster than CityJSON and ~2x faster than CityJSONSeq.
 - In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower than both other formats.
 - CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
 
