@@ -20,7 +20,7 @@ A CityBuf (`.cb`) file is binary encoded and consists of the following parts (ve
 
 1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 02).
 2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
-3. Data. A concatenation of length-prefixed flabuffer records (see `CityBufFeature.fbs`).
+3. Data. A concatenation of length-prefixed flatbuffer CityFeature records (see `CityBufFeature.fbs`).
 
 The length prefixes are `Uint32`.
 
@@ -28,13 +28,13 @@ Any 64-bit flatbuffer value contained anywhere in the file (for example coordina
 
 Encoding of any string value is assumed to be UTF-8.
 
-## CityBufFeatures
+## CityFeatures
 The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features).
 
 Specificalities:
 - `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
 
- Currently not supported are CityJSON's Geometry templates, appearance and extensions. However, these features will be added in the future.
+ Currently not supported are CityJSON's geometry templates, appearance and extensions. However, these features will be added in the future.
 
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
