@@ -2,7 +2,7 @@ import json
 
 from CityBuf_ import \
   Header, \
-  CityFBFeature,  \
+  CityFeature,  \
   CityObject,  \
   Crs,  \
   Geometry,  \
@@ -291,7 +291,7 @@ def create_feature(cj_feature, schema_encoder=None):
   # should check if type is CityJSONFeature
 
   o_init = builder.Offset()
-  CityFBFeature.StartVerticesVector(builder, len(cj_feature["vertices"]))
+  CityFeature.StartVerticesVector(builder, len(cj_feature["vertices"]))
   for v in reversed(cj_feature["vertices"]):  # FlatBuffers requires reverse order when creating vectors
       CreateVertex(builder, v[0], v[1], v[2])
   f_vertices_offset = builder.EndVector()
@@ -302,18 +302,18 @@ def create_feature(cj_feature, schema_encoder=None):
   for (cj_id, cj_object) in cj_feature["CityObjects"].items():
     f_object_offsets.append(create_object(builder, cj_id, cj_object, schema_encoder))
   
-  CityFBFeature.StartObjectsVector(builder, len(cj_feature["CityObjects"]))
+  CityFeature.StartObjectsVector(builder, len(cj_feature["CityObjects"]))
   for offset in reversed(f_object_offsets):  # FlatBuffers requires reverse order when creating vectors
     builder.PrependUOffsetTRelative(offset)
   f_objects_offset = builder.EndVector()
 
-  f = CityFBFeature.Start(builder)
+  f = CityFeature.Start(builder)
 
-  CityFBFeature.AddId(builder, f_id)
-  CityFBFeature.AddVertices(builder, f_vertices_offset)
-  CityFBFeature.AddObjects(builder, f_objects_offset)
+  CityFeature.AddId(builder, f_id)
+  CityFeature.AddVertices(builder, f_vertices_offset)
+  CityFeature.AddObjects(builder, f_objects_offset)
 
-  f = CityFBFeature.End(builder)
+  f = CityFeature.End(builder)
   builder.Finish(f)
 
   return builder.Output()
@@ -506,7 +506,7 @@ def print_cb(cb_path):
         feature_length = f.read(4)
         feature_length = struct.unpack('<I', feature_length)[0]
         feature_buf = f.read(feature_length)
-        feature = CityFBFeature.CityFBFeature.GetRootAsCityFBFeature(feature_buf, 0)
+        feature = CityFeature.CityFeature.GetRootAsCityFeature(feature_buf, 0)
         print(f"Feature length: {feature_length} bytes")
         print(f"Feature id: {feature.Id().decode('utf-8')}")
         print(f"Vertex count: {feature.VerticesLength()}")

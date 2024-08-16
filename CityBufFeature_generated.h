@@ -32,8 +32,8 @@ struct HeaderBuilder;
 
 struct Vertex;
 
-struct CityFBFeature;
-struct CityFBFeatureBuilder;
+struct CityFeature;
+struct CityFeatureBuilder;
 
 struct CityObject;
 struct CityObjectBuilder;
@@ -795,8 +795,8 @@ inline ::flatbuffers::Offset<Header> CreateHeaderDirect(
       metadata__);
 }
 
-struct CityFBFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CityFBFeatureBuilder Builder;
+struct CityFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CityFeatureBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_OBJECTS = 6,
@@ -805,7 +805,7 @@ struct CityFBFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *id() const {
     return GetPointer<const ::flatbuffers::String *>(VT_ID);
   }
-  bool KeyCompareLessThan(const CityFBFeature * const o) const {
+  bool KeyCompareLessThan(const CityFeature * const o) const {
     return *id() < *o->id();
   }
   int KeyCompareWithValue(const char *_id) const {
@@ -836,44 +836,44 @@ struct CityFBFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
-struct CityFBFeatureBuilder {
-  typedef CityFBFeature Table;
+struct CityFeatureBuilder {
+  typedef CityFeature Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_id(::flatbuffers::Offset<::flatbuffers::String> id) {
-    fbb_.AddOffset(CityFBFeature::VT_ID, id);
+    fbb_.AddOffset(CityFeature::VT_ID, id);
   }
   void add_objects(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::CityObject>>> objects) {
-    fbb_.AddOffset(CityFBFeature::VT_OBJECTS, objects);
+    fbb_.AddOffset(CityFeature::VT_OBJECTS, objects);
   }
   void add_vertices(::flatbuffers::Offset<::flatbuffers::Vector<const CityBuf_::Vertex *>> vertices) {
-    fbb_.AddOffset(CityFBFeature::VT_VERTICES, vertices);
+    fbb_.AddOffset(CityFeature::VT_VERTICES, vertices);
   }
-  explicit CityFBFeatureBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit CityFeatureBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<CityFBFeature> Finish() {
+  ::flatbuffers::Offset<CityFeature> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CityFBFeature>(end);
-    fbb_.Required(o, CityFBFeature::VT_ID);
+    auto o = ::flatbuffers::Offset<CityFeature>(end);
+    fbb_.Required(o, CityFeature::VT_ID);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<CityFBFeature> CreateCityFBFeature(
+inline ::flatbuffers::Offset<CityFeature> CreateCityFeature(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::CityObject>>> objects = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<const CityBuf_::Vertex *>> vertices = 0) {
-  CityFBFeatureBuilder builder_(_fbb);
+  CityFeatureBuilder builder_(_fbb);
   builder_.add_vertices(vertices);
   builder_.add_objects(objects);
   builder_.add_id(id);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<CityFBFeature> CreateCityFBFeatureDirect(
+inline ::flatbuffers::Offset<CityFeature> CreateCityFeatureDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *id = nullptr,
     std::vector<::flatbuffers::Offset<CityBuf_::CityObject>> *objects = nullptr,
@@ -881,7 +881,7 @@ inline ::flatbuffers::Offset<CityFBFeature> CreateCityFBFeatureDirect(
   auto id__ = id ? _fbb.CreateString(id) : 0;
   auto objects__ = objects ? _fbb.CreateVectorOfSortedTables<CityBuf_::CityObject>(objects) : 0;
   auto vertices__ = vertices ? _fbb.CreateVectorOfStructs<CityBuf_::Vertex>(*vertices) : 0;
-  return CityBuf_::CreateCityFBFeature(
+  return CityBuf_::CreateCityFeature(
       _fbb,
       id__,
       objects__,
@@ -1316,33 +1316,33 @@ inline ::flatbuffers::Offset<SemanticObject> CreateSemanticObjectDirect(
       parent);
 }
 
-inline const CityBuf_::CityFBFeature *GetCityFBFeature(const void *buf) {
-  return ::flatbuffers::GetRoot<CityBuf_::CityFBFeature>(buf);
+inline const CityBuf_::CityFeature *GetCityFeature(const void *buf) {
+  return ::flatbuffers::GetRoot<CityBuf_::CityFeature>(buf);
 }
 
-inline const CityBuf_::CityFBFeature *GetSizePrefixedCityFBFeature(const void *buf) {
-  return ::flatbuffers::GetSizePrefixedRoot<CityBuf_::CityFBFeature>(buf);
+inline const CityBuf_::CityFeature *GetSizePrefixedCityFeature(const void *buf) {
+  return ::flatbuffers::GetSizePrefixedRoot<CityBuf_::CityFeature>(buf);
 }
 
-inline bool VerifyCityFBFeatureBuffer(
+inline bool VerifyCityFeatureBuffer(
     ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<CityBuf_::CityFBFeature>(nullptr);
+  return verifier.VerifyBuffer<CityBuf_::CityFeature>(nullptr);
 }
 
-inline bool VerifySizePrefixedCityFBFeatureBuffer(
+inline bool VerifySizePrefixedCityFeatureBuffer(
     ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<CityBuf_::CityFBFeature>(nullptr);
+  return verifier.VerifySizePrefixedBuffer<CityBuf_::CityFeature>(nullptr);
 }
 
-inline void FinishCityFBFeatureBuffer(
+inline void FinishCityFeatureBuffer(
     ::flatbuffers::FlatBufferBuilder &fbb,
-    ::flatbuffers::Offset<CityBuf_::CityFBFeature> root) {
+    ::flatbuffers::Offset<CityBuf_::CityFeature> root) {
   fbb.Finish(root);
 }
 
-inline void FinishSizePrefixedCityFBFeatureBuffer(
+inline void FinishSizePrefixedCityFeatureBuffer(
     ::flatbuffers::FlatBufferBuilder &fbb,
-    ::flatbuffers::Offset<CityBuf_::CityFBFeature> root) {
+    ::flatbuffers::Offset<CityBuf_::CityFeature> root) {
   fbb.FinishSizePrefixed(root);
 }
 

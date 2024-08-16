@@ -2,7 +2,7 @@ import struct
 
 from CityBuf_ import \
   Header, \
-  CityFBFeature
+  CityFeature
 
 class CityBufReader:
   MAGIC_NUMBER_SIZE = 8
@@ -41,5 +41,5 @@ class CityBufReader:
       feature_length = struct.unpack('<I', self.f.read(4))[0]
 
       feature_buf = self.f.read(feature_length)
-      feature = CityFBFeature.CityFBFeature.GetRootAsCityFBFeature(feature_buf, 0)
+      feature = CityFeature.CityFeature.GetRootAsCityFeature(feature_buf, 0)
       yield feature

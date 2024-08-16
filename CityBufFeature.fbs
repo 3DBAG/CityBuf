@@ -84,7 +84,7 @@ struct Vertex {
   z:int;
 }
 
-table CityFBFeature {
+table CityFeature {
   id:string (key, required);
   objects:[CityObject];
   vertices:[Vertex];
@@ -126,4 +126,4 @@ table SemanticObject {
   parent:uint;
 }
 
-root_type CityFBFeature;
+root_type CityFeature;

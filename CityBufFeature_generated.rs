@@ -1640,36 +1640,36 @@ impl core::fmt::Debug for Header<'_> {
       ds.finish()
   }
 }
-pub enum CityFBFeatureOffset {}
+pub enum CityFeatureOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
-pub struct CityFBFeature<'a> {
+pub struct CityFeature<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for CityFBFeature<'a> {
-  type Inner = CityFBFeature<'a>;
+impl<'a> flatbuffers::Follow<'a> for CityFeature<'a> {
+  type Inner = CityFeature<'a>;
   #[inline]
   unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
     Self { _tab: flatbuffers::Table::new(buf, loc) }
   }
 }
 
-impl<'a> CityFBFeature<'a> {
+impl<'a> CityFeature<'a> {
   pub const VT_ID: flatbuffers::VOffsetT = 4;
   pub const VT_OBJECTS: flatbuffers::VOffsetT = 6;
   pub const VT_VERTICES: flatbuffers::VOffsetT = 8;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    CityFBFeature { _tab: table }
+    CityFeature { _tab: table }
   }
   #[allow(unused_mut)]
   pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
     _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CityFBFeatureArgs<'args>
-  ) -> flatbuffers::WIPOffset<CityFBFeature<'bldr>> {
-    let mut builder = CityFBFeatureBuilder::new(_fbb);
+    args: &'args CityFeatureArgs<'args>
+  ) -> flatbuffers::WIPOffset<CityFeature<'bldr>> {
+    let mut builder = CityFeatureBuilder::new(_fbb);
     if let Some(x) = args.vertices { builder.add_vertices(x); }
     if let Some(x) = args.objects { builder.add_objects(x); }
     if let Some(x) = args.id { builder.add_id(x); }
@@ -1682,10 +1682,10 @@ impl<'a> CityFBFeature<'a> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(CityFBFeature::VT_ID, None).unwrap()}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(CityFeature::VT_ID, None).unwrap()}
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &CityFBFeature) -> bool {
+  pub fn key_compare_less_than(&self, o: &CityFeature) -> bool {
     self.id() < o.id()
   }
 
@@ -1699,18 +1699,18 @@ impl<'a> CityFBFeature<'a> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CityObject>>>>(CityFBFeature::VT_OBJECTS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CityObject>>>>(CityFeature::VT_OBJECTS, None)}
   }
   #[inline]
   pub fn vertices(&self) -> Option<flatbuffers::Vector<'a, Vertex>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vertex>>>(CityFBFeature::VT_VERTICES, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vertex>>>(CityFeature::VT_VERTICES, None)}
   }
 }
 
-impl flatbuffers::Verifiable for CityFBFeature<'_> {
+impl flatbuffers::Verifiable for CityFeature<'_> {
   #[inline]
   fn run_verifier(
     v: &mut flatbuffers::Verifier, pos: usize
@@ -1724,15 +1724,15 @@ impl flatbuffers::Verifiable for CityFBFeature<'_> {
     Ok(())
   }
 }
-pub struct CityFBFeatureArgs<'a> {
+pub struct CityFeatureArgs<'a> {
     pub id: Option<flatbuffers::WIPOffset<&'a str>>,
     pub objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CityObject<'a>>>>>,
     pub vertices: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vertex>>>,
 }
-impl<'a> Default for CityFBFeatureArgs<'a> {
+impl<'a> Default for CityFeatureArgs<'a> {
   #[inline]
   fn default() -> Self {
-    CityFBFeatureArgs {
+    CityFeatureArgs {
       id: None, // required field
       objects: None,
       vertices: None,
@@ -1740,42 +1740,42 @@ impl<'a> Default for CityFBFeatureArgs<'a> {
   }
 }
 
-pub struct CityFBFeatureBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+pub struct CityFeatureBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CityFBFeatureBuilder<'a, 'b, A> {
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CityFeatureBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_id(&mut self, id: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFBFeature::VT_ID, id);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFeature::VT_ID, id);
   }
   #[inline]
   pub fn add_objects(&mut self, objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<CityObject<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFBFeature::VT_OBJECTS, objects);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFeature::VT_OBJECTS, objects);
   }
   #[inline]
   pub fn add_vertices(&mut self, vertices: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vertex>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFBFeature::VT_VERTICES, vertices);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CityFeature::VT_VERTICES, vertices);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CityFBFeatureBuilder<'a, 'b, A> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CityFeatureBuilder<'a, 'b, A> {
     let start = _fbb.start_table();
-    CityFBFeatureBuilder {
+    CityFeatureBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<CityFBFeature<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<CityFeature<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, CityFBFeature::VT_ID,"id");
+    self.fbb_.required(o, CityFeature::VT_ID,"id");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-impl core::fmt::Debug for CityFBFeature<'_> {
+impl core::fmt::Debug for CityFeature<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("CityFBFeature");
+    let mut ds = f.debug_struct("CityFeature");
       ds.field("id", &self.id());
       ds.field("objects", &self.objects());
       ds.field("vertices", &self.vertices());
@@ -2408,74 +2408,74 @@ impl core::fmt::Debug for SemanticObject<'_> {
   }
 }
 #[inline]
-/// Verifies that a buffer of bytes contains a `CityFBFeature`
+/// Verifies that a buffer of bytes contains a `CityFeature`
 /// and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_city_fbfeature_unchecked`.
-pub fn root_as_city_fbfeature(buf: &[u8]) -> Result<CityFBFeature, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::root::<CityFBFeature>(buf)
+/// `root_as_city_feature_unchecked`.
+pub fn root_as_city_feature(buf: &[u8]) -> Result<CityFeature, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root::<CityFeature>(buf)
 }
 #[inline]
 /// Verifies that a buffer of bytes contains a size prefixed
-/// `CityFBFeature` and returns it.
+/// `CityFeature` and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `size_prefixed_root_as_city_fbfeature_unchecked`.
-pub fn size_prefixed_root_as_city_fbfeature(buf: &[u8]) -> Result<CityFBFeature, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::size_prefixed_root::<CityFBFeature>(buf)
+/// `size_prefixed_root_as_city_feature_unchecked`.
+pub fn size_prefixed_root_as_city_feature(buf: &[u8]) -> Result<CityFeature, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root::<CityFeature>(buf)
 }
 #[inline]
 /// Verifies, with the given options, that a buffer of bytes
-/// contains a `CityFBFeature` and returns it.
+/// contains a `CityFeature` and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_city_fbfeature_unchecked`.
-pub fn root_as_city_fbfeature_with_opts<'b, 'o>(
+/// `root_as_city_feature_unchecked`.
+pub fn root_as_city_feature_with_opts<'b, 'o>(
   opts: &'o flatbuffers::VerifierOptions,
   buf: &'b [u8],
-) -> Result<CityFBFeature<'b>, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::root_with_opts::<CityFBFeature<'b>>(opts, buf)
+) -> Result<CityFeature<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root_with_opts::<CityFeature<'b>>(opts, buf)
 }
 #[inline]
 /// Verifies, with the given verifier options, that a buffer of
-/// bytes contains a size prefixed `CityFBFeature` and returns
+/// bytes contains a size prefixed `CityFeature` and returns
 /// it. Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_city_fbfeature_unchecked`.
-pub fn size_prefixed_root_as_city_fbfeature_with_opts<'b, 'o>(
+/// `root_as_city_feature_unchecked`.
+pub fn size_prefixed_root_as_city_feature_with_opts<'b, 'o>(
   opts: &'o flatbuffers::VerifierOptions,
   buf: &'b [u8],
-) -> Result<CityFBFeature<'b>, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::size_prefixed_root_with_opts::<CityFBFeature<'b>>(opts, buf)
+) -> Result<CityFeature<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root_with_opts::<CityFeature<'b>>(opts, buf)
 }
 #[inline]
-/// Assumes, without verification, that a buffer of bytes contains a CityFBFeature and returns it.
+/// Assumes, without verification, that a buffer of bytes contains a CityFeature and returns it.
 /// # Safety
-/// Callers must trust the given bytes do indeed contain a valid `CityFBFeature`.
-pub unsafe fn root_as_city_fbfeature_unchecked(buf: &[u8]) -> CityFBFeature {
-  flatbuffers::root_unchecked::<CityFBFeature>(buf)
+/// Callers must trust the given bytes do indeed contain a valid `CityFeature`.
+pub unsafe fn root_as_city_feature_unchecked(buf: &[u8]) -> CityFeature {
+  flatbuffers::root_unchecked::<CityFeature>(buf)
 }
 #[inline]
-/// Assumes, without verification, that a buffer of bytes contains a size prefixed CityFBFeature and returns it.
+/// Assumes, without verification, that a buffer of bytes contains a size prefixed CityFeature and returns it.
 /// # Safety
-/// Callers must trust the given bytes do indeed contain a valid size prefixed `CityFBFeature`.
-pub unsafe fn size_prefixed_root_as_city_fbfeature_unchecked(buf: &[u8]) -> CityFBFeature {
-  flatbuffers::size_prefixed_root_unchecked::<CityFBFeature>(buf)
+/// Callers must trust the given bytes do indeed contain a valid size prefixed `CityFeature`.
+pub unsafe fn size_prefixed_root_as_city_feature_unchecked(buf: &[u8]) -> CityFeature {
+  flatbuffers::size_prefixed_root_unchecked::<CityFeature>(buf)
 }
 #[inline]
-pub fn finish_city_fbfeature_buffer<'a, 'b, A: flatbuffers::Allocator + 'a>(
+pub fn finish_city_feature_buffer<'a, 'b, A: flatbuffers::Allocator + 'a>(
     fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-    root: flatbuffers::WIPOffset<CityFBFeature<'a>>) {
+    root: flatbuffers::WIPOffset<CityFeature<'a>>) {
   fbb.finish(root, None);
 }
 
 #[inline]
-pub fn finish_size_prefixed_city_fbfeature_buffer<'a, 'b, A: flatbuffers::Allocator + 'a>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>, root: flatbuffers::WIPOffset<CityFBFeature<'a>>) {
+pub fn finish_size_prefixed_city_feature_buffer<'a, 'b, A: flatbuffers::Allocator + 'a>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>, root: flatbuffers::WIPOffset<CityFeature<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }
 }  // pub mod CityBuf_
