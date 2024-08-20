@@ -8,9 +8,6 @@ The primary goals of CityBuf are
 3. lossless conversion to/from CityJSONSeq files (.city.jsonl),
 4. use strongly typed attributes. This prevents type ambiguity as can happen with cityjson (eg 3DBV dataset has several issues, eg. inconsistent objectid (both string and int is used), or all values of an attribute are `null` (so not possible to deduce type)). This is important for lossles conversion to GIS formats (eg `gpkg`), and other reading applications where strong types are relevant.
 
-Secondary goals:
-1. keep file size as small as possible, but without compromising reading speed (so no compression etc)
-
 Don't really care:
 1. efficient in-place modifications of existing files
 2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSeq.
