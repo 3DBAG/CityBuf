@@ -34,23 +34,26 @@ The features in the Data portion of an CityBuf file are modelled after [CityJSON
  Currently not supported are CityJSON's geometry templates, appearance and extensions. However, these features will be added in the future.
 
 ## Geometry
-Given this `Solid` with 2 shells in the CityJSON nested lists geometry encoding:
+Given this `Solid` with 2 shells in the CityJSON encoding:
 ```
-[
-  [[[0, 3, 2, 1, 22], [1, 2, 3, 4]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]]], [[[240, 243, 124]], [[244, 246, 724]], [[34, 414, 45]], [[111, 246, 5]]]
+boundaries: [
+  [ [[0, 3, 2, 1, 22], [1, 2, 3, 4]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]] ], 
+  [ [[240, 243, 124]], [[244, 246, 724]], [[34, 414, 45]], [[111, 246, 5]] ]
 ]
 ```
 
-CityBuf will encode it using a number of flat arrays:
+CityBuf will encode this Solid using a number of flat arrays:
 ```
 indices:  [0, 3, 2, 1, 22, 1, 2, 3, 4, 4, 5, 6, 7, 0, 1, 5, 4, 1, 2, 6, 5, 240, 243, 124, 244, 246, 724, 34, 414, 45, 111, 246, 5] # flat list of indices
 strings:  [5, 4, 4, 4, 4, 3, 3, 3, 3] # number of indices per ring, sum should equal length of indices array
-surfaces:  [2, 1, 1, 1, 1, 1, 1, 1] # 8 surfaces, 1st has 2 rings, the rest all have 1 ring
-shells:  [4, 4] # 2 shells that each consist of 4 surfaces
-solids:  [2] # one solid that consists of two shells
+surfaces: [2, 1, 1, 1, 1, 1, 1, 1] # 8 surfaces, 1st has 2 rings, the rest all have 1 ring
+shells:   [4, 4] # 2 shells that each consist of 4 surfaces
+solids:   [2] # one solid that consists of two shells
 ```
 
-The `strings` array is used both for the Rings of a Surface, and the LineStrings of a MultiLineString. The `indices` array is used for all geometry types. The non indices arrays are uses as needed, depending of the depth of nesting of geometry type.
+Which of these arrays have values, will depend on the geometry type. Notice that the `strings` array is used both for the Rings of a Surface, and the LineStrings of a MultiLineString.
+
+Semantic values are also encoded using a flat array, similar to the `indices`.
 
 `geometry.py` gives an implementation of how to go back and forth between these 2 representations.
 
@@ -130,9 +133,9 @@ The sum of the runtimes grouped by format is:
 # Implementation status
 There are the following Python scripts:
 - `cb2cjseq.py`: a script to convert `.cb` to a `.city.jsonl` file
-- `geometry.py`
 - `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
 - `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
+- `geometry.py`: python code to convert between CityJSON and CityBuf geometry representation
 - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
 - a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
 
