@@ -326,7 +326,7 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
 
   return builder.Output()
 
-def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
+def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}, write_nulls=True):
   cj_features = []
   with open(cjseq_path, "r") as fo:
     cj_metadata = json.loads(fo.readline())
@@ -336,7 +336,7 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
   global total_feature_count
   total_feature_count = len(cj_features)
 
-  schema_encoder = AttributeSchemaEncoder(pretyped_attributes)
+  schema_encoder = AttributeSchemaEncoder(pretyped_attributes, write_nulls)
 
   # scan attributes and geographical extents
   global_extent = np.ndarray((2, 3), dtype=np.float64)
@@ -480,6 +480,7 @@ if __name__ == "__main__":
   arg.add_argument('cjseq', help='CityJSON sequence file')
   arg.add_argument('cb', help='CityBuffer file')
   arg.add_argument('--schema', help='Predifine attribute types, important in case type cannot be unambiguously inferred from the data', type=str)
+  arg.add_argument('--skip-null_attributes', help='Do not encode attributes with a null value', action='store_true')
   args = arg.parse_args()
 
   pretyped_attributes = {}
@@ -507,7 +508,7 @@ if __name__ == "__main__":
   total_solid_count = 0
   total_surface_count = 0
   total_ring_count = 0
-  convert_cjseq2cb(args.cjseq, args.cb, pretyped_attributes)
+  convert_cjseq2cb(args.cjseq, args.cb, pretyped_attributes, not args.skip_null_attributes)
   print("Total feature count:", total_feature_count)
   print("Total vertex size:", total_vertex_size / 1024 / 1024)
   print("Total attributes size:", total_attributes_size / 1024 / 1024)

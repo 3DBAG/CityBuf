@@ -470,10 +470,11 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_TYPE = 6,
     VT_TITLE = 8,
     VT_DESCRIPTION = 10,
-    VT_NULLABLE = 12,
-    VT_UNIQUE = 14,
-    VT_PRIMARY_KEY = 16,
-    VT_METADATA = 18
+    VT_PRECISION = 12,
+    VT_NULLABLE = 14,
+    VT_UNIQUE = 16,
+    VT_PRIMARY_KEY = 18,
+    VT_METADATA = 20
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -486,6 +487,9 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const ::flatbuffers::String *description() const {
     return GetPointer<const ::flatbuffers::String *>(VT_DESCRIPTION);
+  }
+  int32_t precision() const {
+    return GetField<int32_t>(VT_PRECISION, -1);
   }
   bool nullable() const {
     return GetField<uint8_t>(VT_NULLABLE, 1) != 0;
@@ -508,6 +512,7 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(title()) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
+           VerifyField<int32_t>(verifier, VT_PRECISION, 4) &&
            VerifyField<uint8_t>(verifier, VT_NULLABLE, 1) &&
            VerifyField<uint8_t>(verifier, VT_UNIQUE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PRIMARY_KEY, 1) &&
@@ -532,6 +537,9 @@ struct ColumnBuilder {
   }
   void add_description(::flatbuffers::Offset<::flatbuffers::String> description) {
     fbb_.AddOffset(Column::VT_DESCRIPTION, description);
+  }
+  void add_precision(int32_t precision) {
+    fbb_.AddElement<int32_t>(Column::VT_PRECISION, precision, -1);
   }
   void add_nullable(bool nullable) {
     fbb_.AddElement<uint8_t>(Column::VT_NULLABLE, static_cast<uint8_t>(nullable), 1);
@@ -563,12 +571,14 @@ inline ::flatbuffers::Offset<Column> CreateColumn(
     CityBuf_::ColumnType type = CityBuf_::ColumnType_Byte,
     ::flatbuffers::Offset<::flatbuffers::String> title = 0,
     ::flatbuffers::Offset<::flatbuffers::String> description = 0,
+    int32_t precision = -1,
     bool nullable = true,
     bool unique = false,
     bool primary_key = false,
     ::flatbuffers::Offset<::flatbuffers::String> metadata = 0) {
   ColumnBuilder builder_(_fbb);
   builder_.add_metadata(metadata);
+  builder_.add_precision(precision);
   builder_.add_description(description);
   builder_.add_title(title);
   builder_.add_name(name);
@@ -585,6 +595,7 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
     CityBuf_::ColumnType type = CityBuf_::ColumnType_Byte,
     const char *title = nullptr,
     const char *description = nullptr,
+    int32_t precision = -1,
     bool nullable = true,
     bool unique = false,
     bool primary_key = false,
@@ -599,6 +610,7 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
       type,
       title__,
       description__,
+      precision,
       nullable,
       unique,
       primary_key,

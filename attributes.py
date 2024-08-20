@@ -2,6 +2,7 @@ from CityBuf_.ColumnType import ColumnType
 import struct
 import logging
 import json
+import numpy as np
 
 class AttributeSchemaEncoder:
   class Column:
@@ -16,7 +17,8 @@ class AttributeSchemaEncoder:
   schema = {}
   pretyped_names = []
 
-  def __init__(self, pretyped_attributes={}):
+  def __init__(self, pretyped_attributes={}, write_nulls=False):
+    self.write_nulls = write_nulls
     for key, value in pretyped_attributes.items():
       self.schema[key] = self.Column(value, len(self.schema))
       self.pretyped_names = pretyped_attributes.keys()
@@ -62,10 +64,13 @@ class AttributeSchemaEncoder:
     else:
       raise Exception("Type not supported")
     
-  def encode_value(self, name, value):
+  def encode_value(self, name, value, write_null=False):
     # handle null values by not writing anything
     if value == None:
-      return b""
+      if write_null:
+        return struct.pack("=HH", np.iinfo(np.uint16).max, self.schema[name].order)
+      else:
+        return b""
     
     format = "=H" # don't add padding, unsigned short (2 bytes) is the column index
     if self.schema[name].type == str:
@@ -104,7 +109,7 @@ class AttributeSchemaEncoder:
     for key, value in attributes.items():
       if key in exclude:
         continue
-      buf += self.encode_value(key, value)
+      buf += self.encode_value(key, value, self.write_nulls)
     return buf
 
 class AttributeSchemaDecoder:
@@ -121,26 +126,34 @@ class AttributeSchemaDecoder:
     while ib < len(buffer):
       column_index = struct.unpack('H', buffer[ib:ib+2])[0]
       ib += 2
-      attr_type = self.schema[column_index][1]
-      if attr_type == ColumnType.String:
-        value_length = struct.unpack('I', buffer[ib:ib+4])[0]
-        value = buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8')
-        ib += 4 + value_length
-      elif attr_type == ColumnType.Int:
-        value = struct.unpack('i', buffer[ib:ib+4])[0]
-        ib += 4
-      elif attr_type == ColumnType.Float:
-        value = struct.unpack('f', buffer[ib:ib+4])[0]
-        ib += 4
-      elif attr_type == ColumnType.Bool:
-        value = struct.unpack('?', buffer[ib:ib+1])[0]
-        ib += 1
-      elif attr_type == ColumnType.Json:
-        value_length = struct.unpack('I', buffer[ib:ib+4])[0]
-        value = json.loads(buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8'))
-        ib += 4 + value_length
+      # check if this is a null value for some field
+      if column_index == np.iinfo(np.uint16).max:
+        column_index = struct.unpack('H', buffer[ib:ib+2])[0]
+        ib += 2
+        value = None
+      elif column_index >= len(self.schema):
+        raise Exception("Column index out of bounds")
       else:
-        raise Exception("Type not supported")
+        attr_type = self.schema[column_index][1]
+        if attr_type == ColumnType.String:
+          value_length = struct.unpack('I', buffer[ib:ib+4])[0]
+          value = buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8')
+          ib += 4 + value_length
+        elif attr_type == ColumnType.Int:
+          value = struct.unpack('i', buffer[ib:ib+4])[0]
+          ib += 4
+        elif attr_type == ColumnType.Float:
+          value = struct.unpack('f', buffer[ib:ib+4])[0]
+          ib += 4
+        elif attr_type == ColumnType.Bool:
+          value = struct.unpack('?', buffer[ib:ib+1])[0]
+          ib += 1
+        elif attr_type == ColumnType.Json:
+          value_length = struct.unpack('I', buffer[ib:ib+4])[0]
+          value = json.loads(buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8'))
+          ib += 4 + value_length
+        else:
+          raise Exception("Type not supported")
       attributes[self.schema[column_index][0]] = value
         # raise Exception("Type not supported")
 

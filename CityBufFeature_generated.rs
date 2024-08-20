@@ -1130,10 +1130,11 @@ impl<'a> Column<'a> {
   pub const VT_TYPE_: flatbuffers::VOffsetT = 6;
   pub const VT_TITLE: flatbuffers::VOffsetT = 8;
   pub const VT_DESCRIPTION: flatbuffers::VOffsetT = 10;
-  pub const VT_NULLABLE: flatbuffers::VOffsetT = 12;
-  pub const VT_UNIQUE: flatbuffers::VOffsetT = 14;
-  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 16;
-  pub const VT_METADATA: flatbuffers::VOffsetT = 18;
+  pub const VT_PRECISION: flatbuffers::VOffsetT = 12;
+  pub const VT_NULLABLE: flatbuffers::VOffsetT = 14;
+  pub const VT_UNIQUE: flatbuffers::VOffsetT = 16;
+  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 18;
+  pub const VT_METADATA: flatbuffers::VOffsetT = 20;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1146,6 +1147,7 @@ impl<'a> Column<'a> {
   ) -> flatbuffers::WIPOffset<Column<'bldr>> {
     let mut builder = ColumnBuilder::new(_fbb);
     if let Some(x) = args.metadata { builder.add_metadata(x); }
+    builder.add_precision(args.precision);
     if let Some(x) = args.description { builder.add_description(x); }
     if let Some(x) = args.title { builder.add_title(x); }
     if let Some(x) = args.name { builder.add_name(x); }
@@ -1184,6 +1186,13 @@ impl<'a> Column<'a> {
     // Created from valid Table for this object
     // which contains a valid value in this slot
     unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Column::VT_DESCRIPTION, None)}
+  }
+  #[inline]
+  pub fn precision(&self) -> i32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<i32>(Column::VT_PRECISION, Some(-1)).unwrap()}
   }
   #[inline]
   pub fn nullable(&self) -> bool {
@@ -1226,6 +1235,7 @@ impl flatbuffers::Verifiable for Column<'_> {
      .visit_field::<ColumnType>("type_", Self::VT_TYPE_, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("title", Self::VT_TITLE, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("description", Self::VT_DESCRIPTION, false)?
+     .visit_field::<i32>("precision", Self::VT_PRECISION, false)?
      .visit_field::<bool>("nullable", Self::VT_NULLABLE, false)?
      .visit_field::<bool>("unique", Self::VT_UNIQUE, false)?
      .visit_field::<bool>("primary_key", Self::VT_PRIMARY_KEY, false)?
@@ -1239,6 +1249,7 @@ pub struct ColumnArgs<'a> {
     pub type_: ColumnType,
     pub title: Option<flatbuffers::WIPOffset<&'a str>>,
     pub description: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub precision: i32,
     pub nullable: bool,
     pub unique: bool,
     pub primary_key: bool,
@@ -1252,6 +1263,7 @@ impl<'a> Default for ColumnArgs<'a> {
       type_: ColumnType::Byte,
       title: None,
       description: None,
+      precision: -1,
       nullable: true,
       unique: false,
       primary_key: false,
@@ -1280,6 +1292,10 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ColumnBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_description(&mut self, description: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Column::VT_DESCRIPTION, description);
+  }
+  #[inline]
+  pub fn add_precision(&mut self, precision: i32) {
+    self.fbb_.push_slot::<i32>(Column::VT_PRECISION, precision, -1);
   }
   #[inline]
   pub fn add_nullable(&mut self, nullable: bool) {
@@ -1320,6 +1336,7 @@ impl core::fmt::Debug for Column<'_> {
       ds.field("type_", &self.type_());
       ds.field("title", &self.title());
       ds.field("description", &self.description());
+      ds.field("precision", &self.precision());
       ds.field("nullable", &self.nullable());
       ds.field("unique", &self.unique());
       ds.field("primary_key", &self.primary_key());

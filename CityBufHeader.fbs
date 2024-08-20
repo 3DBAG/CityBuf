@@ -24,7 +24,7 @@ table Column {
   title: string;                // Column title
   description: string;          // Column description (intended for free form long text)
   // width: int = -1;              // Column values expected width (-1 = unknown) (currently only used to indicate the number of characters in strings)
-  // precision: int = -1;          // Column values expected precision (-1 = unknown) as defined by SQL
+  precision: int = -1;          // Column values expected precision (-1 = unknown) as defined by SQL
   // scale: int = -1;              // Column values expected scale (-1 = unknown) as defined by SQL
   nullable: bool = true;        // Column values expected nullability
   unique: bool = false;         // Column values expected uniqueness

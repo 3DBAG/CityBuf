@@ -55,13 +55,17 @@ The `strings` array is used both for the Rings of a Surface, and the LineStrings
 `geometry.py` gives an implementation of how to go back and forth between these 2 representations.
 
 Specificalities:
-- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint16`.
+- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
 
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
 
 - u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
+
+Attributes that have a `null` value can be explitly encoded using 4 bytes:
+- u16 (2 bytes) max value of a uint16
+- u16 (2 bytes) column index
 
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSeq. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
