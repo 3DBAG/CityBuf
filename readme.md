@@ -129,7 +129,7 @@ The sum of the runtimes grouped by format is:
 
 # Implementation status
 There are the following Python scripts:
-- `cb2cjseq.py`
+- `cb2cjseq.py`: a script to convert `.cb` to a `.city.jsonl` file
 - `geometry.py`
 - `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
 - `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
@@ -140,9 +140,19 @@ Other languages than Python, eg. C++, have so far received no attention. Notice 
 
 TODO:
  - implement encoding/decoding of remaining attribute types
- - fix issue that null valued attributes are not written when going cb->cjseq
  - review header metadata specification, make sure this is fully compatible with CityJSON
- - script to convert from `.cb` to `.city.jsonl`. And check if we get back the same `.city.jsonl` file when doing a roundtrip conversion (`.city.jsonl` > `.cb` > `.city.jsonl`)
+
+## Usage of conversion scripts
+To convert from `.city.jsonl` to `.cb`:
+```sh
+python cjseq2cb.py data/one_feature.city.jsonl data/one_feature.cb
+```
+See `python cjseq2cb.py --help` for more options.
+
+To convert from `.cb` to `.city.jsonl`:
+```sh
+python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
+```
 
 # Ideas for future work
 - Implement a spatial index, could be the same as FlatGeoBuf

@@ -479,7 +479,7 @@ if __name__ == "__main__":
   arg = argparse.ArgumentParser(description='Convert CityJSON sequence to CityBuffer')
   arg.add_argument('cjseq', help='CityJSON sequence file')
   arg.add_argument('cb', help='CityBuffer file')
-  arg.add_argument('--schema', help='Predifine attribute types, important in case type cannot be unambiguously inferred from the data', type=str)
+  arg.add_argument('--schema', help='Explicitly specify attribute types, important in case type cannot be unambiguously inferred from the data. Give as comma seprarated name:type pairs. Example: attr_name_a:bool,attr_name_b:int', type=str)
   arg.add_argument('--skip-null_attributes', help='Do not encode attributes with a null value', action='store_true')
   args = arg.parse_args()
 
