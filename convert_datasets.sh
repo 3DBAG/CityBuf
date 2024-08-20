@@ -17,8 +17,8 @@ printf "==Ingolstadt\n"
 python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Ingolstadt.city.jsonl' '/Users/ravi/git/paper_cjseq/data/Ingolstadt.cb'
 
 # no CRS defined, no attributes
-printf "==Montréal\n"
-python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Montréal.city.jsonl' '/Users/ravi/git/paper_cjseq/data/Montréal.cb'
+# printf "==Montréal\n"
+# python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Montréal.city.jsonl' '/Users/ravi/git/paper_cjseq/data/Montréal.cb'
 
 printf "==NYC\n"
 python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/NYC.jsonl' '/Users/ravi/git/paper_cjseq/data/NYC.cb'
@@ -26,8 +26,8 @@ python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/NYC.jsonl' '/Users/ravi/git
 # has geometry instances (not yet supported)
 # python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Railway.city.jsonl' '/Users/ravi/git/paper_cjseq/data/Railway.cb'
 
-printf "==Rotterdam\n"
-python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Rotterdam.jsonl' '/Users/ravi/git/paper_cjseq/data/Rotterdam.cb'
+# printf "==Rotterdam\n"
+# python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Rotterdam.jsonl' '/Users/ravi/git/paper_cjseq/data/Rotterdam.cb'
 
 printf "==Vienna\n"
 python cjseq2cb.py '/Users/ravi/git/paper_cjseq/data/Vienna.city.jsonl' '/Users/ravi/git/paper_cjseq/data/Vienna.cb'

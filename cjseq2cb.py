@@ -87,34 +87,34 @@ def create_feature(cj_feature, schema_encoder=None):
       if len(gd.solids):
         Geometry.StartSolidsVector(builder, len(gd.solids))
         for solid in reversed(gd.solids):
-          builder.PrependUint16(solid)
+          builder.PrependUint32(solid)
         f_solids_offset = builder.EndVector()
 
       if len(gd.shells):
         Geometry.StartShellsVector(builder, len(gd.shells))
         for shell in reversed(gd.shells):
-          builder.PrependUint16(shell)
+          builder.PrependUint32(shell)
         f_shells_offset = builder.EndVector()
 
       if len(gd.surfaces):
         Geometry.StartSurfacesVector(builder, len(gd.surfaces))
         for surface in reversed(gd.surfaces):
-          builder.PrependUint16(surface)
+          builder.PrependUint32(surface)
         f_surfaces_offset = builder.EndVector()
 
       if len(gd.strings):
         Geometry.StartStringsVector(builder, len(gd.strings))
         for ring in reversed(gd.strings):
-          builder.PrependUint16(ring)
+          builder.PrependUint32(ring)
         f_rings_offset = builder.EndVector()
 
       if len(gd.semantic_values):
         Geometry.StartSemanticsVector(builder, len(gd.semantic_values))
         for sem in reversed(gd.semantic_values):
           if sem is None: # in case of None (no semantic object), use the maximum value of uint32
-            builder.PrependUint16(np.iinfo(np.uint16).max)
+            builder.PrependUint32(np.iinfo(np.uint32).max)
           else:
-            builder.PrependUint16(sem)
+            builder.PrependUint32(sem)
         f_semantics = builder.EndVector()
 
       total_boundaries_size += (builder.Offset() - o)

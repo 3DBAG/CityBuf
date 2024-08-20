@@ -108,13 +108,13 @@ table Geometry {
   
   // these are lengths in the 
   // depending on the geometry_type, different fields are used
-  solids:[uint16];
-  shells:[uint16];
-  surfaces:[uint16];
-  strings:[uint16]; // Rings or LineStrings
+  solids:[uint];
+  shells:[uint];
+  surfaces:[uint];
+  strings:[uint]; // Rings or LineStrings
 
   boundaries:[uint]; // flat list of vertex indices
-  semantics:[uint16]; // flat list of semantic object indices
+  semantics:[uint]; // flat list of semantic object indices
 
   semantics_objects:[SemanticObject];
 }

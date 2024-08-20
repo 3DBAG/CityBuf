@@ -2090,32 +2090,32 @@ impl<'a> Geometry<'a> {
     unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Geometry::VT_LOD, None)}
   }
   #[inline]
-  pub fn solids(&self) -> Option<flatbuffers::Vector<'a, u16>> {
+  pub fn solids(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u16>>>(Geometry::VT_SOLIDS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_SOLIDS, None)}
   }
   #[inline]
-  pub fn shells(&self) -> Option<flatbuffers::Vector<'a, u16>> {
+  pub fn shells(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u16>>>(Geometry::VT_SHELLS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_SHELLS, None)}
   }
   #[inline]
-  pub fn surfaces(&self) -> Option<flatbuffers::Vector<'a, u16>> {
+  pub fn surfaces(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u16>>>(Geometry::VT_SURFACES, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_SURFACES, None)}
   }
   #[inline]
-  pub fn strings(&self) -> Option<flatbuffers::Vector<'a, u16>> {
+  pub fn strings(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u16>>>(Geometry::VT_STRINGS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_STRINGS, None)}
   }
   #[inline]
   pub fn boundaries(&self) -> Option<flatbuffers::Vector<'a, u32>> {
@@ -2125,11 +2125,11 @@ impl<'a> Geometry<'a> {
     unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_BOUNDARIES, None)}
   }
   #[inline]
-  pub fn semantics(&self) -> Option<flatbuffers::Vector<'a, u16>> {
+  pub fn semantics(&self) -> Option<flatbuffers::Vector<'a, u32>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u16>>>(Geometry::VT_SEMANTICS, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Geometry::VT_SEMANTICS, None)}
   }
   #[inline]
   pub fn semantics_objects(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<SemanticObject<'a>>>> {
@@ -2149,12 +2149,12 @@ impl flatbuffers::Verifiable for Geometry<'_> {
     v.visit_table(pos)?
      .visit_field::<GeometryType>("type_", Self::VT_TYPE_, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("lod", Self::VT_LOD, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u16>>>("solids", Self::VT_SOLIDS, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u16>>>("shells", Self::VT_SHELLS, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u16>>>("surfaces", Self::VT_SURFACES, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u16>>>("strings", Self::VT_STRINGS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("solids", Self::VT_SOLIDS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("shells", Self::VT_SHELLS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("surfaces", Self::VT_SURFACES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("strings", Self::VT_STRINGS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("boundaries", Self::VT_BOUNDARIES, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u16>>>("semantics", Self::VT_SEMANTICS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("semantics", Self::VT_SEMANTICS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<SemanticObject>>>>("semantics_objects", Self::VT_SEMANTICS_OBJECTS, false)?
      .finish();
     Ok(())
@@ -2163,12 +2163,12 @@ impl flatbuffers::Verifiable for Geometry<'_> {
 pub struct GeometryArgs<'a> {
     pub type_: GeometryType,
     pub lod: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub solids: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u16>>>,
-    pub shells: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u16>>>,
-    pub surfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u16>>>,
-    pub strings: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u16>>>,
+    pub solids: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub shells: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub surfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub strings: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
     pub boundaries: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
-    pub semantics: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u16>>>,
+    pub semantics: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
     pub semantics_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<SemanticObject<'a>>>>>,
 }
 impl<'a> Default for GeometryArgs<'a> {
@@ -2202,19 +2202,19 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> GeometryBuilder<'a, 'b, A> {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_LOD, lod);
   }
   #[inline]
-  pub fn add_solids(&mut self, solids: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u16>>) {
+  pub fn add_solids(&mut self, solids: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_SOLIDS, solids);
   }
   #[inline]
-  pub fn add_shells(&mut self, shells: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u16>>) {
+  pub fn add_shells(&mut self, shells: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_SHELLS, shells);
   }
   #[inline]
-  pub fn add_surfaces(&mut self, surfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u16>>) {
+  pub fn add_surfaces(&mut self, surfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_SURFACES, surfaces);
   }
   #[inline]
-  pub fn add_strings(&mut self, strings: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u16>>) {
+  pub fn add_strings(&mut self, strings: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_STRINGS, strings);
   }
   #[inline]
@@ -2222,7 +2222,7 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> GeometryBuilder<'a, 'b, A> {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_BOUNDARIES, boundaries);
   }
   #[inline]
-  pub fn add_semantics(&mut self, semantics: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u16>>) {
+  pub fn add_semantics(&mut self, semantics: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Geometry::VT_SEMANTICS, semantics);
   }
   #[inline]
