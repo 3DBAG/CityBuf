@@ -1,14 +1,13 @@
 # CityBuf Introduction
 Binary variant of [CityJSONSeq](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
-Some performance metrics:
 - overall ~5x faster than CityJSON and ~2x faster than CityJSONSeq in a simple read test,
 - significantly lower memory usage than CityJSON and CityJSONSeq in simple read test (especially for large features),
 - overall 34% smaller files than CityJSON and 18% smaller than CityJSONSeq.
 
 These number are based on the benchmark that is given in more detail below.
 
-__WORK IN PROGRESS!!__: spec is not finalised yet
+__WORK IN PROGRESS!!__: this spec is not finalised yet
 
 ## Goals
 The primary goals of CityBuf are
