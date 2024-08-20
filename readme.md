@@ -8,6 +8,8 @@ Some performance metrics:
 
 These number are based on the benchmark that is given in more detail below.
 
+__WORK IN PROGRESS!!__: spec is not finalised yet
+
 ## Goals
 The primary goals of CityBuf are
 1. be very fast to write/read features in a streaming fashion,
@@ -134,13 +136,13 @@ There are the following Python scripts:
 - `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
 - `geometry.py`: python code to convert between CityJSON and CityBuf geometry representation
 - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
-- a `load_citybuf.py` for the Benchmark (see below). This is also an example for how to use the `CityBufReader` class.
+- a `load_citybuf.py` the read test for the benchmark. This is also an example for how to use the `CityBufReader` class.
 
-Other languages than Python, eg. C++, have so far received no attention. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, c++ and rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
+Other languages than Python, eg. C++, have so far received no attention. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, C++ and Rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
 TODO:
  - implement encoding/decoding of remaining attribute types
- - review header metadata specification, make sure this is fully compatible with CityJSON
+ - review header metadata specification, make sure this is fully compatible with CityJSONSeq
 
 ## Usage of conversion scripts
 To convert from `.city.jsonl` to `.cb`:
