@@ -11,3 +11,5 @@ test_equalise:
 
 test_diff:
   diff data/one_feature_sort.city.jsonl data/one_feature_out_sort.city.jsonl || true
+
+test: test_roundtrip test_equalise test_diff
