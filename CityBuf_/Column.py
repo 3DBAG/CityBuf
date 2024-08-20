@@ -41,49 +41,56 @@ class Column(object):
         return 0
 
     # Column
-    def Title(self) -> Optional[str]:
+    def SchemaId(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
-            return self._tab.String(o + self._tab.Pos)
-        return None
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, o + self._tab.Pos)
+        return 0
 
     # Column
-    def Description(self) -> Optional[str]:
+    def Title(self) -> Optional[str]:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
         return None
 
     # Column
-    def Nullable(self):
+    def Description(self) -> Optional[str]:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Column
+    def Nullable(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
         return True
 
     # Column
     def Unique(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
-        if o != 0:
-            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
-        return False
-
-    # Column
-    def PrimaryKey(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
         if o != 0:
             return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
         return False
 
     # Column
-    def Metadata(self) -> Optional[str]:
+    def PrimaryKey(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        if o != 0:
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
+
+    # Column
+    def Metadata(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
         return None
 
 def ColumnStart(builder: flatbuffers.Builder):
-    builder.StartObject(8)
+    builder.StartObject(9)
 
 def Start(builder: flatbuffers.Builder):
     ColumnStart(builder)
@@ -100,38 +107,44 @@ def ColumnAddType(builder: flatbuffers.Builder, type: int):
 def AddType(builder: flatbuffers.Builder, type: int):
     ColumnAddType(builder, type)
 
+def ColumnAddSchemaId(builder: flatbuffers.Builder, schemaId: int):
+    builder.PrependUint16Slot(2, schemaId, 0)
+
+def AddSchemaId(builder: flatbuffers.Builder, schemaId: int):
+    ColumnAddSchemaId(builder, schemaId)
+
 def ColumnAddTitle(builder: flatbuffers.Builder, title: int):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(title), 0)
+    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(title), 0)
 
 def AddTitle(builder: flatbuffers.Builder, title: int):
     ColumnAddTitle(builder, title)
 
 def ColumnAddDescription(builder: flatbuffers.Builder, description: int):
-    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(description), 0)
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(description), 0)
 
 def AddDescription(builder: flatbuffers.Builder, description: int):
     ColumnAddDescription(builder, description)
 
 def ColumnAddNullable(builder: flatbuffers.Builder, nullable: bool):
-    builder.PrependBoolSlot(4, nullable, 1)
+    builder.PrependBoolSlot(5, nullable, 1)
 
 def AddNullable(builder: flatbuffers.Builder, nullable: bool):
     ColumnAddNullable(builder, nullable)
 
 def ColumnAddUnique(builder: flatbuffers.Builder, unique: bool):
-    builder.PrependBoolSlot(5, unique, 0)
+    builder.PrependBoolSlot(6, unique, 0)
 
 def AddUnique(builder: flatbuffers.Builder, unique: bool):
     ColumnAddUnique(builder, unique)
 
 def ColumnAddPrimaryKey(builder: flatbuffers.Builder, primaryKey: bool):
-    builder.PrependBoolSlot(6, primaryKey, 0)
+    builder.PrependBoolSlot(7, primaryKey, 0)
 
 def AddPrimaryKey(builder: flatbuffers.Builder, primaryKey: bool):
     ColumnAddPrimaryKey(builder, primaryKey)
 
 def ColumnAddMetadata(builder: flatbuffers.Builder, metadata: int):
-    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(metadata), 0)
+    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(metadata), 0)
 
 def AddMetadata(builder: flatbuffers.Builder, metadata: int):
     ColumnAddMetadata(builder, metadata)

@@ -1128,12 +1128,13 @@ impl<'a> flatbuffers::Follow<'a> for Column<'a> {
 impl<'a> Column<'a> {
   pub const VT_NAME: flatbuffers::VOffsetT = 4;
   pub const VT_TYPE_: flatbuffers::VOffsetT = 6;
-  pub const VT_TITLE: flatbuffers::VOffsetT = 8;
-  pub const VT_DESCRIPTION: flatbuffers::VOffsetT = 10;
-  pub const VT_NULLABLE: flatbuffers::VOffsetT = 12;
-  pub const VT_UNIQUE: flatbuffers::VOffsetT = 14;
-  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 16;
-  pub const VT_METADATA: flatbuffers::VOffsetT = 18;
+  pub const VT_SCHEMA_ID: flatbuffers::VOffsetT = 8;
+  pub const VT_TITLE: flatbuffers::VOffsetT = 10;
+  pub const VT_DESCRIPTION: flatbuffers::VOffsetT = 12;
+  pub const VT_NULLABLE: flatbuffers::VOffsetT = 14;
+  pub const VT_UNIQUE: flatbuffers::VOffsetT = 16;
+  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 18;
+  pub const VT_METADATA: flatbuffers::VOffsetT = 20;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1149,6 +1150,7 @@ impl<'a> Column<'a> {
     if let Some(x) = args.description { builder.add_description(x); }
     if let Some(x) = args.title { builder.add_title(x); }
     if let Some(x) = args.name { builder.add_name(x); }
+    builder.add_schema_id(args.schema_id);
     builder.add_primary_key(args.primary_key);
     builder.add_unique(args.unique);
     builder.add_nullable(args.nullable);
@@ -1170,6 +1172,13 @@ impl<'a> Column<'a> {
     // Created from valid Table for this object
     // which contains a valid value in this slot
     unsafe { self._tab.get::<ColumnType>(Column::VT_TYPE_, Some(ColumnType::Byte)).unwrap()}
+  }
+  #[inline]
+  pub fn schema_id(&self) -> u16 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u16>(Column::VT_SCHEMA_ID, Some(0)).unwrap()}
   }
   #[inline]
   pub fn title(&self) -> Option<&'a str> {
@@ -1224,6 +1233,7 @@ impl flatbuffers::Verifiable for Column<'_> {
     v.visit_table(pos)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
      .visit_field::<ColumnType>("type_", Self::VT_TYPE_, false)?
+     .visit_field::<u16>("schema_id", Self::VT_SCHEMA_ID, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("title", Self::VT_TITLE, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("description", Self::VT_DESCRIPTION, false)?
      .visit_field::<bool>("nullable", Self::VT_NULLABLE, false)?
@@ -1237,6 +1247,7 @@ impl flatbuffers::Verifiable for Column<'_> {
 pub struct ColumnArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub type_: ColumnType,
+    pub schema_id: u16,
     pub title: Option<flatbuffers::WIPOffset<&'a str>>,
     pub description: Option<flatbuffers::WIPOffset<&'a str>>,
     pub nullable: bool,
@@ -1250,6 +1261,7 @@ impl<'a> Default for ColumnArgs<'a> {
     ColumnArgs {
       name: None, // required field
       type_: ColumnType::Byte,
+      schema_id: 0,
       title: None,
       description: None,
       nullable: true,
@@ -1272,6 +1284,10 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ColumnBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_type_(&mut self, type_: ColumnType) {
     self.fbb_.push_slot::<ColumnType>(Column::VT_TYPE_, type_, ColumnType::Byte);
+  }
+  #[inline]
+  pub fn add_schema_id(&mut self, schema_id: u16) {
+    self.fbb_.push_slot::<u16>(Column::VT_SCHEMA_ID, schema_id, 0);
   }
   #[inline]
   pub fn add_title(&mut self, title: flatbuffers::WIPOffset<&'b  str>) {
@@ -1318,6 +1334,7 @@ impl core::fmt::Debug for Column<'_> {
     let mut ds = f.debug_struct("Column");
       ds.field("name", &self.name());
       ds.field("type_", &self.type_());
+      ds.field("schema_id", &self.schema_id());
       ds.field("title", &self.title());
       ds.field("description", &self.description());
       ds.field("nullable", &self.nullable());
