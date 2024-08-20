@@ -113,14 +113,8 @@ class AttributeSchemaDecoder:
     for ci in range(cb_header.ColumnsLength()):
       col = cb_header.Columns(ci)
       self.schema[ci] = (col.Name().decode('utf-8'), col.Type())
-
-  def decode_value(self, column_index, value):
-    name, type = self.schema[column_index]
-    if type == ColumnType.String:
-      return value.decode('utf-8')
-    else:
-      return value
-      
+  
+  # buffer is retreived from the AttributesAsNumpy() method
   def decode_attributes(self, buffer):
     ib = 0
     attributes = {}

@@ -22,66 +22,7 @@ import argparse, logging
 import numpy as np
 
 from attributes import AttributeSchemaEncoder, AttributeSchemaDecoder
-
-class GeometryData:
-  def __init__(self):
-    self.solids = []
-    self.shells = []
-    self.surfaces = []
-    self.strings = [] # Rings or LineStrings
-    self.indices = []
-    self.semantics = []
-  
-  def build_polysolid(self, polysolid, semantic_values=None):
-    # solids -> shells -> surfaces -> rings -> index
-    if semantic_values:
-      for solid, sem in zip(reversed(polysolid), reversed(semantic_values)):
-        self.solids.append(len(solid))
-        self.build_solids(solid, sem)
-    else:
-      for solid in reversed(polysolid):
-        self.solids.append(len(solid))
-        self.build_solids(solid)
-    
-  def build_solid(self, solid, semantic_values=None):
-    # shells -> surfaces -> rings -> index
-    if semantic_values:
-      for shell, sem in zip(reversed(solid), reversed(semantic_values)):
-        self.shells.append(len(shell))
-        self.semantics += reversed(sem)
-        for surface in reversed(shell):
-          self.build_surface(surface)
-    else:
-      for shell in reversed(solid):
-        self.shells.append(len(shell))
-        for surface in reversed(shell):
-          self.build_surface(surface)
-
-  def build_polysurface(self, polysurface, semantic_values=None):
-    if semantic_values:
-      self.semantics += reversed(semantic_values)
-    for surface in reversed(polysurface):
-      self.surfaces.append(len(surface))
-      self.build_surface(surface)
-
-  def build_surface(self, surface):
-    self.surfaces.append(len(surface))
-    for ring in reversed(surface):
-      self.strings.append(len(ring))
-      self.indices += reversed(ring)
-
-  def build_multi_string(self, strings, semantic_values=None):
-    for string in reversed(strings):
-      self.strings.append(len(string))
-      self.indices += reversed(string)
-    if semantic_values:
-      self.semantics += reversed(semantic_values)
-
-  def build_multi_point(self, multi_point, semantic_values=None):
-    self.indices += reversed(multi_point)
-    if semantic_values:
-      self.semantics += reversed(semantic_values)
-
+from geometry import GeometryEncoder
 
 def create_magic_bytes(major=0, minor=2):
   cb = "FCB".encode('ascii')
@@ -129,24 +70,15 @@ def create_feature(cj_feature, schema_encoder=None):
       global total_boundaries_size
       o = builder.Offset()
       
-      gd = GeometryData()
-      if geom["type"] == "Solid":
-        gd.build_solid(geom["boundaries"], semantic_values)
-      elif geom["type"] == "MultiSurface" or geom["type"] == "CompositeSurface":
-        gd.build_polysurface(geom["boundaries"], semantic_values)
-      elif geom["type"] == "MultiSolid" or geom["type"] == "CompositeSolid":
-        gd.build_polysolid(geom["boundaries"], semantic_values)
-      elif geom["type"] == "MultiLineString":
-        gd.build_multi_string(geom["boundaries"], semantic_values)
-      elif geom["type"] == "MultiPoint":
-        gd.build_multi_point(geom["boundaries"], semantic_values)
-      else:
-        raise Exception("Geometry type not supported")
+      gd = GeometryEncoder()
+      gd.encode(geom["boundaries"])
+      if semantic_values:
+        gd.encode_semantics(semantic_values)
       
       global total_indices_size, total_indices_count
       o = builder.Offset()
       Geometry.StartBoundariesVector(builder, len(gd.indices))
-      for index in gd.indices:
+      for index in reversed(gd.indices):
         builder.PrependUint32(index)
       f_boundaries_offset = builder.EndVector()
       total_indices_size += (builder.Offset() - o)
@@ -154,35 +86,35 @@ def create_feature(cj_feature, schema_encoder=None):
 
       if len(gd.solids):
         Geometry.StartSolidsVector(builder, len(gd.solids))
-        for solid in gd.solids:
-          builder.PrependUint32(solid)
+        for solid in reversed(gd.solids):
+          builder.PrependUint16(solid)
         f_solids_offset = builder.EndVector()
 
       if len(gd.shells):
         Geometry.StartShellsVector(builder, len(gd.shells))
-        for shell in gd.shells:
-          builder.PrependUint32(shell)
+        for shell in reversed(gd.shells):
+          builder.PrependUint16(shell)
         f_shells_offset = builder.EndVector()
 
       if len(gd.surfaces):
         Geometry.StartSurfacesVector(builder, len(gd.surfaces))
-        for surface in gd.surfaces:
-          builder.PrependUint32(surface)
+        for surface in reversed(gd.surfaces):
+          builder.PrependUint16(surface)
         f_surfaces_offset = builder.EndVector()
 
       if len(gd.strings):
         Geometry.StartStringsVector(builder, len(gd.strings))
-        for ring in gd.strings:
-          builder.PrependUint32(ring)
+        for ring in reversed(gd.strings):
+          builder.PrependUint16(ring)
         f_rings_offset = builder.EndVector()
 
-      if len(gd.semantics):
-        Geometry.StartSemanticsVector(builder, len(gd.semantics))
-        for sem in gd.semantics:
+      if len(gd.semantic_values):
+        Geometry.StartSemanticsVector(builder, len(gd.semantic_values))
+        for sem in gd.semantic_values:
           if sem is None: # in case of None (no semantic object), use the maximum value of uint32
-            builder.PrependUint32(np.iinfo(np.uint32).max)
+            builder.PrependUint16(np.iinfo(np.uint16).max)
           else:
-            builder.PrependUint32(sem)
+            builder.PrependUint16(sem)
         f_semantics = builder.EndVector()
 
       total_boundaries_size += (builder.Offset() - o)
@@ -201,14 +133,15 @@ def create_feature(cj_feature, schema_encoder=None):
       Geometry.GeometryAddBoundaries(builder, f_boundaries_offset)
       
       if semantic_values:
-          Geometry.GeometryAddSemanticsObjects(builder, f_semantics_objects)
-          Geometry.GeometryAddSemantics(builder, f_semantics)
+        Geometry.GeometryAddSemanticsObjects(builder, f_semantics_objects)
+        Geometry.GeometryAddSemantics(builder, f_semantics)
       return Geometry.End(builder)
 
     has_children = "children" in cj_object
     has_parents = "parents" in cj_object
     has_attributes = "attributes" in cj_object
     has_geometry = "geometry" in cj_object
+    has_geographical_extent = "geographicalExtent" in cj_object
 
     f_id = builder.CreateString(cj_id)
 
@@ -281,6 +214,14 @@ def create_feature(cj_feature, schema_encoder=None):
     # parent
     if has_parents:
       CityObject.AddParents(builder, f_parents_offset)
+
+    # geographical extent
+    if has_geographical_extent:
+
+      gextent = np.ndarray((2, 3), dtype=np.float64)
+      gextent[0] = cj_object["geographicalExtent"][0:3]
+      gextent[1] = cj_object["geographicalExtent"][3:6]
+      CityObject.AddGeographicalExtent(builder,  CreateGeographicalExtent(builder, gextent[0][0], gextent[0][1], gextent[0][2], gextent[1][0], gextent[1][1], gextent[1][2]))
 
     return CityObject.End(builder)
 

@@ -46,14 +46,14 @@ class Geometry(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
         return 0
 
     # Geometry
     def SolidsAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Geometry
@@ -73,14 +73,14 @@ class Geometry(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
         return 0
 
     # Geometry
     def ShellsAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Geometry
@@ -100,14 +100,14 @@ class Geometry(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
         return 0
 
     # Geometry
     def SurfacesAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Geometry
@@ -127,14 +127,14 @@ class Geometry(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
         return 0
 
     # Geometry
     def StringsAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Geometry
@@ -181,14 +181,14 @@ class Geometry(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
             a = self._tab.Vector(o)
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
         return 0
 
     # Geometry
     def SemanticsAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         if o != 0:
-            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint32Flags, o)
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Geometry
@@ -252,7 +252,7 @@ def AddSolids(builder: flatbuffers.Builder, solids: int):
     GeometryAddSolids(builder, solids)
 
 def GeometryStartSolidsVector(builder, numElems: int) -> int:
-    return builder.StartVector(4, numElems, 4)
+    return builder.StartVector(2, numElems, 2)
 
 def StartSolidsVector(builder, numElems: int) -> int:
     return GeometryStartSolidsVector(builder, numElems)
@@ -264,7 +264,7 @@ def AddShells(builder: flatbuffers.Builder, shells: int):
     GeometryAddShells(builder, shells)
 
 def GeometryStartShellsVector(builder, numElems: int) -> int:
-    return builder.StartVector(4, numElems, 4)
+    return builder.StartVector(2, numElems, 2)
 
 def StartShellsVector(builder, numElems: int) -> int:
     return GeometryStartShellsVector(builder, numElems)
@@ -276,7 +276,7 @@ def AddSurfaces(builder: flatbuffers.Builder, surfaces: int):
     GeometryAddSurfaces(builder, surfaces)
 
 def GeometryStartSurfacesVector(builder, numElems: int) -> int:
-    return builder.StartVector(4, numElems, 4)
+    return builder.StartVector(2, numElems, 2)
 
 def StartSurfacesVector(builder, numElems: int) -> int:
     return GeometryStartSurfacesVector(builder, numElems)
@@ -288,7 +288,7 @@ def AddStrings(builder: flatbuffers.Builder, strings: int):
     GeometryAddStrings(builder, strings)
 
 def GeometryStartStringsVector(builder, numElems: int) -> int:
-    return builder.StartVector(4, numElems, 4)
+    return builder.StartVector(2, numElems, 2)
 
 def StartStringsVector(builder, numElems: int) -> int:
     return GeometryStartStringsVector(builder, numElems)
@@ -312,7 +312,7 @@ def AddSemantics(builder: flatbuffers.Builder, semantics: int):
     GeometryAddSemantics(builder, semantics)
 
 def GeometryStartSemanticsVector(builder, numElems: int) -> int:
-    return builder.StartVector(4, numElems, 4)
+    return builder.StartVector(2, numElems, 2)
 
 def StartSemanticsVector(builder, numElems: int) -> int:
     return GeometryStartSemanticsVector(builder, numElems)

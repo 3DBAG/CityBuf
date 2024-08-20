@@ -1084,23 +1084,23 @@ struct Geometry FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *lod() const {
     return GetPointer<const ::flatbuffers::String *>(VT_LOD);
   }
-  const ::flatbuffers::Vector<uint32_t> *solids() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_SOLIDS);
+  const ::flatbuffers::Vector<uint16_t> *solids() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_SOLIDS);
   }
-  const ::flatbuffers::Vector<uint32_t> *shells() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_SHELLS);
+  const ::flatbuffers::Vector<uint16_t> *shells() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_SHELLS);
   }
-  const ::flatbuffers::Vector<uint32_t> *surfaces() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_SURFACES);
+  const ::flatbuffers::Vector<uint16_t> *surfaces() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_SURFACES);
   }
-  const ::flatbuffers::Vector<uint32_t> *strings() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_STRINGS);
+  const ::flatbuffers::Vector<uint16_t> *strings() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_STRINGS);
   }
   const ::flatbuffers::Vector<uint32_t> *boundaries() const {
     return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_BOUNDARIES);
   }
-  const ::flatbuffers::Vector<uint32_t> *semantics() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_SEMANTICS);
+  const ::flatbuffers::Vector<uint16_t> *semantics() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_SEMANTICS);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::SemanticObject>> *semantics_objects() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::SemanticObject>> *>(VT_SEMANTICS_OBJECTS);
@@ -1139,22 +1139,22 @@ struct GeometryBuilder {
   void add_lod(::flatbuffers::Offset<::flatbuffers::String> lod) {
     fbb_.AddOffset(Geometry::VT_LOD, lod);
   }
-  void add_solids(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> solids) {
+  void add_solids(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> solids) {
     fbb_.AddOffset(Geometry::VT_SOLIDS, solids);
   }
-  void add_shells(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> shells) {
+  void add_shells(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> shells) {
     fbb_.AddOffset(Geometry::VT_SHELLS, shells);
   }
-  void add_surfaces(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> surfaces) {
+  void add_surfaces(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> surfaces) {
     fbb_.AddOffset(Geometry::VT_SURFACES, surfaces);
   }
-  void add_strings(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> strings) {
+  void add_strings(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> strings) {
     fbb_.AddOffset(Geometry::VT_STRINGS, strings);
   }
   void add_boundaries(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> boundaries) {
     fbb_.AddOffset(Geometry::VT_BOUNDARIES, boundaries);
   }
-  void add_semantics(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> semantics) {
+  void add_semantics(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> semantics) {
     fbb_.AddOffset(Geometry::VT_SEMANTICS, semantics);
   }
   void add_semantics_objects(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::SemanticObject>>> semantics_objects) {
@@ -1175,12 +1175,12 @@ inline ::flatbuffers::Offset<Geometry> CreateGeometry(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     CityBuf_::GeometryType type = CityBuf_::GeometryType_MultiPoint,
     ::flatbuffers::Offset<::flatbuffers::String> lod = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> solids = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> shells = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> surfaces = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> strings = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> solids = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> shells = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> surfaces = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> strings = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> boundaries = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> semantics = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> semantics = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::SemanticObject>>> semantics_objects = 0) {
   GeometryBuilder builder_(_fbb);
   builder_.add_semantics_objects(semantics_objects);
@@ -1199,20 +1199,20 @@ inline ::flatbuffers::Offset<Geometry> CreateGeometryDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     CityBuf_::GeometryType type = CityBuf_::GeometryType_MultiPoint,
     const char *lod = nullptr,
-    const std::vector<uint32_t> *solids = nullptr,
-    const std::vector<uint32_t> *shells = nullptr,
-    const std::vector<uint32_t> *surfaces = nullptr,
-    const std::vector<uint32_t> *strings = nullptr,
+    const std::vector<uint16_t> *solids = nullptr,
+    const std::vector<uint16_t> *shells = nullptr,
+    const std::vector<uint16_t> *surfaces = nullptr,
+    const std::vector<uint16_t> *strings = nullptr,
     const std::vector<uint32_t> *boundaries = nullptr,
-    const std::vector<uint32_t> *semantics = nullptr,
+    const std::vector<uint16_t> *semantics = nullptr,
     const std::vector<::flatbuffers::Offset<CityBuf_::SemanticObject>> *semantics_objects = nullptr) {
   auto lod__ = lod ? _fbb.CreateString(lod) : 0;
-  auto solids__ = solids ? _fbb.CreateVector<uint32_t>(*solids) : 0;
-  auto shells__ = shells ? _fbb.CreateVector<uint32_t>(*shells) : 0;
-  auto surfaces__ = surfaces ? _fbb.CreateVector<uint32_t>(*surfaces) : 0;
-  auto strings__ = strings ? _fbb.CreateVector<uint32_t>(*strings) : 0;
+  auto solids__ = solids ? _fbb.CreateVector<uint16_t>(*solids) : 0;
+  auto shells__ = shells ? _fbb.CreateVector<uint16_t>(*shells) : 0;
+  auto surfaces__ = surfaces ? _fbb.CreateVector<uint16_t>(*surfaces) : 0;
+  auto strings__ = strings ? _fbb.CreateVector<uint16_t>(*strings) : 0;
   auto boundaries__ = boundaries ? _fbb.CreateVector<uint32_t>(*boundaries) : 0;
-  auto semantics__ = semantics ? _fbb.CreateVector<uint32_t>(*semantics) : 0;
+  auto semantics__ = semantics ? _fbb.CreateVector<uint16_t>(*semantics) : 0;
   auto semantics_objects__ = semantics_objects ? _fbb.CreateVector<::flatbuffers::Offset<CityBuf_::SemanticObject>>(*semantics_objects) : 0;
   return CityBuf_::CreateGeometry(
       _fbb,
@@ -1244,8 +1244,8 @@ struct SemanticObject FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<uint32_t> *children() const {
     return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_CHILDREN);
   }
-  uint32_t parent() const {
-    return GetField<uint32_t>(VT_PARENT, 0);
+  ::flatbuffers::Optional<uint32_t> parent() const {
+    return GetOptional<uint32_t, uint32_t>(VT_PARENT);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1273,7 +1273,7 @@ struct SemanticObjectBuilder {
     fbb_.AddOffset(SemanticObject::VT_CHILDREN, children);
   }
   void add_parent(uint32_t parent) {
-    fbb_.AddElement<uint32_t>(SemanticObject::VT_PARENT, parent, 0);
+    fbb_.AddElement<uint32_t>(SemanticObject::VT_PARENT, parent);
   }
   explicit SemanticObjectBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1291,9 +1291,9 @@ inline ::flatbuffers::Offset<SemanticObject> CreateSemanticObject(
     CityBuf_::SemanticSurfaceType type = CityBuf_::SemanticSurfaceType_RoofSurface,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> attributes = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> children = 0,
-    uint32_t parent = 0) {
+    ::flatbuffers::Optional<uint32_t> parent = ::flatbuffers::nullopt) {
   SemanticObjectBuilder builder_(_fbb);
-  builder_.add_parent(parent);
+  if(parent) { builder_.add_parent(*parent); }
   builder_.add_children(children);
   builder_.add_attributes(attributes);
   builder_.add_type(type);
@@ -1305,7 +1305,7 @@ inline ::flatbuffers::Offset<SemanticObject> CreateSemanticObjectDirect(
     CityBuf_::SemanticSurfaceType type = CityBuf_::SemanticSurfaceType_RoofSurface,
     const std::vector<uint8_t> *attributes = nullptr,
     const std::vector<uint32_t> *children = nullptr,
-    uint32_t parent = 0) {
+    ::flatbuffers::Optional<uint32_t> parent = ::flatbuffers::nullopt) {
   auto attributes__ = attributes ? _fbb.CreateVector<uint8_t>(*attributes) : 0;
   auto children__ = children ? _fbb.CreateVector<uint32_t>(*children) : 0;
   return CityBuf_::CreateSemanticObject(

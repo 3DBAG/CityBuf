@@ -31,10 +31,31 @@ Encoding of any string value is assumed to be UTF-8.
 ## CityFeatures
 The features in the Data portion of an CityBuf file are modelled after [CityJSONFeatures](https://www.cityjson.org/specs/2.0.1/#text-sequences-and-streaming-with-cityjsonfeature). There is support for all the CityJSON geometry types and Semantic surfaces. One should be able to do a lossless conversion to/from CityJSON features (excluding the unsupported features).
 
-Specificalities:
-- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
-
  Currently not supported are CityJSON's geometry templates, appearance and extensions. However, these features will be added in the future.
+
+## Geometry
+Given this `Solid` with 2 shells in the CityJSON nested lists geometry encoding:
+```
+[
+  [[[0, 3, 2, 1, 22], [1, 2, 3, 4]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]]], [[[240, 243, 124]], [[244, 246, 724]], [[34, 414, 45]], [[111, 246, 5]]]
+]
+```
+
+CityBuf will encode it using a number of flat arrays:
+```
+indices:  [0, 3, 2, 1, 22, 1, 2, 3, 4, 4, 5, 6, 7, 0, 1, 5, 4, 1, 2, 6, 5, 240, 243, 124, 244, 246, 724, 34, 414, 45, 111, 246, 5] # flat list of indices
+strings:  [5, 4, 4, 4, 4, 3, 3, 3, 3] # number of indices per ring, sum should equal length of indices array
+surfaces:  [2, 1, 1, 1, 1, 1, 1, 1] # 8 surfaces, 1st has 2 rings, the rest all have 1 ring
+shells:  [4, 4] # 2 shells that each consist of 4 surfaces
+solids:  [2] # one solid that consists of two shells
+```
+
+The `strings` array is used both for the Rings of a Surface, and the LineStrings of a MultiLineString. The `indices` array is used for all geometry types. The non indices arrays are uses as needed, depending of the depth of nesting of geometry type.
+
+`geometry.py` gives an implementation of how to go back and forth between these 2 representations.
+
+Specificalities:
+- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint16`.
 
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
@@ -104,6 +125,8 @@ The sum of the runtimes grouped by format is:
 
 # Implementation status
 There are the following Python scripts:
+- `cb2cjseq.py`
+- `geometry.py`
 - `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
 - `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
 - a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
@@ -113,6 +136,7 @@ Other languages than Python, eg. C++, have so far received no attention. Notice 
 
 TODO:
  - implement encoding/decoding of remaining attribute types
+ - fix issue that null valued attributes are not written when going cb->cjseq
  - review header metadata specification, make sure this is fully compatible with CityJSON
  - script to convert from `.cb` to `.city.jsonl`. And check if we get back the same `.city.jsonl` file when doing a roundtrip conversion (`.city.jsonl` > `.cb` > `.city.jsonl`)
 
@@ -120,6 +144,7 @@ TODO:
 - Implement a spatial index, could be the same as FlatGeoBuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
+- Do more extensive benchamrking
 - Investigate and implement support for CityJSON extensions
 - Add support for geometry templates
 - Add support for textures

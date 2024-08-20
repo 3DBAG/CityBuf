@@ -106,15 +106,15 @@ table Geometry {
   type:GeometryType;
   lod:string;
   
-  // these are lengths (one per geometric structure) in the boundaries list
+  // these are lengths in the 
   // depending on the geometry_type, different fields are used
-  solids:[uint];
-  shells:[uint];
-  surfaces:[uint];
-  strings:[uint]; // Rings or LineStrings
+  solids:[uint16];
+  shells:[uint16];
+  surfaces:[uint16];
+  strings:[uint16]; // Rings or LineStrings
 
   boundaries:[uint]; // flat list of vertex indices
-  semantics:[uint]; // flat list of semantic object indices
+  semantics:[uint16]; // flat list of semantic object indices
 
   semantics_objects:[SemanticObject];
 }
@@ -123,7 +123,7 @@ table SemanticObject {
   type:SemanticSurfaceType;
   attributes:[ubyte];
   children:[uint];
-  parent:uint;
+  parent:uint = null; // default is null, important to be able to check if this field is set
 }
 
 root_type CityFeature;

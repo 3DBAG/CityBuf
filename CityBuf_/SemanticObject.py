@@ -91,7 +91,7 @@ class SemanticObject(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
-        return 0
+        return None
 
 def SemanticObjectStart(builder: flatbuffers.Builder):
     builder.StartObject(4)
@@ -130,7 +130,7 @@ def StartChildrenVector(builder, numElems: int) -> int:
     return SemanticObjectStartChildrenVector(builder, numElems)
 
 def SemanticObjectAddParent(builder: flatbuffers.Builder, parent: int):
-    builder.PrependUint32Slot(3, parent, 0)
+    builder.PrependUint32Slot(3, parent, None)
 
 def AddParent(builder: flatbuffers.Builder, parent: int):
     SemanticObjectAddParent(builder, parent)
