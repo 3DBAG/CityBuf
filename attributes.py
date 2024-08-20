@@ -5,93 +5,88 @@ import json
 
 class AttributeSchemaEncoder:
   class Column:
+    type = None
+    order = None
 
-    def __init__(self, type, order, schema_id=0):
+    def __init__(self, type, order):
       self.order = order
       self.type = type
-      self.schema_id = schema_id
 
-  # schema = {(Schema_id, name): Column, ...}
+  # schema = {"name": Column, ...}
   schema = {}
   pretyped_names = []
 
   def __init__(self, pretyped_attributes={}):
-    self.set_pretyped_attributes(pretyped_attributes)
-    
-  def set_pretyped_attributes(self, pretyped_attributes={}, schema_id=0):
     for key, value in pretyped_attributes.items():
-      self.schema[(schema_id,key)] = self.Column(value, len(self.schema), schema_id)
+      self.schema[key] = self.Column(value, len(self.schema))
       self.pretyped_names = pretyped_attributes.keys()
 
-  def add(self, attributes, schema_id=0, exclude=[]):
+  def add(self, attributes, exclude=[]):
     for key, value in attributes.items():
-      if key == "on_footprint_edge":
-        pass
       if key in exclude:
         continue
       if key in self.pretyped_names:
         continue
-      if (schema_id, key) not in self.schema:
-        self.schema[(schema_id, key)] = self.Column(type(value), len(self.schema))
-      else: # this key is already in the schema
+      if key not in self.schema:
+        self.schema[key] = self.Column(type(value), len(self.schema))
+      else:
         t_val = type(value)
-        t_schema = self.schema[(schema_id, key)].type
+        t_schema = self.schema[key].type
         if t_val != t_schema:
           if t_schema == None:
-            self.schema[(schema_id, key)] = self.Column(t_val, len(self.schema), schema_id)
+            self.schema[key] = self.Column(t_val, len(self.schema))
           elif t_val == float and t_schema == int:
-            self.schema[(schema_id, key)] = self.Column(float, len(self.schema), schema_id)
-            logging.warning("Type mismatch for column " + (schema_id, key) + ". Overwriting schema type to float")
+            self.schema[key] = self.Column(float, len(self.schema))
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to float")
           elif t_val == int and t_schema == bool:
-            self.schema[(schema_id, key)] = self.Column(int, len(self.schema), schema_id)
-            logging.warning("Type mismatch for column " + (schema_id, key) + ". Overwriting schema type to int")
+            self.schema[key] = self.Column(int, len(self.schema))
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to int")
           elif t_val == str and t_schema == int:
-            self.schema[(schema_id, key)] = self.Column(str, len(self.schema), schema_id)
-            logging.warning("Type mismatch for column " + (schema_id, key) + ". Overwriting schema type to string")
+            self.schema[key] = self.Column(str, len(self.schema))
+            logging.warning("Type mismatch for column " + key + ". Overwriting schema type to string")
 
-  def get_cb_column_type(self, name, schema_id=0):
-    if self.schema[(schema_id, name)].type == str:
+  def get_cb_column_type(self, name):
+    if self.schema[name].type == str:
       return ColumnType.String
-    elif self.schema[(schema_id, name)].type == int:
+    elif self.schema[name].type == int:
       return ColumnType.Int
-    elif self.schema[(schema_id, name)].type == float:
+    elif self.schema[name].type == float:
       return ColumnType.Float
-    elif self.schema[(schema_id, name)].type == bool:
+    elif self.schema[name].type == bool:
       return ColumnType.Bool
-    elif self.schema[(schema_id, name)].type == dict:
+    elif self.schema[name].type == dict:
       return ColumnType.Json
-    elif self.schema[(schema_id, name)].type == type(None):
+    elif self.schema[name].type == type(None):
       logging.warning("Type not set for column " + name + ". Defaulting to string")
       return ColumnType.String
     else:
       raise Exception("Type not supported")
     
-  def encode_value(self, name, value, schema_id=0):
+  def encode_value(self, name, value):
     # handle null values by not writing anything
     if value == None:
       return b""
     
     format = "=H" # don't add padding, unsigned short (2 bytes) is the column index
-    t_schema = self.schema[(schema_id, name)].type
-    if t_schema == str:
+    if self.schema[name].type == str:
       if name in self.pretyped_names and type(value) != str:
         value = str(value)
       format += "I" # string length
       format += str(len(value)) # string length
       format += "s" # string
-    elif t_schema == int:
+    elif self.schema[name].type == int:
       format += "i"
       if name in self.pretyped_names and type(value) != int:
         value = int(value)
-    elif t_schema == float:
+    elif self.schema[name].type == float:
       format += "f"
       if name in self.pretyped_names and type(value) != float:
         value = float(value)
-    elif t_schema == bool:
+    elif self.schema[name].type == bool:
       format += "?"
       if name in self.pretyped_names and type(value) != bool:
         value = bool(value)
-    elif t_schema == dict:
+    elif self.schema[name].type == dict:
       value = json.dumps(value, separators=(',', ':'))
       format += "I" # string length
       format += str(len(value)) # string length
@@ -99,36 +94,34 @@ class AttributeSchemaEncoder:
     else:
       raise Exception("Type not supported")
     
-    if t_schema == str or t_schema == dict:
-      return struct.pack(format, self.schema[(schema_id, name)].order, len(value), value.encode('utf-8'))
+    if self.schema[name].type == str or self.schema[name].type == dict:
+      return struct.pack(format, self.schema[name].order, len(value), value.encode('utf-8'))
     else:
-      return struct.pack(format, self.schema[(schema_id, name)].order, value)
+      return struct.pack(format, self.schema[name].order, value)
 
-  def encode_values(self, attributes, schema_id=0, exclude=[]):
-    buf = struct.pack("=H", schema_id) # unsigned short (2 bytes) is the schema id
+  def encode_values(self, attributes, exclude=[]):
+    buf = b""
     for key, value in attributes.items():
       if key in exclude:
         continue
-      buf += self.encode_value(key, value, schema_id)
+      buf += self.encode_value(key, value)
     return buf
 
 class AttributeSchemaDecoder:
-  schema = {} # {index : (schema_id, name, type)}
+  schema = {}
   def __init__(self, cb_header):
     for ci in range(cb_header.ColumnsLength()):
       col = cb_header.Columns(ci)
-      self.schema[ci] = (col.SchemaId(), col.Name().decode('utf-8'), col.Type())
+      self.schema[ci] = (col.Name().decode('utf-8'), col.Type())
   
   # buffer is retreived from the AttributesAsNumpy() method
-  def decode_attributes(self, buffer, write_nulls=False):
+  def decode_attributes(self, buffer):
     ib = 0
     attributes = {}
-    schema_id = column_index = struct.unpack('H', buffer[ib:ib+2])[0]
-    ib += 2
     while ib < len(buffer):
       column_index = struct.unpack('H', buffer[ib:ib+2])[0]
       ib += 2
-      attr_type = self.schema[column_index][2]
+      attr_type = self.schema[column_index][1]
       if attr_type == ColumnType.String:
         value_length = struct.unpack('I', buffer[ib:ib+4])[0]
         value = buffer[ib+4:ib+4+value_length].tobytes().decode('utf-8')
@@ -148,13 +141,7 @@ class AttributeSchemaDecoder:
         ib += 4 + value_length
       else:
         raise Exception("Type not supported")
-      attributes[self.schema[column_index][1]] = value
+      attributes[self.schema[column_index][0]] = value
         # raise Exception("Type not supported")
-    
-    # add null valued attributes that are defined for this schema_id
-    if write_nulls:
-      for ci in range(len(self.schema)):
-        if self.schema[ci][0] == schema_id and self.schema[ci][1] not in attributes:
-          attributes[self.schema[ci][1]] = None
 
     return attributes

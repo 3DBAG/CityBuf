@@ -55,7 +55,7 @@ The `strings` array is used both for the Rings of a Surface, and the LineStrings
 `geometry.py` gives an implementation of how to go back and forth between these 2 representations.
 
 Specificalities:
-- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
+- `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint16`.
 
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:

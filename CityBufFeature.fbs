@@ -96,7 +96,7 @@ table CityObject {
   geographical_extent:GeographicalExtent;
   geometry:[Geometry];
   attributes:[ubyte];
-  columns:[Column]; // Attribute columns schema (optional, overrides the one in the header if present)
+  columns:[Column]; // Attribute columns schema (optional)
   children:[string];
   children_roles:[string]; // for CityObjectGroup only
   parents:[string];

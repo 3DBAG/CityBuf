@@ -50,7 +50,7 @@ def create_feature(cj_feature, schema_encoder=None):
         f_semantics_offsets = []
         if "surfaces" in semantics and "values" in semantics:
           for surface in semantics["surfaces"]:
-            f_attributes_offset = builder.CreateByteVector( schema_encoder.encode_values(surface, exclude=["type"], schema_id=1) )
+            f_attributes_offset = builder.CreateByteVector( schema_encoder.encode_values(surface, exclude=["type"]) )
             SemanticObject.Start(builder)
             SemanticObject.SemanticObjectAddType(builder, get_attribute_by_name(SemanticSurfaceType, surface["type"]))
             SemanticObject.SemanticObjectAddAttributes(builder, f_attributes_offset)
@@ -150,7 +150,7 @@ def create_feature(cj_feature, schema_encoder=None):
       global total_attributes_size
       o = builder.Offset()
       # iterate of object attributes and build a binary buffer; the attribute values encoded back to back, each preceded by a column index
-      buf_attributes = schema_encoder.encode_values(cj_object["attributes"], schema_id=0)
+      buf_attributes = schema_encoder.encode_values(cj_object["attributes"])
       f_attributes_offset = builder.CreateByteVector(buf_attributes)
       total_attributes_size += (builder.Offset() - o)
 
@@ -286,7 +286,7 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
       crs_offset = Crs.CrsEnd(builder)
 
   fb_columns = []
-  for (schema_id, key), _ in schema_encoder.schema.items():
+  for key, _ in schema_encoder.schema.items():
     f_name = builder.CreateString(key)
     # f_title = builder.CreateString(key)
     # f_description = builder.CreateString(key)
@@ -294,8 +294,7 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
 
     Column.Start(builder)
     Column.AddName(builder, f_name)
-    Column.AddSchemaId(builder, schema_id)
-    f_type = schema_encoder.get_cb_column_type(key, schema_id)
+    f_type = schema_encoder.get_cb_column_type(key)
     Column.AddType(builder, f_type)
     # Column.AddTitle(builder, f_title)
     # Column.AddDescription(builder, f_description)
@@ -361,17 +360,17 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
           global_extent[1] = np.maximum(global_extent[1], fext[1])
 
       if "attributes" in cj_object:
-        schema_encoder.add(cj_object["attributes"], schema_id=0)
+        schema_encoder.add(cj_object["attributes"])
 
       if "geometry" in cj_object:
         for geom in cj_object["geometry"]:
           if "semantics" in geom:
             for surface in geom["semantics"]["surfaces"]:
-                schema_encoder.add(surface, exclude=["type", "parent", "children"], schema_id=1)
+                schema_encoder.add(surface, exclude=["type", "parent", "children"])
 
   print("Using schema:")
-  for (schema_id, name), value in schema_encoder.schema.items():
-    print(f"\t{schema_id} {name}: {value.order}, {value.type}")
+  for name, value in schema_encoder.schema.items():
+    print(f"\t{name}, {value.type}")
 
   fb_features = []
   for cj_feature in cj_features:

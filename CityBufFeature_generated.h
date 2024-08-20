@@ -468,22 +468,18 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
     VT_TYPE = 6,
-    VT_SCHEMA_ID = 8,
-    VT_TITLE = 10,
-    VT_DESCRIPTION = 12,
-    VT_NULLABLE = 14,
-    VT_UNIQUE = 16,
-    VT_PRIMARY_KEY = 18,
-    VT_METADATA = 20
+    VT_TITLE = 8,
+    VT_DESCRIPTION = 10,
+    VT_NULLABLE = 12,
+    VT_UNIQUE = 14,
+    VT_PRIMARY_KEY = 16,
+    VT_METADATA = 18
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
   CityBuf_::ColumnType type() const {
     return static_cast<CityBuf_::ColumnType>(GetField<uint8_t>(VT_TYPE, 0));
-  }
-  uint16_t schema_id() const {
-    return GetField<uint16_t>(VT_SCHEMA_ID, 0);
   }
   const ::flatbuffers::String *title() const {
     return GetPointer<const ::flatbuffers::String *>(VT_TITLE);
@@ -508,7 +504,6 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffsetRequired(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
-           VerifyField<uint16_t>(verifier, VT_SCHEMA_ID, 2) &&
            VerifyOffset(verifier, VT_TITLE) &&
            verifier.VerifyString(title()) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
@@ -531,9 +526,6 @@ struct ColumnBuilder {
   }
   void add_type(CityBuf_::ColumnType type) {
     fbb_.AddElement<uint8_t>(Column::VT_TYPE, static_cast<uint8_t>(type), 0);
-  }
-  void add_schema_id(uint16_t schema_id) {
-    fbb_.AddElement<uint16_t>(Column::VT_SCHEMA_ID, schema_id, 0);
   }
   void add_title(::flatbuffers::Offset<::flatbuffers::String> title) {
     fbb_.AddOffset(Column::VT_TITLE, title);
@@ -569,7 +561,6 @@ inline ::flatbuffers::Offset<Column> CreateColumn(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     CityBuf_::ColumnType type = CityBuf_::ColumnType_Byte,
-    uint16_t schema_id = 0,
     ::flatbuffers::Offset<::flatbuffers::String> title = 0,
     ::flatbuffers::Offset<::flatbuffers::String> description = 0,
     bool nullable = true,
@@ -581,7 +572,6 @@ inline ::flatbuffers::Offset<Column> CreateColumn(
   builder_.add_description(description);
   builder_.add_title(title);
   builder_.add_name(name);
-  builder_.add_schema_id(schema_id);
   builder_.add_primary_key(primary_key);
   builder_.add_unique(unique);
   builder_.add_nullable(nullable);
@@ -593,7 +583,6 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
     CityBuf_::ColumnType type = CityBuf_::ColumnType_Byte,
-    uint16_t schema_id = 0,
     const char *title = nullptr,
     const char *description = nullptr,
     bool nullable = true,
@@ -608,7 +597,6 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
       _fbb,
       name__,
       type,
-      schema_id,
       title__,
       description__,
       nullable,

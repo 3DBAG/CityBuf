@@ -21,7 +21,6 @@ enum ColumnType: ubyte {
 table Column {
   name: string (required);      // Column name
   type: ColumnType;             // Column type
-  schema_id: ushort;            // Schema ID (0 = default schema)
   title: string;                // Column title
   description: string;          // Column description (intended for free form long text)
   // width: int = -1;              // Column values expected width (-1 = unknown) (currently only used to indicate the number of characters in strings)
