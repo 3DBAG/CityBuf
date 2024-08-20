@@ -18,8 +18,8 @@ namespace CityBuf_ {
 struct Column;
 struct ColumnBuilder;
 
-struct Crs;
-struct CrsBuilder;
+struct ReferenceSystem;
+struct ReferenceSystemBuilder;
 
 struct Vector;
 
@@ -471,10 +471,11 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_TITLE = 8,
     VT_DESCRIPTION = 10,
     VT_PRECISION = 12,
-    VT_NULLABLE = 14,
-    VT_UNIQUE = 16,
-    VT_PRIMARY_KEY = 18,
-    VT_METADATA = 20
+    VT_SCALE = 14,
+    VT_NULLABLE = 16,
+    VT_UNIQUE = 18,
+    VT_PRIMARY_KEY = 20,
+    VT_METADATA = 22
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -490,6 +491,9 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   int32_t precision() const {
     return GetField<int32_t>(VT_PRECISION, -1);
+  }
+  int32_t scale() const {
+    return GetField<int32_t>(VT_SCALE, -1);
   }
   bool nullable() const {
     return GetField<uint8_t>(VT_NULLABLE, 1) != 0;
@@ -513,6 +517,7 @@ struct Column FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
            VerifyField<int32_t>(verifier, VT_PRECISION, 4) &&
+           VerifyField<int32_t>(verifier, VT_SCALE, 4) &&
            VerifyField<uint8_t>(verifier, VT_NULLABLE, 1) &&
            VerifyField<uint8_t>(verifier, VT_UNIQUE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PRIMARY_KEY, 1) &&
@@ -540,6 +545,9 @@ struct ColumnBuilder {
   }
   void add_precision(int32_t precision) {
     fbb_.AddElement<int32_t>(Column::VT_PRECISION, precision, -1);
+  }
+  void add_scale(int32_t scale) {
+    fbb_.AddElement<int32_t>(Column::VT_SCALE, scale, -1);
   }
   void add_nullable(bool nullable) {
     fbb_.AddElement<uint8_t>(Column::VT_NULLABLE, static_cast<uint8_t>(nullable), 1);
@@ -572,12 +580,14 @@ inline ::flatbuffers::Offset<Column> CreateColumn(
     ::flatbuffers::Offset<::flatbuffers::String> title = 0,
     ::flatbuffers::Offset<::flatbuffers::String> description = 0,
     int32_t precision = -1,
+    int32_t scale = -1,
     bool nullable = true,
     bool unique = false,
     bool primary_key = false,
     ::flatbuffers::Offset<::flatbuffers::String> metadata = 0) {
   ColumnBuilder builder_(_fbb);
   builder_.add_metadata(metadata);
+  builder_.add_scale(scale);
   builder_.add_precision(precision);
   builder_.add_description(description);
   builder_.add_title(title);
@@ -596,6 +606,7 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
     const char *title = nullptr,
     const char *description = nullptr,
     int32_t precision = -1,
+    int32_t scale = -1,
     bool nullable = true,
     bool unique = false,
     bool primary_key = false,
@@ -611,18 +622,20 @@ inline ::flatbuffers::Offset<Column> CreateColumnDirect(
       title__,
       description__,
       precision,
+      scale,
       nullable,
       unique,
       primary_key,
       metadata__);
 }
 
-struct Crs FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CrsBuilder Builder;
+struct ReferenceSystem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ReferenceSystemBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_AUTHORITY = 4,
     VT_VERSION = 6,
-    VT_CODE = 8
+    VT_CODE = 8,
+    VT_CODE_STRING = 10
   };
   const ::flatbuffers::String *authority() const {
     return GetPointer<const ::flatbuffers::String *>(VT_AUTHORITY);
@@ -633,78 +646,102 @@ struct Crs FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   int32_t code() const {
     return GetField<int32_t>(VT_CODE, 0);
   }
+  const ::flatbuffers::String *code_string() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_CODE_STRING);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_AUTHORITY) &&
            verifier.VerifyString(authority()) &&
            VerifyField<int32_t>(verifier, VT_VERSION, 4) &&
            VerifyField<int32_t>(verifier, VT_CODE, 4) &&
+           VerifyOffset(verifier, VT_CODE_STRING) &&
+           verifier.VerifyString(code_string()) &&
            verifier.EndTable();
   }
 };
 
-struct CrsBuilder {
-  typedef Crs Table;
+struct ReferenceSystemBuilder {
+  typedef ReferenceSystem Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_authority(::flatbuffers::Offset<::flatbuffers::String> authority) {
-    fbb_.AddOffset(Crs::VT_AUTHORITY, authority);
+    fbb_.AddOffset(ReferenceSystem::VT_AUTHORITY, authority);
   }
   void add_version(int32_t version) {
-    fbb_.AddElement<int32_t>(Crs::VT_VERSION, version, 0);
+    fbb_.AddElement<int32_t>(ReferenceSystem::VT_VERSION, version, 0);
   }
   void add_code(int32_t code) {
-    fbb_.AddElement<int32_t>(Crs::VT_CODE, code, 0);
+    fbb_.AddElement<int32_t>(ReferenceSystem::VT_CODE, code, 0);
   }
-  explicit CrsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  void add_code_string(::flatbuffers::Offset<::flatbuffers::String> code_string) {
+    fbb_.AddOffset(ReferenceSystem::VT_CODE_STRING, code_string);
+  }
+  explicit ReferenceSystemBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<Crs> Finish() {
+  ::flatbuffers::Offset<ReferenceSystem> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<Crs>(end);
+    auto o = ::flatbuffers::Offset<ReferenceSystem>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<Crs> CreateCrs(
+inline ::flatbuffers::Offset<ReferenceSystem> CreateReferenceSystem(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> authority = 0,
     int32_t version = 0,
-    int32_t code = 0) {
-  CrsBuilder builder_(_fbb);
+    int32_t code = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> code_string = 0) {
+  ReferenceSystemBuilder builder_(_fbb);
+  builder_.add_code_string(code_string);
   builder_.add_code(code);
   builder_.add_version(version);
   builder_.add_authority(authority);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<Crs> CreateCrsDirect(
+inline ::flatbuffers::Offset<ReferenceSystem> CreateReferenceSystemDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *authority = nullptr,
     int32_t version = 0,
-    int32_t code = 0) {
+    int32_t code = 0,
+    const char *code_string = nullptr) {
   auto authority__ = authority ? _fbb.CreateString(authority) : 0;
-  return CityBuf_::CreateCrs(
+  auto code_string__ = code_string ? _fbb.CreateString(code_string) : 0;
+  return CityBuf_::CreateReferenceSystem(
       _fbb,
       authority__,
       version,
-      code);
+      code,
+      code_string__);
 }
 
 struct Header FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef HeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_GEOGRAPHICAL_EXTENT = 4,
-    VT_TRANSFORM = 6,
-    VT_COLUMNS = 8,
-    VT_FEATURES_COUNT = 10,
-    VT_CRS = 12,
-    VT_METADATA = 14
+    VT_TRANSFORM = 4,
+    VT_COLUMNS = 6,
+    VT_FEATURES_COUNT = 8,
+    VT_GEOGRAPHICAL_EXTENT = 10,
+    VT_REFERENCE_SYSTEM = 12,
+    VT_IDENTIFIER = 14,
+    VT_REFERENCE_DATE = 16,
+    VT_TITLE = 18,
+    VT_POC_CONTACT_NAME = 20,
+    VT_POC_CONTACT_TYPE = 22,
+    VT_POC_ROLE = 24,
+    VT_POC_PHONE = 26,
+    VT_POC_EMAIL = 28,
+    VT_POC_WEBSITE = 30,
+    VT_POC_ADDRESS_THOROUGHFARE_NUMBER = 32,
+    VT_POC_ADDRESS_THOROUGHFARE_NAME = 34,
+    VT_POC_ADDRESS_LOCALITY = 36,
+    VT_POC_ADDRESS_POSTCODE = 38,
+    VT_POC_ADDRESS_COUNTRY = 40,
+    VT_ATTRIBUTES = 42
   };
-  const CityBuf_::GeographicalExtent *geographical_extent() const {
-    return GetStruct<const CityBuf_::GeographicalExtent *>(VT_GEOGRAPHICAL_EXTENT);
-  }
   const CityBuf_::Transform *transform() const {
     return GetStruct<const CityBuf_::Transform *>(VT_TRANSFORM);
   }
@@ -714,24 +751,97 @@ struct Header FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint64_t features_count() const {
     return GetField<uint64_t>(VT_FEATURES_COUNT, 0);
   }
-  const CityBuf_::Crs *crs() const {
-    return GetPointer<const CityBuf_::Crs *>(VT_CRS);
+  const CityBuf_::GeographicalExtent *geographical_extent() const {
+    return GetStruct<const CityBuf_::GeographicalExtent *>(VT_GEOGRAPHICAL_EXTENT);
   }
-  const ::flatbuffers::String *metadata() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_METADATA);
+  const CityBuf_::ReferenceSystem *reference_system() const {
+    return GetPointer<const CityBuf_::ReferenceSystem *>(VT_REFERENCE_SYSTEM);
+  }
+  const ::flatbuffers::String *identifier() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_IDENTIFIER);
+  }
+  const ::flatbuffers::String *reference_date() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_REFERENCE_DATE);
+  }
+  const ::flatbuffers::String *title() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_TITLE);
+  }
+  const ::flatbuffers::String *poc_contact_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_CONTACT_NAME);
+  }
+  const ::flatbuffers::String *poc_contact_type() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_CONTACT_TYPE);
+  }
+  const ::flatbuffers::String *poc_role() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ROLE);
+  }
+  const ::flatbuffers::String *poc_phone() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_PHONE);
+  }
+  const ::flatbuffers::String *poc_email() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_EMAIL);
+  }
+  const ::flatbuffers::String *poc_website() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_WEBSITE);
+  }
+  const ::flatbuffers::String *poc_address_thoroughfare_number() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ADDRESS_THOROUGHFARE_NUMBER);
+  }
+  const ::flatbuffers::String *poc_address_thoroughfare_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ADDRESS_THOROUGHFARE_NAME);
+  }
+  const ::flatbuffers::String *poc_address_locality() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ADDRESS_LOCALITY);
+  }
+  const ::flatbuffers::String *poc_address_postcode() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ADDRESS_POSTCODE);
+  }
+  const ::flatbuffers::String *poc_address_country() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_POC_ADDRESS_COUNTRY);
+  }
+  const ::flatbuffers::Vector<uint8_t> *attributes() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_ATTRIBUTES);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<CityBuf_::GeographicalExtent>(verifier, VT_GEOGRAPHICAL_EXTENT, 8) &&
            VerifyField<CityBuf_::Transform>(verifier, VT_TRANSFORM, 8) &&
            VerifyOffset(verifier, VT_COLUMNS) &&
            verifier.VerifyVector(columns()) &&
            verifier.VerifyVectorOfTables(columns()) &&
            VerifyField<uint64_t>(verifier, VT_FEATURES_COUNT, 8) &&
-           VerifyOffset(verifier, VT_CRS) &&
-           verifier.VerifyTable(crs()) &&
-           VerifyOffset(verifier, VT_METADATA) &&
-           verifier.VerifyString(metadata()) &&
+           VerifyField<CityBuf_::GeographicalExtent>(verifier, VT_GEOGRAPHICAL_EXTENT, 8) &&
+           VerifyOffset(verifier, VT_REFERENCE_SYSTEM) &&
+           verifier.VerifyTable(reference_system()) &&
+           VerifyOffset(verifier, VT_IDENTIFIER) &&
+           verifier.VerifyString(identifier()) &&
+           VerifyOffset(verifier, VT_REFERENCE_DATE) &&
+           verifier.VerifyString(reference_date()) &&
+           VerifyOffset(verifier, VT_TITLE) &&
+           verifier.VerifyString(title()) &&
+           VerifyOffset(verifier, VT_POC_CONTACT_NAME) &&
+           verifier.VerifyString(poc_contact_name()) &&
+           VerifyOffset(verifier, VT_POC_CONTACT_TYPE) &&
+           verifier.VerifyString(poc_contact_type()) &&
+           VerifyOffset(verifier, VT_POC_ROLE) &&
+           verifier.VerifyString(poc_role()) &&
+           VerifyOffset(verifier, VT_POC_PHONE) &&
+           verifier.VerifyString(poc_phone()) &&
+           VerifyOffset(verifier, VT_POC_EMAIL) &&
+           verifier.VerifyString(poc_email()) &&
+           VerifyOffset(verifier, VT_POC_WEBSITE) &&
+           verifier.VerifyString(poc_website()) &&
+           VerifyOffset(verifier, VT_POC_ADDRESS_THOROUGHFARE_NUMBER) &&
+           verifier.VerifyString(poc_address_thoroughfare_number()) &&
+           VerifyOffset(verifier, VT_POC_ADDRESS_THOROUGHFARE_NAME) &&
+           verifier.VerifyString(poc_address_thoroughfare_name()) &&
+           VerifyOffset(verifier, VT_POC_ADDRESS_LOCALITY) &&
+           verifier.VerifyString(poc_address_locality()) &&
+           VerifyOffset(verifier, VT_POC_ADDRESS_POSTCODE) &&
+           verifier.VerifyString(poc_address_postcode()) &&
+           VerifyOffset(verifier, VT_POC_ADDRESS_COUNTRY) &&
+           verifier.VerifyString(poc_address_country()) &&
+           VerifyOffset(verifier, VT_ATTRIBUTES) &&
+           verifier.VerifyVector(attributes()) &&
            verifier.EndTable();
   }
 };
@@ -740,9 +850,6 @@ struct HeaderBuilder {
   typedef Header Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_geographical_extent(const CityBuf_::GeographicalExtent *geographical_extent) {
-    fbb_.AddStruct(Header::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
-  }
   void add_transform(const CityBuf_::Transform *transform) {
     fbb_.AddStruct(Header::VT_TRANSFORM, transform);
   }
@@ -752,11 +859,56 @@ struct HeaderBuilder {
   void add_features_count(uint64_t features_count) {
     fbb_.AddElement<uint64_t>(Header::VT_FEATURES_COUNT, features_count, 0);
   }
-  void add_crs(::flatbuffers::Offset<CityBuf_::Crs> crs) {
-    fbb_.AddOffset(Header::VT_CRS, crs);
+  void add_geographical_extent(const CityBuf_::GeographicalExtent *geographical_extent) {
+    fbb_.AddStruct(Header::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
   }
-  void add_metadata(::flatbuffers::Offset<::flatbuffers::String> metadata) {
-    fbb_.AddOffset(Header::VT_METADATA, metadata);
+  void add_reference_system(::flatbuffers::Offset<CityBuf_::ReferenceSystem> reference_system) {
+    fbb_.AddOffset(Header::VT_REFERENCE_SYSTEM, reference_system);
+  }
+  void add_identifier(::flatbuffers::Offset<::flatbuffers::String> identifier) {
+    fbb_.AddOffset(Header::VT_IDENTIFIER, identifier);
+  }
+  void add_reference_date(::flatbuffers::Offset<::flatbuffers::String> reference_date) {
+    fbb_.AddOffset(Header::VT_REFERENCE_DATE, reference_date);
+  }
+  void add_title(::flatbuffers::Offset<::flatbuffers::String> title) {
+    fbb_.AddOffset(Header::VT_TITLE, title);
+  }
+  void add_poc_contact_name(::flatbuffers::Offset<::flatbuffers::String> poc_contact_name) {
+    fbb_.AddOffset(Header::VT_POC_CONTACT_NAME, poc_contact_name);
+  }
+  void add_poc_contact_type(::flatbuffers::Offset<::flatbuffers::String> poc_contact_type) {
+    fbb_.AddOffset(Header::VT_POC_CONTACT_TYPE, poc_contact_type);
+  }
+  void add_poc_role(::flatbuffers::Offset<::flatbuffers::String> poc_role) {
+    fbb_.AddOffset(Header::VT_POC_ROLE, poc_role);
+  }
+  void add_poc_phone(::flatbuffers::Offset<::flatbuffers::String> poc_phone) {
+    fbb_.AddOffset(Header::VT_POC_PHONE, poc_phone);
+  }
+  void add_poc_email(::flatbuffers::Offset<::flatbuffers::String> poc_email) {
+    fbb_.AddOffset(Header::VT_POC_EMAIL, poc_email);
+  }
+  void add_poc_website(::flatbuffers::Offset<::flatbuffers::String> poc_website) {
+    fbb_.AddOffset(Header::VT_POC_WEBSITE, poc_website);
+  }
+  void add_poc_address_thoroughfare_number(::flatbuffers::Offset<::flatbuffers::String> poc_address_thoroughfare_number) {
+    fbb_.AddOffset(Header::VT_POC_ADDRESS_THOROUGHFARE_NUMBER, poc_address_thoroughfare_number);
+  }
+  void add_poc_address_thoroughfare_name(::flatbuffers::Offset<::flatbuffers::String> poc_address_thoroughfare_name) {
+    fbb_.AddOffset(Header::VT_POC_ADDRESS_THOROUGHFARE_NAME, poc_address_thoroughfare_name);
+  }
+  void add_poc_address_locality(::flatbuffers::Offset<::flatbuffers::String> poc_address_locality) {
+    fbb_.AddOffset(Header::VT_POC_ADDRESS_LOCALITY, poc_address_locality);
+  }
+  void add_poc_address_postcode(::flatbuffers::Offset<::flatbuffers::String> poc_address_postcode) {
+    fbb_.AddOffset(Header::VT_POC_ADDRESS_POSTCODE, poc_address_postcode);
+  }
+  void add_poc_address_country(::flatbuffers::Offset<::flatbuffers::String> poc_address_country) {
+    fbb_.AddOffset(Header::VT_POC_ADDRESS_COUNTRY, poc_address_country);
+  }
+  void add_attributes(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> attributes) {
+    fbb_.AddOffset(Header::VT_ATTRIBUTES, attributes);
   }
   explicit HeaderBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -771,40 +923,110 @@ struct HeaderBuilder {
 
 inline ::flatbuffers::Offset<Header> CreateHeader(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const CityBuf_::GeographicalExtent *geographical_extent = nullptr,
     const CityBuf_::Transform *transform = nullptr,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<CityBuf_::Column>>> columns = 0,
     uint64_t features_count = 0,
-    ::flatbuffers::Offset<CityBuf_::Crs> crs = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> metadata = 0) {
+    const CityBuf_::GeographicalExtent *geographical_extent = nullptr,
+    ::flatbuffers::Offset<CityBuf_::ReferenceSystem> reference_system = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> identifier = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> reference_date = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> title = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_contact_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_contact_type = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_role = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_phone = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_email = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_website = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_address_thoroughfare_number = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_address_thoroughfare_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_address_locality = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_address_postcode = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> poc_address_country = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> attributes = 0) {
   HeaderBuilder builder_(_fbb);
   builder_.add_features_count(features_count);
-  builder_.add_metadata(metadata);
-  builder_.add_crs(crs);
+  builder_.add_attributes(attributes);
+  builder_.add_poc_address_country(poc_address_country);
+  builder_.add_poc_address_postcode(poc_address_postcode);
+  builder_.add_poc_address_locality(poc_address_locality);
+  builder_.add_poc_address_thoroughfare_name(poc_address_thoroughfare_name);
+  builder_.add_poc_address_thoroughfare_number(poc_address_thoroughfare_number);
+  builder_.add_poc_website(poc_website);
+  builder_.add_poc_email(poc_email);
+  builder_.add_poc_phone(poc_phone);
+  builder_.add_poc_role(poc_role);
+  builder_.add_poc_contact_type(poc_contact_type);
+  builder_.add_poc_contact_name(poc_contact_name);
+  builder_.add_title(title);
+  builder_.add_reference_date(reference_date);
+  builder_.add_identifier(identifier);
+  builder_.add_reference_system(reference_system);
+  builder_.add_geographical_extent(geographical_extent);
   builder_.add_columns(columns);
   builder_.add_transform(transform);
-  builder_.add_geographical_extent(geographical_extent);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Header> CreateHeaderDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const CityBuf_::GeographicalExtent *geographical_extent = nullptr,
     const CityBuf_::Transform *transform = nullptr,
     const std::vector<::flatbuffers::Offset<CityBuf_::Column>> *columns = nullptr,
     uint64_t features_count = 0,
-    ::flatbuffers::Offset<CityBuf_::Crs> crs = 0,
-    const char *metadata = nullptr) {
+    const CityBuf_::GeographicalExtent *geographical_extent = nullptr,
+    ::flatbuffers::Offset<CityBuf_::ReferenceSystem> reference_system = 0,
+    const char *identifier = nullptr,
+    const char *reference_date = nullptr,
+    const char *title = nullptr,
+    const char *poc_contact_name = nullptr,
+    const char *poc_contact_type = nullptr,
+    const char *poc_role = nullptr,
+    const char *poc_phone = nullptr,
+    const char *poc_email = nullptr,
+    const char *poc_website = nullptr,
+    const char *poc_address_thoroughfare_number = nullptr,
+    const char *poc_address_thoroughfare_name = nullptr,
+    const char *poc_address_locality = nullptr,
+    const char *poc_address_postcode = nullptr,
+    const char *poc_address_country = nullptr,
+    const std::vector<uint8_t> *attributes = nullptr) {
   auto columns__ = columns ? _fbb.CreateVector<::flatbuffers::Offset<CityBuf_::Column>>(*columns) : 0;
-  auto metadata__ = metadata ? _fbb.CreateString(metadata) : 0;
+  auto identifier__ = identifier ? _fbb.CreateString(identifier) : 0;
+  auto reference_date__ = reference_date ? _fbb.CreateString(reference_date) : 0;
+  auto title__ = title ? _fbb.CreateString(title) : 0;
+  auto poc_contact_name__ = poc_contact_name ? _fbb.CreateString(poc_contact_name) : 0;
+  auto poc_contact_type__ = poc_contact_type ? _fbb.CreateString(poc_contact_type) : 0;
+  auto poc_role__ = poc_role ? _fbb.CreateString(poc_role) : 0;
+  auto poc_phone__ = poc_phone ? _fbb.CreateString(poc_phone) : 0;
+  auto poc_email__ = poc_email ? _fbb.CreateString(poc_email) : 0;
+  auto poc_website__ = poc_website ? _fbb.CreateString(poc_website) : 0;
+  auto poc_address_thoroughfare_number__ = poc_address_thoroughfare_number ? _fbb.CreateString(poc_address_thoroughfare_number) : 0;
+  auto poc_address_thoroughfare_name__ = poc_address_thoroughfare_name ? _fbb.CreateString(poc_address_thoroughfare_name) : 0;
+  auto poc_address_locality__ = poc_address_locality ? _fbb.CreateString(poc_address_locality) : 0;
+  auto poc_address_postcode__ = poc_address_postcode ? _fbb.CreateString(poc_address_postcode) : 0;
+  auto poc_address_country__ = poc_address_country ? _fbb.CreateString(poc_address_country) : 0;
+  auto attributes__ = attributes ? _fbb.CreateVector<uint8_t>(*attributes) : 0;
   return CityBuf_::CreateHeader(
       _fbb,
-      geographical_extent,
       transform,
       columns__,
       features_count,
-      crs,
-      metadata__);
+      geographical_extent,
+      reference_system,
+      identifier__,
+      reference_date__,
+      title__,
+      poc_contact_name__,
+      poc_contact_type__,
+      poc_role__,
+      poc_phone__,
+      poc_email__,
+      poc_website__,
+      poc_address_thoroughfare_number__,
+      poc_address_thoroughfare_name__,
+      poc_address_locality__,
+      poc_address_postcode__,
+      poc_address_country__,
+      attributes__);
 }
 
 struct CityFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

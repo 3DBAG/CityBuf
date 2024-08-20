@@ -6,8 +6,8 @@ import flatbuffers
 from flatbuffers.compat import import_numpy
 from typing import Any
 from CityBuf_.Column import Column
-from CityBuf_.Crs import Crs
 from CityBuf_.GeographicalExtent import GeographicalExtent
+from CityBuf_.ReferenceSystem import ReferenceSystem
 from CityBuf_.Transform import Transform
 from typing import Optional
 np = import_numpy()
@@ -31,18 +31,8 @@ class Header(object):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # Header
-    def GeographicalExtent(self) -> Optional[GeographicalExtent]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
-        if o != 0:
-            x = o + self._tab.Pos
-            obj = GeographicalExtent()
-            obj.Init(self._tab.Bytes, x)
-            return obj
-        return None
-
-    # Header
     def Transform(self) -> Optional[Transform]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = o + self._tab.Pos
             obj = Transform()
@@ -52,7 +42,7 @@ class Header(object):
 
     # Header
     def Columns(self, j: int) -> Optional[Column]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -64,60 +54,182 @@ class Header(object):
 
     # Header
     def ColumnsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Header
     def ColumnsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         return o == 0
 
     # Header
     def FeaturesCount(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Uint64Flags, o + self._tab.Pos)
         return 0
 
     # Header
-    def Crs(self) -> Optional[Crs]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+    def GeographicalExtent(self) -> Optional[GeographicalExtent]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
-            x = self._tab.Indirect(o + self._tab.Pos)
-            obj = Crs()
+            x = o + self._tab.Pos
+            obj = GeographicalExtent()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
     # Header
-    def Metadata(self) -> Optional[str]:
+    def ReferenceSystem(self) -> Optional[ReferenceSystem]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            x = self._tab.Indirect(o + self._tab.Pos)
+            obj = ReferenceSystem()
+            obj.Init(self._tab.Bytes, x)
+            return obj
+        return None
+
+    # Header
+    def Identifier(self) -> Optional[str]:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
         return None
 
+    # Header
+    def ReferenceDate(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def Title(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocContactName(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocContactType(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocRole(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocPhone(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(26))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocEmail(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(28))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocWebsite(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(30))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocAddressThoroughfareNumber(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(32))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocAddressThoroughfareName(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(34))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocAddressLocality(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(36))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocAddressPostcode(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(38))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def PocAddressCountry(self) -> Optional[str]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(40))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+    # Header
+    def Attributes(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Uint8Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 1))
+        return 0
+
+    # Header
+    def AttributesAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint8Flags, o)
+        return 0
+
+    # Header
+    def AttributesLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Header
+    def AttributesIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        return o == 0
+
 def HeaderStart(builder: flatbuffers.Builder):
-    builder.StartObject(6)
+    builder.StartObject(20)
 
 def Start(builder: flatbuffers.Builder):
     HeaderStart(builder)
 
-def HeaderAddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
-    builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(geographicalExtent), 0)
-
-def AddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
-    HeaderAddGeographicalExtent(builder, geographicalExtent)
-
 def HeaderAddTransform(builder: flatbuffers.Builder, transform: Any):
-    builder.PrependStructSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(transform), 0)
+    builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(transform), 0)
 
 def AddTransform(builder: flatbuffers.Builder, transform: Any):
     HeaderAddTransform(builder, transform)
 
 def HeaderAddColumns(builder: flatbuffers.Builder, columns: int):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(columns), 0)
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(columns), 0)
 
 def AddColumns(builder: flatbuffers.Builder, columns: int):
     HeaderAddColumns(builder, columns)
@@ -129,22 +241,118 @@ def StartColumnsVector(builder, numElems: int) -> int:
     return HeaderStartColumnsVector(builder, numElems)
 
 def HeaderAddFeaturesCount(builder: flatbuffers.Builder, featuresCount: int):
-    builder.PrependUint64Slot(3, featuresCount, 0)
+    builder.PrependUint64Slot(2, featuresCount, 0)
 
 def AddFeaturesCount(builder: flatbuffers.Builder, featuresCount: int):
     HeaderAddFeaturesCount(builder, featuresCount)
 
-def HeaderAddCrs(builder: flatbuffers.Builder, crs: int):
-    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(crs), 0)
+def HeaderAddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
+    builder.PrependStructSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(geographicalExtent), 0)
 
-def AddCrs(builder: flatbuffers.Builder, crs: int):
-    HeaderAddCrs(builder, crs)
+def AddGeographicalExtent(builder: flatbuffers.Builder, geographicalExtent: Any):
+    HeaderAddGeographicalExtent(builder, geographicalExtent)
 
-def HeaderAddMetadata(builder: flatbuffers.Builder, metadata: int):
-    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(metadata), 0)
+def HeaderAddReferenceSystem(builder: flatbuffers.Builder, referenceSystem: int):
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(referenceSystem), 0)
 
-def AddMetadata(builder: flatbuffers.Builder, metadata: int):
-    HeaderAddMetadata(builder, metadata)
+def AddReferenceSystem(builder: flatbuffers.Builder, referenceSystem: int):
+    HeaderAddReferenceSystem(builder, referenceSystem)
+
+def HeaderAddIdentifier(builder: flatbuffers.Builder, identifier: int):
+    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(identifier), 0)
+
+def AddIdentifier(builder: flatbuffers.Builder, identifier: int):
+    HeaderAddIdentifier(builder, identifier)
+
+def HeaderAddReferenceDate(builder: flatbuffers.Builder, referenceDate: int):
+    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(referenceDate), 0)
+
+def AddReferenceDate(builder: flatbuffers.Builder, referenceDate: int):
+    HeaderAddReferenceDate(builder, referenceDate)
+
+def HeaderAddTitle(builder: flatbuffers.Builder, title: int):
+    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(title), 0)
+
+def AddTitle(builder: flatbuffers.Builder, title: int):
+    HeaderAddTitle(builder, title)
+
+def HeaderAddPocContactName(builder: flatbuffers.Builder, pocContactName: int):
+    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(pocContactName), 0)
+
+def AddPocContactName(builder: flatbuffers.Builder, pocContactName: int):
+    HeaderAddPocContactName(builder, pocContactName)
+
+def HeaderAddPocContactType(builder: flatbuffers.Builder, pocContactType: int):
+    builder.PrependUOffsetTRelativeSlot(9, flatbuffers.number_types.UOffsetTFlags.py_type(pocContactType), 0)
+
+def AddPocContactType(builder: flatbuffers.Builder, pocContactType: int):
+    HeaderAddPocContactType(builder, pocContactType)
+
+def HeaderAddPocRole(builder: flatbuffers.Builder, pocRole: int):
+    builder.PrependUOffsetTRelativeSlot(10, flatbuffers.number_types.UOffsetTFlags.py_type(pocRole), 0)
+
+def AddPocRole(builder: flatbuffers.Builder, pocRole: int):
+    HeaderAddPocRole(builder, pocRole)
+
+def HeaderAddPocPhone(builder: flatbuffers.Builder, pocPhone: int):
+    builder.PrependUOffsetTRelativeSlot(11, flatbuffers.number_types.UOffsetTFlags.py_type(pocPhone), 0)
+
+def AddPocPhone(builder: flatbuffers.Builder, pocPhone: int):
+    HeaderAddPocPhone(builder, pocPhone)
+
+def HeaderAddPocEmail(builder: flatbuffers.Builder, pocEmail: int):
+    builder.PrependUOffsetTRelativeSlot(12, flatbuffers.number_types.UOffsetTFlags.py_type(pocEmail), 0)
+
+def AddPocEmail(builder: flatbuffers.Builder, pocEmail: int):
+    HeaderAddPocEmail(builder, pocEmail)
+
+def HeaderAddPocWebsite(builder: flatbuffers.Builder, pocWebsite: int):
+    builder.PrependUOffsetTRelativeSlot(13, flatbuffers.number_types.UOffsetTFlags.py_type(pocWebsite), 0)
+
+def AddPocWebsite(builder: flatbuffers.Builder, pocWebsite: int):
+    HeaderAddPocWebsite(builder, pocWebsite)
+
+def HeaderAddPocAddressThoroughfareNumber(builder: flatbuffers.Builder, pocAddressThoroughfareNumber: int):
+    builder.PrependUOffsetTRelativeSlot(14, flatbuffers.number_types.UOffsetTFlags.py_type(pocAddressThoroughfareNumber), 0)
+
+def AddPocAddressThoroughfareNumber(builder: flatbuffers.Builder, pocAddressThoroughfareNumber: int):
+    HeaderAddPocAddressThoroughfareNumber(builder, pocAddressThoroughfareNumber)
+
+def HeaderAddPocAddressThoroughfareName(builder: flatbuffers.Builder, pocAddressThoroughfareName: int):
+    builder.PrependUOffsetTRelativeSlot(15, flatbuffers.number_types.UOffsetTFlags.py_type(pocAddressThoroughfareName), 0)
+
+def AddPocAddressThoroughfareName(builder: flatbuffers.Builder, pocAddressThoroughfareName: int):
+    HeaderAddPocAddressThoroughfareName(builder, pocAddressThoroughfareName)
+
+def HeaderAddPocAddressLocality(builder: flatbuffers.Builder, pocAddressLocality: int):
+    builder.PrependUOffsetTRelativeSlot(16, flatbuffers.number_types.UOffsetTFlags.py_type(pocAddressLocality), 0)
+
+def AddPocAddressLocality(builder: flatbuffers.Builder, pocAddressLocality: int):
+    HeaderAddPocAddressLocality(builder, pocAddressLocality)
+
+def HeaderAddPocAddressPostcode(builder: flatbuffers.Builder, pocAddressPostcode: int):
+    builder.PrependUOffsetTRelativeSlot(17, flatbuffers.number_types.UOffsetTFlags.py_type(pocAddressPostcode), 0)
+
+def AddPocAddressPostcode(builder: flatbuffers.Builder, pocAddressPostcode: int):
+    HeaderAddPocAddressPostcode(builder, pocAddressPostcode)
+
+def HeaderAddPocAddressCountry(builder: flatbuffers.Builder, pocAddressCountry: int):
+    builder.PrependUOffsetTRelativeSlot(18, flatbuffers.number_types.UOffsetTFlags.py_type(pocAddressCountry), 0)
+
+def AddPocAddressCountry(builder: flatbuffers.Builder, pocAddressCountry: int):
+    HeaderAddPocAddressCountry(builder, pocAddressCountry)
+
+def HeaderAddAttributes(builder: flatbuffers.Builder, attributes: int):
+    builder.PrependUOffsetTRelativeSlot(19, flatbuffers.number_types.UOffsetTFlags.py_type(attributes), 0)
+
+def AddAttributes(builder: flatbuffers.Builder, attributes: int):
+    HeaderAddAttributes(builder, attributes)
+
+def HeaderStartAttributesVector(builder, numElems: int) -> int:
+    return builder.StartVector(1, numElems, 1)
+
+def StartAttributesVector(builder, numElems: int) -> int:
+    return HeaderStartAttributesVector(builder, numElems)
 
 def HeaderEnd(builder: flatbuffers.Builder) -> int:
     return builder.EndObject()

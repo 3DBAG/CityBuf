@@ -15,7 +15,7 @@ def generate_cityjson_root_object(header):
   transform.Scale(Scale)
   transform.Translate(Translate)
 
-  crs = header.Crs()
+  crs = header.ReferenceSystem()
   crs_auth = crs.Authority().decode("utf-8")
   crs_version = crs.Version()
   crs_code = crs.Code()

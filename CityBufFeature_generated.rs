@@ -1131,10 +1131,11 @@ impl<'a> Column<'a> {
   pub const VT_TITLE: flatbuffers::VOffsetT = 8;
   pub const VT_DESCRIPTION: flatbuffers::VOffsetT = 10;
   pub const VT_PRECISION: flatbuffers::VOffsetT = 12;
-  pub const VT_NULLABLE: flatbuffers::VOffsetT = 14;
-  pub const VT_UNIQUE: flatbuffers::VOffsetT = 16;
-  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 18;
-  pub const VT_METADATA: flatbuffers::VOffsetT = 20;
+  pub const VT_SCALE: flatbuffers::VOffsetT = 14;
+  pub const VT_NULLABLE: flatbuffers::VOffsetT = 16;
+  pub const VT_UNIQUE: flatbuffers::VOffsetT = 18;
+  pub const VT_PRIMARY_KEY: flatbuffers::VOffsetT = 20;
+  pub const VT_METADATA: flatbuffers::VOffsetT = 22;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1147,6 +1148,7 @@ impl<'a> Column<'a> {
   ) -> flatbuffers::WIPOffset<Column<'bldr>> {
     let mut builder = ColumnBuilder::new(_fbb);
     if let Some(x) = args.metadata { builder.add_metadata(x); }
+    builder.add_scale(args.scale);
     builder.add_precision(args.precision);
     if let Some(x) = args.description { builder.add_description(x); }
     if let Some(x) = args.title { builder.add_title(x); }
@@ -1195,6 +1197,13 @@ impl<'a> Column<'a> {
     unsafe { self._tab.get::<i32>(Column::VT_PRECISION, Some(-1)).unwrap()}
   }
   #[inline]
+  pub fn scale(&self) -> i32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<i32>(Column::VT_SCALE, Some(-1)).unwrap()}
+  }
+  #[inline]
   pub fn nullable(&self) -> bool {
     // Safety:
     // Created from valid Table for this object
@@ -1236,6 +1245,7 @@ impl flatbuffers::Verifiable for Column<'_> {
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("title", Self::VT_TITLE, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("description", Self::VT_DESCRIPTION, false)?
      .visit_field::<i32>("precision", Self::VT_PRECISION, false)?
+     .visit_field::<i32>("scale", Self::VT_SCALE, false)?
      .visit_field::<bool>("nullable", Self::VT_NULLABLE, false)?
      .visit_field::<bool>("unique", Self::VT_UNIQUE, false)?
      .visit_field::<bool>("primary_key", Self::VT_PRIMARY_KEY, false)?
@@ -1250,6 +1260,7 @@ pub struct ColumnArgs<'a> {
     pub title: Option<flatbuffers::WIPOffset<&'a str>>,
     pub description: Option<flatbuffers::WIPOffset<&'a str>>,
     pub precision: i32,
+    pub scale: i32,
     pub nullable: bool,
     pub unique: bool,
     pub primary_key: bool,
@@ -1264,6 +1275,7 @@ impl<'a> Default for ColumnArgs<'a> {
       title: None,
       description: None,
       precision: -1,
+      scale: -1,
       nullable: true,
       unique: false,
       primary_key: false,
@@ -1296,6 +1308,10 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ColumnBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_precision(&mut self, precision: i32) {
     self.fbb_.push_slot::<i32>(Column::VT_PRECISION, precision, -1);
+  }
+  #[inline]
+  pub fn add_scale(&mut self, scale: i32) {
+    self.fbb_.push_slot::<i32>(Column::VT_SCALE, scale, -1);
   }
   #[inline]
   pub fn add_nullable(&mut self, nullable: bool) {
@@ -1337,6 +1353,7 @@ impl core::fmt::Debug for Column<'_> {
       ds.field("title", &self.title());
       ds.field("description", &self.description());
       ds.field("precision", &self.precision());
+      ds.field("scale", &self.scale());
       ds.field("nullable", &self.nullable());
       ds.field("unique", &self.unique());
       ds.field("primary_key", &self.primary_key());
@@ -1344,36 +1361,38 @@ impl core::fmt::Debug for Column<'_> {
       ds.finish()
   }
 }
-pub enum CrsOffset {}
+pub enum ReferenceSystemOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
-pub struct Crs<'a> {
+pub struct ReferenceSystem<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for Crs<'a> {
-  type Inner = Crs<'a>;
+impl<'a> flatbuffers::Follow<'a> for ReferenceSystem<'a> {
+  type Inner = ReferenceSystem<'a>;
   #[inline]
   unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
     Self { _tab: flatbuffers::Table::new(buf, loc) }
   }
 }
 
-impl<'a> Crs<'a> {
+impl<'a> ReferenceSystem<'a> {
   pub const VT_AUTHORITY: flatbuffers::VOffsetT = 4;
   pub const VT_VERSION: flatbuffers::VOffsetT = 6;
   pub const VT_CODE: flatbuffers::VOffsetT = 8;
+  pub const VT_CODE_STRING: flatbuffers::VOffsetT = 10;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Crs { _tab: table }
+    ReferenceSystem { _tab: table }
   }
   #[allow(unused_mut)]
   pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
     _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CrsArgs<'args>
-  ) -> flatbuffers::WIPOffset<Crs<'bldr>> {
-    let mut builder = CrsBuilder::new(_fbb);
+    args: &'args ReferenceSystemArgs<'args>
+  ) -> flatbuffers::WIPOffset<ReferenceSystem<'bldr>> {
+    let mut builder = ReferenceSystemBuilder::new(_fbb);
+    if let Some(x) = args.code_string { builder.add_code_string(x); }
     builder.add_code(args.code);
     builder.add_version(args.version);
     if let Some(x) = args.authority { builder.add_authority(x); }
@@ -1386,25 +1405,32 @@ impl<'a> Crs<'a> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Crs::VT_AUTHORITY, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ReferenceSystem::VT_AUTHORITY, None)}
   }
   #[inline]
   pub fn version(&self) -> i32 {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<i32>(Crs::VT_VERSION, Some(0)).unwrap()}
+    unsafe { self._tab.get::<i32>(ReferenceSystem::VT_VERSION, Some(0)).unwrap()}
   }
   #[inline]
   pub fn code(&self) -> i32 {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<i32>(Crs::VT_CODE, Some(0)).unwrap()}
+    unsafe { self._tab.get::<i32>(ReferenceSystem::VT_CODE, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn code_string(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ReferenceSystem::VT_CODE_STRING, None)}
   }
 }
 
-impl flatbuffers::Verifiable for Crs<'_> {
+impl flatbuffers::Verifiable for ReferenceSystem<'_> {
   #[inline]
   fn run_verifier(
     v: &mut flatbuffers::Verifier, pos: usize
@@ -1414,64 +1440,72 @@ impl flatbuffers::Verifiable for Crs<'_> {
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("authority", Self::VT_AUTHORITY, false)?
      .visit_field::<i32>("version", Self::VT_VERSION, false)?
      .visit_field::<i32>("code", Self::VT_CODE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("code_string", Self::VT_CODE_STRING, false)?
      .finish();
     Ok(())
   }
 }
-pub struct CrsArgs<'a> {
+pub struct ReferenceSystemArgs<'a> {
     pub authority: Option<flatbuffers::WIPOffset<&'a str>>,
     pub version: i32,
     pub code: i32,
+    pub code_string: Option<flatbuffers::WIPOffset<&'a str>>,
 }
-impl<'a> Default for CrsArgs<'a> {
+impl<'a> Default for ReferenceSystemArgs<'a> {
   #[inline]
   fn default() -> Self {
-    CrsArgs {
+    ReferenceSystemArgs {
       authority: None,
       version: 0,
       code: 0,
+      code_string: None,
     }
   }
 }
 
-pub struct CrsBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+pub struct ReferenceSystemBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CrsBuilder<'a, 'b, A> {
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ReferenceSystemBuilder<'a, 'b, A> {
   #[inline]
   pub fn add_authority(&mut self, authority: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Crs::VT_AUTHORITY, authority);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ReferenceSystem::VT_AUTHORITY, authority);
   }
   #[inline]
   pub fn add_version(&mut self, version: i32) {
-    self.fbb_.push_slot::<i32>(Crs::VT_VERSION, version, 0);
+    self.fbb_.push_slot::<i32>(ReferenceSystem::VT_VERSION, version, 0);
   }
   #[inline]
   pub fn add_code(&mut self, code: i32) {
-    self.fbb_.push_slot::<i32>(Crs::VT_CODE, code, 0);
+    self.fbb_.push_slot::<i32>(ReferenceSystem::VT_CODE, code, 0);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CrsBuilder<'a, 'b, A> {
+  pub fn add_code_string(&mut self, code_string: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ReferenceSystem::VT_CODE_STRING, code_string);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ReferenceSystemBuilder<'a, 'b, A> {
     let start = _fbb.start_table();
-    CrsBuilder {
+    ReferenceSystemBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Crs<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ReferenceSystem<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-impl core::fmt::Debug for Crs<'_> {
+impl core::fmt::Debug for ReferenceSystem<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Crs");
+    let mut ds = f.debug_struct("ReferenceSystem");
       ds.field("authority", &self.authority());
       ds.field("version", &self.version());
       ds.field("code", &self.code());
+      ds.field("code_string", &self.code_string());
       ds.finish()
   }
 }
@@ -1491,12 +1525,26 @@ impl<'a> flatbuffers::Follow<'a> for Header<'a> {
 }
 
 impl<'a> Header<'a> {
-  pub const VT_GEOGRAPHICAL_EXTENT: flatbuffers::VOffsetT = 4;
-  pub const VT_TRANSFORM: flatbuffers::VOffsetT = 6;
-  pub const VT_COLUMNS: flatbuffers::VOffsetT = 8;
-  pub const VT_FEATURES_COUNT: flatbuffers::VOffsetT = 10;
-  pub const VT_CRS: flatbuffers::VOffsetT = 12;
-  pub const VT_METADATA: flatbuffers::VOffsetT = 14;
+  pub const VT_TRANSFORM: flatbuffers::VOffsetT = 4;
+  pub const VT_COLUMNS: flatbuffers::VOffsetT = 6;
+  pub const VT_FEATURES_COUNT: flatbuffers::VOffsetT = 8;
+  pub const VT_GEOGRAPHICAL_EXTENT: flatbuffers::VOffsetT = 10;
+  pub const VT_REFERENCE_SYSTEM: flatbuffers::VOffsetT = 12;
+  pub const VT_IDENTIFIER: flatbuffers::VOffsetT = 14;
+  pub const VT_REFERENCE_DATE: flatbuffers::VOffsetT = 16;
+  pub const VT_TITLE: flatbuffers::VOffsetT = 18;
+  pub const VT_POC_CONTACT_NAME: flatbuffers::VOffsetT = 20;
+  pub const VT_POC_CONTACT_TYPE: flatbuffers::VOffsetT = 22;
+  pub const VT_POC_ROLE: flatbuffers::VOffsetT = 24;
+  pub const VT_POC_PHONE: flatbuffers::VOffsetT = 26;
+  pub const VT_POC_EMAIL: flatbuffers::VOffsetT = 28;
+  pub const VT_POC_WEBSITE: flatbuffers::VOffsetT = 30;
+  pub const VT_POC_ADDRESS_THOROUGHFARE_NUMBER: flatbuffers::VOffsetT = 32;
+  pub const VT_POC_ADDRESS_THOROUGHFARE_NAME: flatbuffers::VOffsetT = 34;
+  pub const VT_POC_ADDRESS_LOCALITY: flatbuffers::VOffsetT = 36;
+  pub const VT_POC_ADDRESS_POSTCODE: flatbuffers::VOffsetT = 38;
+  pub const VT_POC_ADDRESS_COUNTRY: flatbuffers::VOffsetT = 40;
+  pub const VT_ATTRIBUTES: flatbuffers::VOffsetT = 42;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1509,22 +1557,29 @@ impl<'a> Header<'a> {
   ) -> flatbuffers::WIPOffset<Header<'bldr>> {
     let mut builder = HeaderBuilder::new(_fbb);
     builder.add_features_count(args.features_count);
-    if let Some(x) = args.metadata { builder.add_metadata(x); }
-    if let Some(x) = args.crs { builder.add_crs(x); }
+    if let Some(x) = args.attributes { builder.add_attributes(x); }
+    if let Some(x) = args.poc_address_country { builder.add_poc_address_country(x); }
+    if let Some(x) = args.poc_address_postcode { builder.add_poc_address_postcode(x); }
+    if let Some(x) = args.poc_address_locality { builder.add_poc_address_locality(x); }
+    if let Some(x) = args.poc_address_thoroughfare_name { builder.add_poc_address_thoroughfare_name(x); }
+    if let Some(x) = args.poc_address_thoroughfare_number { builder.add_poc_address_thoroughfare_number(x); }
+    if let Some(x) = args.poc_website { builder.add_poc_website(x); }
+    if let Some(x) = args.poc_email { builder.add_poc_email(x); }
+    if let Some(x) = args.poc_phone { builder.add_poc_phone(x); }
+    if let Some(x) = args.poc_role { builder.add_poc_role(x); }
+    if let Some(x) = args.poc_contact_type { builder.add_poc_contact_type(x); }
+    if let Some(x) = args.poc_contact_name { builder.add_poc_contact_name(x); }
+    if let Some(x) = args.title { builder.add_title(x); }
+    if let Some(x) = args.reference_date { builder.add_reference_date(x); }
+    if let Some(x) = args.identifier { builder.add_identifier(x); }
+    if let Some(x) = args.reference_system { builder.add_reference_system(x); }
+    if let Some(x) = args.geographical_extent { builder.add_geographical_extent(x); }
     if let Some(x) = args.columns { builder.add_columns(x); }
     if let Some(x) = args.transform { builder.add_transform(x); }
-    if let Some(x) = args.geographical_extent { builder.add_geographical_extent(x); }
     builder.finish()
   }
 
 
-  #[inline]
-  pub fn geographical_extent(&self) -> Option<&'a GeographicalExtent> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<GeographicalExtent>(Header::VT_GEOGRAPHICAL_EXTENT, None)}
-  }
   #[inline]
   pub fn transform(&self) -> Option<&'a Transform> {
     // Safety:
@@ -1547,18 +1602,123 @@ impl<'a> Header<'a> {
     unsafe { self._tab.get::<u64>(Header::VT_FEATURES_COUNT, Some(0)).unwrap()}
   }
   #[inline]
-  pub fn crs(&self) -> Option<Crs<'a>> {
+  pub fn geographical_extent(&self) -> Option<&'a GeographicalExtent> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Crs>>(Header::VT_CRS, None)}
+    unsafe { self._tab.get::<GeographicalExtent>(Header::VT_GEOGRAPHICAL_EXTENT, None)}
   }
   #[inline]
-  pub fn metadata(&self) -> Option<&'a str> {
+  pub fn reference_system(&self) -> Option<ReferenceSystem<'a>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_METADATA, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<ReferenceSystem>>(Header::VT_REFERENCE_SYSTEM, None)}
+  }
+  #[inline]
+  pub fn identifier(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_IDENTIFIER, None)}
+  }
+  #[inline]
+  pub fn reference_date(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_REFERENCE_DATE, None)}
+  }
+  #[inline]
+  pub fn title(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_TITLE, None)}
+  }
+  #[inline]
+  pub fn poc_contact_name(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_CONTACT_NAME, None)}
+  }
+  #[inline]
+  pub fn poc_contact_type(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_CONTACT_TYPE, None)}
+  }
+  #[inline]
+  pub fn poc_role(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ROLE, None)}
+  }
+  #[inline]
+  pub fn poc_phone(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_PHONE, None)}
+  }
+  #[inline]
+  pub fn poc_email(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_EMAIL, None)}
+  }
+  #[inline]
+  pub fn poc_website(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_WEBSITE, None)}
+  }
+  #[inline]
+  pub fn poc_address_thoroughfare_number(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ADDRESS_THOROUGHFARE_NUMBER, None)}
+  }
+  #[inline]
+  pub fn poc_address_thoroughfare_name(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ADDRESS_THOROUGHFARE_NAME, None)}
+  }
+  #[inline]
+  pub fn poc_address_locality(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ADDRESS_LOCALITY, None)}
+  }
+  #[inline]
+  pub fn poc_address_postcode(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ADDRESS_POSTCODE, None)}
+  }
+  #[inline]
+  pub fn poc_address_country(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Header::VT_POC_ADDRESS_COUNTRY, None)}
+  }
+  #[inline]
+  pub fn attributes(&self) -> Option<flatbuffers::Vector<'a, u8>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(Header::VT_ATTRIBUTES, None)}
   }
 }
 
@@ -1569,34 +1729,76 @@ impl flatbuffers::Verifiable for Header<'_> {
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
-     .visit_field::<GeographicalExtent>("geographical_extent", Self::VT_GEOGRAPHICAL_EXTENT, false)?
      .visit_field::<Transform>("transform", Self::VT_TRANSFORM, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Column>>>>("columns", Self::VT_COLUMNS, false)?
      .visit_field::<u64>("features_count", Self::VT_FEATURES_COUNT, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Crs>>("crs", Self::VT_CRS, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("metadata", Self::VT_METADATA, false)?
+     .visit_field::<GeographicalExtent>("geographical_extent", Self::VT_GEOGRAPHICAL_EXTENT, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ReferenceSystem>>("reference_system", Self::VT_REFERENCE_SYSTEM, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("identifier", Self::VT_IDENTIFIER, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("reference_date", Self::VT_REFERENCE_DATE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("title", Self::VT_TITLE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_contact_name", Self::VT_POC_CONTACT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_contact_type", Self::VT_POC_CONTACT_TYPE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_role", Self::VT_POC_ROLE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_phone", Self::VT_POC_PHONE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_email", Self::VT_POC_EMAIL, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_website", Self::VT_POC_WEBSITE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_address_thoroughfare_number", Self::VT_POC_ADDRESS_THOROUGHFARE_NUMBER, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_address_thoroughfare_name", Self::VT_POC_ADDRESS_THOROUGHFARE_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_address_locality", Self::VT_POC_ADDRESS_LOCALITY, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_address_postcode", Self::VT_POC_ADDRESS_POSTCODE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("poc_address_country", Self::VT_POC_ADDRESS_COUNTRY, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("attributes", Self::VT_ATTRIBUTES, false)?
      .finish();
     Ok(())
   }
 }
 pub struct HeaderArgs<'a> {
-    pub geographical_extent: Option<&'a GeographicalExtent>,
     pub transform: Option<&'a Transform>,
     pub columns: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Column<'a>>>>>,
     pub features_count: u64,
-    pub crs: Option<flatbuffers::WIPOffset<Crs<'a>>>,
-    pub metadata: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub geographical_extent: Option<&'a GeographicalExtent>,
+    pub reference_system: Option<flatbuffers::WIPOffset<ReferenceSystem<'a>>>,
+    pub identifier: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub reference_date: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub title: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_contact_name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_contact_type: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_role: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_phone: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_email: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_website: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_address_thoroughfare_number: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_address_thoroughfare_name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_address_locality: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_address_postcode: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub poc_address_country: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub attributes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
 }
 impl<'a> Default for HeaderArgs<'a> {
   #[inline]
   fn default() -> Self {
     HeaderArgs {
-      geographical_extent: None,
       transform: None,
       columns: None,
       features_count: 0,
-      crs: None,
-      metadata: None,
+      geographical_extent: None,
+      reference_system: None,
+      identifier: None,
+      reference_date: None,
+      title: None,
+      poc_contact_name: None,
+      poc_contact_type: None,
+      poc_role: None,
+      poc_phone: None,
+      poc_email: None,
+      poc_website: None,
+      poc_address_thoroughfare_number: None,
+      poc_address_thoroughfare_name: None,
+      poc_address_locality: None,
+      poc_address_postcode: None,
+      poc_address_country: None,
+      attributes: None,
     }
   }
 }
@@ -1606,10 +1808,6 @@ pub struct HeaderBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> HeaderBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_geographical_extent(&mut self, geographical_extent: &GeographicalExtent) {
-    self.fbb_.push_slot_always::<&GeographicalExtent>(Header::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
-  }
   #[inline]
   pub fn add_transform(&mut self, transform: &Transform) {
     self.fbb_.push_slot_always::<&Transform>(Header::VT_TRANSFORM, transform);
@@ -1623,12 +1821,72 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> HeaderBuilder<'a, 'b, A> {
     self.fbb_.push_slot::<u64>(Header::VT_FEATURES_COUNT, features_count, 0);
   }
   #[inline]
-  pub fn add_crs(&mut self, crs: flatbuffers::WIPOffset<Crs<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Crs>>(Header::VT_CRS, crs);
+  pub fn add_geographical_extent(&mut self, geographical_extent: &GeographicalExtent) {
+    self.fbb_.push_slot_always::<&GeographicalExtent>(Header::VT_GEOGRAPHICAL_EXTENT, geographical_extent);
   }
   #[inline]
-  pub fn add_metadata(&mut self, metadata: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_METADATA, metadata);
+  pub fn add_reference_system(&mut self, reference_system: flatbuffers::WIPOffset<ReferenceSystem<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ReferenceSystem>>(Header::VT_REFERENCE_SYSTEM, reference_system);
+  }
+  #[inline]
+  pub fn add_identifier(&mut self, identifier: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_IDENTIFIER, identifier);
+  }
+  #[inline]
+  pub fn add_reference_date(&mut self, reference_date: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_REFERENCE_DATE, reference_date);
+  }
+  #[inline]
+  pub fn add_title(&mut self, title: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_TITLE, title);
+  }
+  #[inline]
+  pub fn add_poc_contact_name(&mut self, poc_contact_name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_CONTACT_NAME, poc_contact_name);
+  }
+  #[inline]
+  pub fn add_poc_contact_type(&mut self, poc_contact_type: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_CONTACT_TYPE, poc_contact_type);
+  }
+  #[inline]
+  pub fn add_poc_role(&mut self, poc_role: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ROLE, poc_role);
+  }
+  #[inline]
+  pub fn add_poc_phone(&mut self, poc_phone: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_PHONE, poc_phone);
+  }
+  #[inline]
+  pub fn add_poc_email(&mut self, poc_email: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_EMAIL, poc_email);
+  }
+  #[inline]
+  pub fn add_poc_website(&mut self, poc_website: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_WEBSITE, poc_website);
+  }
+  #[inline]
+  pub fn add_poc_address_thoroughfare_number(&mut self, poc_address_thoroughfare_number: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ADDRESS_THOROUGHFARE_NUMBER, poc_address_thoroughfare_number);
+  }
+  #[inline]
+  pub fn add_poc_address_thoroughfare_name(&mut self, poc_address_thoroughfare_name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ADDRESS_THOROUGHFARE_NAME, poc_address_thoroughfare_name);
+  }
+  #[inline]
+  pub fn add_poc_address_locality(&mut self, poc_address_locality: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ADDRESS_LOCALITY, poc_address_locality);
+  }
+  #[inline]
+  pub fn add_poc_address_postcode(&mut self, poc_address_postcode: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ADDRESS_POSTCODE, poc_address_postcode);
+  }
+  #[inline]
+  pub fn add_poc_address_country(&mut self, poc_address_country: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_POC_ADDRESS_COUNTRY, poc_address_country);
+  }
+  #[inline]
+  pub fn add_attributes(&mut self, attributes: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Header::VT_ATTRIBUTES, attributes);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> HeaderBuilder<'a, 'b, A> {
@@ -1648,12 +1906,26 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> HeaderBuilder<'a, 'b, A> {
 impl core::fmt::Debug for Header<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("Header");
-      ds.field("geographical_extent", &self.geographical_extent());
       ds.field("transform", &self.transform());
       ds.field("columns", &self.columns());
       ds.field("features_count", &self.features_count());
-      ds.field("crs", &self.crs());
-      ds.field("metadata", &self.metadata());
+      ds.field("geographical_extent", &self.geographical_extent());
+      ds.field("reference_system", &self.reference_system());
+      ds.field("identifier", &self.identifier());
+      ds.field("reference_date", &self.reference_date());
+      ds.field("title", &self.title());
+      ds.field("poc_contact_name", &self.poc_contact_name());
+      ds.field("poc_contact_type", &self.poc_contact_type());
+      ds.field("poc_role", &self.poc_role());
+      ds.field("poc_phone", &self.poc_phone());
+      ds.field("poc_email", &self.poc_email());
+      ds.field("poc_website", &self.poc_website());
+      ds.field("poc_address_thoroughfare_number", &self.poc_address_thoroughfare_number());
+      ds.field("poc_address_thoroughfare_name", &self.poc_address_thoroughfare_name());
+      ds.field("poc_address_locality", &self.poc_address_locality());
+      ds.field("poc_address_postcode", &self.poc_address_postcode());
+      ds.field("poc_address_country", &self.poc_address_country());
+      ds.field("attributes", &self.attributes());
       ds.finish()
   }
 }

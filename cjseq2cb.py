@@ -4,7 +4,7 @@ from CityBuf_ import \
   Header, \
   CityFeature,  \
   CityObject,  \
-  Crs,  \
+  ReferenceSystem,  \
   Geometry,  \
   SemanticObject,  \
   Column,  \
@@ -279,11 +279,11 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   
       authority_cfb = builder.CreateString(authority)
 
-      crs = Crs.CrsStart(builder)
-      Crs.CrsAddAuthority(builder, authority_cfb)
-      Crs.CrsAddVersion(builder, int(version))
-      Crs.CrsAddCode(builder, int(code))
-      crs_offset = Crs.CrsEnd(builder)
+      crs = ReferenceSystem.ReferenceSystemStart(builder)
+      ReferenceSystem.ReferenceSystemAddAuthority(builder, authority_cfb)
+      ReferenceSystem.ReferenceSystemAddVersion(builder, int(version))
+      ReferenceSystem.ReferenceSystemAddCode(builder, int(code))
+      crs_offset = ReferenceSystem.ReferenceSystemEnd(builder)
 
   fb_columns = []
   for key, _ in schema_encoder.schema.items():
@@ -314,7 +314,7 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   Header.AddFeaturesCount(builder, features_count)
   Header.HeaderAddTransform(builder, CreateTransform(builder, ts[0], ts[1], ts[2], tt[0], tt[1], tt[2]))
   if crs_offset:
-    Header.HeaderAddCrs(builder, crs_offset)
+    Header.HeaderAddReferenceSystem(builder, crs_offset)
   else:
     logging.warning("No CRS found in input metadata")
   Header.HeaderAddColumns(builder, f_columns_offset)
@@ -379,7 +379,7 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}, write_nulls=Tr
   # Open a file in binary write mode
   with open(cb_path, 'wb') as file:
     # Write the byte data to the file
-    file.write(create_magic_bytes(0,3))
+    file.write(create_magic_bytes(0,4))
     header_buf = create_header(cj_metadata, geographical_extent=global_extent, features_count=len(fb_features), schema_encoder=schema_encoder)
     file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
     file.write(header_buf)
@@ -440,7 +440,7 @@ def print_cb(cb_path):
       print(f"FeaturesCount: {fcount}")
 
       # Print Crs
-      crs = header.Crs()
+      crs = header.ReferenceSystem()
       print(f"CRS: {crs.Authority().decode('utf-8')}/{crs.Version()}/{crs.Code()}")
 
       for i in range(fcount):

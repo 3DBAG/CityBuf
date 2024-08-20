@@ -23,7 +23,7 @@ Don't really care:
 # CityBuf file layout
 A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
 
-1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 02).
+1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 04).
 2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
 3. Data. A concatenation of length-prefixed flatbuffer CityFeature records (see `CityBufFeature.fbs`).
 
@@ -139,10 +139,6 @@ There are the following Python scripts:
 
 Other languages than Python, eg. C++, have so far received no attention. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, C++ and Rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
-TODO:
- - implement encoding/decoding of remaining attribute types
- - review header metadata specification, make sure this is fully compatible with CityJSONSeq
-
 ## Usage of conversion scripts
 To convert from `.city.jsonl` to `.cb`:
 ```sh
@@ -165,7 +161,6 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Add support for textures
 - Could try to reuse the same attribute value strings within a feature, instead of always creating a new string even if the same string occurs many times.
 - Look at support for enum attributes
-
 
 ## References
 - CityJSON(Sequences)
