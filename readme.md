@@ -1,6 +1,13 @@
 # CityBuf Introduction
 Binary variant of [CityJSONSeq](https://www.cityjson.org/cityjsonseq/). Inspired by the [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf) standard (which in turn uses [flatbuffers](https://github.com/google/flatbuffers)).
 
+Some performance metrics:
+- Overall ~5x faster than CityJSON and ~2x faster than CityJSONSeq.
+- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower than both other formats.
+- Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
+
+See the benchmark below for more information.
+
 ## Goals
 The primary goals of CityBuf are
 1. be very fast to write/read features in a streaming fashion,
@@ -69,13 +76,6 @@ Attributes that have a `null` value can be explitly encoded using 4 bytes:
 
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSeq. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
-
-Summary of main findings:
-- CityBuf is always the fastest in the read test. Overall ~5x faster than CityJSON and ~2x faster than CityJSONSeq.
-- In case of large features (3DBV dataset) the memory consumption of CityBuf is significantly lower than both other formats.
-- CityBuf always gives the smallest file size. Overall 34% smaller than CityJSON and 18% smaller than CityJSONSeq.
-
-Table below gives the full results.
 
 This is an extension of the benchmark given in https://github.com/cityjson/paper_cjseq. Some dataset were excluded:
 - Railway is not included because it uses geometry templates. 
