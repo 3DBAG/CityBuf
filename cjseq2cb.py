@@ -110,7 +110,7 @@ def create_feature(cj_feature, schema_encoder=None):
 
       if len(gd.semantic_values):
         Geometry.StartSemanticsVector(builder, len(gd.semantic_values))
-        for sem in gd.semantic_values:
+        for sem in reversed(gd.semantic_values):
           if sem is None: # in case of None (no semantic object), use the maximum value of uint32
             builder.PrependUint16(np.iinfo(np.uint16).max)
           else:
@@ -366,7 +366,7 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
         for geom in cj_object["geometry"]:
           if "semantics" in geom:
             for surface in geom["semantics"]["surfaces"]:
-                schema_encoder.add(surface, exclude=["type"])
+                schema_encoder.add(surface, exclude=["type", "parent", "children"])
 
   print("Using schema:")
   for name, value in schema_encoder.schema.items():
@@ -379,7 +379,7 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}):
   # Open a file in binary write mode
   with open(cb_path, 'wb') as file:
     # Write the byte data to the file
-    file.write(create_magic_bytes(0,2))
+    file.write(create_magic_bytes(0,3))
     header_buf = create_header(cj_metadata, geographical_extent=global_extent, features_count=len(fb_features), schema_encoder=schema_encoder)
     file.write(len(header_buf).to_bytes(4, byteorder='little', signed=False))
     file.write(header_buf)

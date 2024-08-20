@@ -128,7 +128,7 @@ def generate_cityjson_feature(feature, schema_decoder):
             "type": get_class_attribute_name_by_value(SemanticSurfaceType, sem.Type())
           }
           if not sem.AttributesIsNone():
-            cjso["attributes"] = schema_decoder.decode_attributes(sem.AttributesAsNumpy())
+            cjso |= schema_decoder.decode_attributes(sem.AttributesAsNumpy())
           if not sem.Parent() == None:
             cjso["parent"] = sem.Parent()
           if not sem.ChildrenIsNone():
