@@ -45,13 +45,6 @@ class GeometryDecoder:
       3: shells,
       4: solids
     }
-    # self.part_names = {
-    #   0: "indices",
-    #   1: "strings",
-    #   2: "surfaces",
-    #   3: "shells",
-    #   4: "solids"
-    # }
 
   def reset_starts(self):
     self.starts = {

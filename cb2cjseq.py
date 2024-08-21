@@ -145,7 +145,6 @@ def generate_cityjson_feature(feature, schema_decoder):
       
     cjo_id = obj.Id().decode("utf-8")
     cjf["CityObjects"][cjo_id] = cjo
-  # print(cjf)
   return cjf
 
 def convert_cb2cjseq(cb_path, cjseq_path):
@@ -168,5 +167,3 @@ if __name__ == "__main__":
   arg.add_argument('cjseq', help='CityJSON sequence file')
   args = arg.parse_args()
   convert_cb2cjseq(args.cb, args.cjseq)
-
-  

@@ -155,6 +155,5 @@ class AttributeSchemaDecoder:
         else:
           raise Exception("Type not supported")
       attributes[self.schema[column_index][0]] = value
-        # raise Exception("Type not supported")
 
     return attributes

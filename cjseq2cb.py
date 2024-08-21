@@ -1,4 +1,5 @@
-import json
+import json, argparse, logging
+import numpy as np
 
 from CityBuf_ import \
   Header, \
@@ -7,8 +8,7 @@ from CityBuf_ import \
   ReferenceSystem,  \
   Geometry,  \
   SemanticObject,  \
-  Column,  \
-  Vector
+  Column
 from CityBuf_.SemanticSurfaceType import SemanticSurfaceType
 from CityBuf_.CityObjectType import CityObjectType
 from CityBuf_.GeometryType import GeometryType
@@ -17,11 +17,7 @@ from CityBuf_.Transform import CreateTransform
 from CityBuf_.GeographicalExtent import CreateGeographicalExtent
 import flatbuffers
 
-import struct
-import argparse, logging
-import numpy as np
-
-from attributes import AttributeSchemaEncoder, AttributeSchemaDecoder
+from attributes import AttributeSchemaEncoder
 from geometry import GeometryEncoder
 
 def create_magic_bytes(major=0, minor=2):
@@ -263,9 +259,6 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   # Create a FlatBuffer builder
   builder = flatbuffers.Builder(1024)
 
-  # Create the name string in the buffer
-  # name = builder.CreateString("fcb_header_test")
-
   # Create the transform object in the buffer
   ts = cj_metadata['transform']['scale']
   tt = cj_metadata['transform']['translate']
@@ -288,20 +281,11 @@ def create_header(cj_metadata, geographical_extent, features_count=3, schema_enc
   fb_columns = []
   for key, _ in schema_encoder.schema.items():
     f_name = builder.CreateString(key)
-    # f_title = builder.CreateString(key)
-    # f_description = builder.CreateString(key)
-    # f_metadata = builder.CreateString(key)
 
     Column.Start(builder)
     Column.AddName(builder, f_name)
     f_type = schema_encoder.get_cb_column_type(key)
     Column.AddType(builder, f_type)
-    # Column.AddTitle(builder, f_title)
-    # Column.AddDescription(builder, f_description)
-    # Column.AddNullable(builder, True)
-    # Column.AddUnique(builder, False)
-    # Column.AddPrimaryKey(builder, False)
-    # Column.AddMetadata(builder, f_metadata)
     fb_columns.append(Column.End(builder))
 
   Header.StartColumnsVector(builder, len(fb_columns))
@@ -387,94 +371,6 @@ def convert_cjseq2cb(cjseq_path, cb_path, pretyped_attributes={}, write_nulls=Tr
       file.write(len(fb_feature).to_bytes(4, byteorder='little', signed=False))
       file.write(fb_feature)
 
-def print_cb(cb_path):
-  # Define the number of bytes for the magic number
-  MAGIC_NUMBER_SIZE = 8
-
-  # Open the file and check if we can read the data
-  with open(cb_path, 'rb') as f:
-      # Read the magic number
-      magic_number = f.read(MAGIC_NUMBER_SIZE)
-
-      if magic_number[:3] == b'FCB' and magic_number[4:7] == b'FCB':
-          print("Magic number is valid")
-          print("Major version:", magic_number[3])
-          print("Minor version:", magic_number[7])
-      
-      # Read the rest of the file (the FlatBuffer data)
-      header_length = f.read(4)
-      header_length = struct.unpack('<I', header_length)[0]
-      print("Header length:", header_length)
-
-      header_buf = f.read(header_length)
-
-      # Get a pointer to the root object inside the FlatBuffer
-      header = Header.Header.GetRootAsHeader(header_buf, 0)
-
-      # Access the data
-
-      # Print schema
-      schema_decoder = AttributeSchemaDecoder(header)
-      print(schema_decoder.schema)
-
-      # name = header.Name().decode('utf-8')
-
-      # Print GeographicalExtent
-      extent = header.GeographicalExtent()
-      emin = Vector.Vector()
-      emax = Vector.Vector()
-      extent.Min(emin)
-      extent.Max(emax)
-      print(f"GeographicalExtent: {emin.X()}, {emin.Y()}, {emin.Z()} | {emax.X()}, {emax.Y()}, {emax.Z()}")
-
-      # Print Transform
-      transform = header.Transform()
-      Scale = Vector.Vector()
-      Translate = Vector.Vector()
-      transform.Scale(Scale)
-      transform.Translate(Translate)
-      print(f"Transform: {Scale.X()}, {Scale.Y()}, {Scale.Z()} | {Translate.X()}, {Translate.Y()}, {Translate.Z()}")
-
-      # Print feature count
-      fcount = header.FeaturesCount()
-      print(f"FeaturesCount: {fcount}")
-
-      # Print Crs
-      crs = header.ReferenceSystem()
-      print(f"CRS: {crs.Authority().decode('utf-8')}/{crs.Version()}/{crs.Code()}")
-
-      for i in range(fcount):
-        feature_length = f.read(4)
-        feature_length = struct.unpack('<I', feature_length)[0]
-        feature_buf = f.read(feature_length)
-        feature = CityFeature.CityFeature.GetRootAsCityFeature(feature_buf, 0)
-        print(f"Feature length: {feature_length} bytes")
-        print(f"Feature id: {feature.Id().decode('utf-8')}")
-        print(f"Vertex count: {feature.VerticesLength()}")
-        # for i in range(feature.VerticesLength()):
-        #   print(f"Vertex {i}: {feature.Vertices(i).X()}, {feature.Vertices(i).Y()}, {feature.Vertices(i).Z()}")
-
-        for i in range(feature.ObjectsLength()):
-          obj = feature.Objects(i)
-          print(f"Object {i}: id={obj.Id().decode('utf-8')}, type={obj.Type()}")
-          if not obj.AttributesIsNone():
-            print("Attributes:", schema_decoder.decode_attributes(obj.AttributesAsNumpy()))
-
-          for j in range(obj.GeometryLength()):
-            geom = obj.Geometry(j)
-            print(f"Geometry {j}: lod={geom.Lod()}, type={geom.Type()}")
-            if geom.Type() == GeometryType.Solid:
-              # create Solid object
-              
-              for ii in range(geom.Strings(0)):
-                print(f"First ring indices: {geom.Boundaries(ii)}")
-              for ii in range(geom.SurfacesLength()):
-                print(f"SemanticObject Id: {geom.Semantics(ii)})")
-              
-            for k in range(geom.SemanticsObjectsLength()):
-              sem = geom.SemanticsObjects(k)
-              print(f"SemanticObject {k}: type={sem.Type()}, attributes:", schema_decoder.decode_attributes(sem.AttributesAsNumpy()))
-
 if __name__ == "__main__":
   arg = argparse.ArgumentParser(description='Convert CityJSON sequence to CityBuffer')
   arg.add_argument('cjseq', help='CityJSON sequence file')
@@ -518,5 +414,3 @@ if __name__ == "__main__":
   print("bytes per index:", total_indices_size / total_indices_count)
   print("Total semantic objects size:", total_semantics_size / 1024 / 1024)
   print("Total boundaries size:", total_boundaries_size / 1024 / 1024)
-  print("Total nested geometry structures count:", total_solid_count + total_shell_count + total_surface_count + total_ring_count)
-  # print_cb(args.cb)
