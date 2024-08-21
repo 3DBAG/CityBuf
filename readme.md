@@ -168,11 +168,12 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
 - Do more extensive benchmarking
+- Release a python package for easy reading/writing
+- Create a C(++) library for easy reading/writing
 - Investigate and implement support for CityJSON extensions
 - Add support for geometry templates
 - Add support for textures
 - Could try to reuse the same attribute value strings within a feature, instead of always creating a new string even if the same string occurs many times.
-- Look at support for enum attributes
 
 ## References
 - CityJSON(Sequences)
