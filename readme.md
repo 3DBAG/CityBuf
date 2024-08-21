@@ -24,8 +24,8 @@ Don't really care:
 A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
 
 1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 04).
-2. Header. A length-prefixed flatbuffer Header record (see `CityBufHeader.fbs`)
-3. Data. A concatenation of length-prefixed flatbuffer CityFeature records (see `CityBufFeature.fbs`).
+2. Header. A length-prefixed flatbuffer Header record (see [`CityBufHeader.fbs`](CityBufHeader.fbs))
+3. Data. A concatenation of length-prefixed flatbuffer CityFeature records (see [`CityBufFeature.fbs`](CityBufFeature.fbs)).
 
 The length prefixes are `Uint32`.
 
@@ -72,7 +72,7 @@ Which of these arrays have values, will depend on the geometry type. Notice that
 
 Semantic values are also encoded using a flat array, similar to the `indices`.
 
-`geometry.py` gives an implementation of how to go back and forth between these 2 representations.
+[`geometry.py`](geometry.py) gives an implementation of how to go back and forth between these 2 representations.
 
 Specificalities:
 - `null` values in the geometry semantic values list are encoded as the maximum value of a `Uint32`.
@@ -80,12 +80,12 @@ Specificalities:
 ## Attributes
 To store attribute values we adopt [the approach from flatgeobuf](https://worace.works/2022/03/12/flatgeobuf-implementers-guide/#properties-schema-representation-columns-and-columntypes): a column schema that is stored in the columns vector field in the header (or optionally inside the features, in case  attributes are different for each feature) and a custom binary `attributes` buffer that contains the attribute values and references the column schema, ie each value is encoded as:
 
-- u16 (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
+- `Uint16` (2 bytes) column index — this indicates the “key”, by way of pointing to the index of the appropriate column in the Columns vector
 - Appropriate per-type binary representation. Depending on the ColumnType, sometimes these are statically sized and sometimes they include a length prefix. So for a Bool column it will always be 3 bytes — 2 for the index and 1 for the bool itself (u8, little-endian). For a String, it’s variable, with 2 bytes for the column index, then a 4-byte unsigned length, then a UTF-8 encoding of the String.
 
 Attributes that have a `null` value can be explitly encoded using 4 bytes:
-- u16 (2 bytes) max value of a uint16
-- u16 (2 bytes) column index
+- `Uint16` (2 bytes) max value of a uint16
+- `Uint16` (2 bytes) column index
 
 # Benchmark
 This Benchmark compares CityBuf to CityJSON and CityJSONSeq. It compares the file size of the three formats for a variety of datasets, and a read test is performed, which gives us an idea of read speed and memory consumption during reading.
@@ -142,12 +142,12 @@ The sum of the runtimes grouped by format is:
 
 # Implementation status
 There are the following Python scripts:
-- `cb2cjseq.py`: a script to convert `.cb` to a `.city.jsonl` file
-- `cjseq2cb.py`: a script to convert `.city.jsonl` to a `.cb` file.
-- `attributes.py`: python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
-- `geometry.py`: python code to convert between CityJSON and CityBuf geometry representation
-- a simple `CityBufReader` class that allows for convenient access of the flatbuffer records
-- a `load_citybuf.py` the read test for the benchmark. This is also an example for how to use the `CityBufReader` class.
+- [`cb2cjseq.py`](cb2cjseq.py): a script to convert `.cb` to a `.city.jsonl` file
+- [`cjseq2cb.py`](cjseq2cb.py): a script to convert `.city.jsonl` to a `.cb` file.
+- [`attributes.py`](attributes.py): python code to encode and decode the custom attribute buffers. Atm only the most common attribute types are implemented (bool, int, float, string, json).
+- [`geometry.py`](geometry.py): python code to convert between CityJSON and CityBuf geometry representation
+- a simple [`CityBufReader`](CityBufReader.py) class that allows for convenient access of the flatbuffer records
+- a [`load_citybuf.py`](load_citybuf.py) the read test for the benchmark. This is also an example for how to use the `CityBufReader` class.
 
 Other languages than Python, eg. C++, have so far received no attention. Notice that this repository does include automatically generated flatbuffer accessor/build functions for python, C++ and Rust. But to make it convenient to build and read CityBuf files, some convenient wrappers are needed.
 
