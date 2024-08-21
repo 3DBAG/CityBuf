@@ -39,7 +39,7 @@ The features in the Data portion of an CityBuf file are modelled after [CityJSON
  Currently not supported are CityJSON's geometry templates, appearance and extensions. However, these features will be added in the future.
 
 ## Geometry
-Given this `Solid` with 2 shells in the CityJSON encoding:
+Given this `Solid` with 2 shells in the CityJSON representation:
 ```
 boundaries: [
   [ [[0, 3, 2, 1, 22], [1, 2, 3, 4]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]] ], 
@@ -47,7 +47,7 @@ boundaries: [
 ]
 ```
 
-CityBuf will encode this Solid using a number of flat arrays:
+CityBuf will represent this Solid using flat arrays:
 ```
 indices:  [0, 3, 2, 1, 22, 1, 2, 3, 4, 4, 5, 6, 7, 0, 1, 5, 4, 1, 2, 6, 5, 240, 243, 124, 244, 246, 724, 34, 414, 45, 111, 246, 5] # flat list of indices
 strings:  [5, 4, 4, 4, 4, 3, 3, 3, 3] # number of indices per ring, sum should equal length of indices array
