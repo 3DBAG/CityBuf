@@ -40,20 +40,30 @@ The features in the Data portion of an CityBuf file are modelled after [CityJSON
 
 ### Geometry
 Given this `Solid` with 2 shells in the CityJSON representation:
-```
-boundaries: [
+```js
+boundaries: 
+[
   [ [[0, 3, 2, 1, 22], [1, 2, 3, 4]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]] ], 
   [ [[240, 243, 124]], [[244, 246, 724]], [[34, 414, 45]], [[111, 246, 5]] ]
 ]
 ```
 
 CityBuf will represent this Solid using flat arrays:
-```
-indices:  [0, 3, 2, 1, 22, 1, 2, 3, 4, 4, 5, 6, 7, 0, 1, 5, 4, 1, 2, 6, 5, 240, 243, 124, 244, 246, 724, 34, 414, 45, 111, 246, 5] # flat list of indices
-strings:  [5, 4, 4, 4, 4, 3, 3, 3, 3] # number of indices per ring, sum should equal length of indices array
-surfaces: [2, 1, 1, 1, 1, 1, 1, 1] # 8 surfaces, 1st has 2 rings, the rest all have 1 ring
-shells:   [4, 4] # 2 shells that each consist of 4 surfaces
-solids:   [2] # one solid that consists of two shells
+```js
+// flat list of indices
+indices:  [0, 3, 2, 1, 22, 1, 2, 3, 4, 4, 5, 6, 7, 0, 1, 5, 4, 1, 2, 6, 5, 240, 243, 124, 244, 246, 724, 34, 414, 45, 111, 246, 5] 
+
+// number of indices per ring, sum should equal length of indices array
+strings:  [5, 4, 4, 4, 4, 3, 3, 3, 3] 
+
+// number rings per surface: 8 surfaces, 1st has 2 rings, the rest all have 1 ring
+surfaces: [2, 1, 1, 1, 1, 1, 1, 1] 
+
+// number of surfaces per shell: 2 shells that each consist of 4 surfaces
+shells:   [4, 4] 
+
+// number of shells per solid: one solid that consists of two shells
+solids:   [2]
 ```
 
 Which of these arrays have values, will depend on the geometry type. Notice that the `strings` array is used both for the Rings of a Surface, and the LineStrings of a MultiLineString.
