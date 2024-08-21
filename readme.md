@@ -20,7 +20,7 @@ Don't really care:
 1. efficient in-place modifications of existing files
 2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSeq.
 
-# CityBuf file specification
+# CityBuf file structure
 A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
 
 1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 04).
