@@ -20,7 +20,7 @@ Don't really care:
 1. efficient in-place modifications of existing files
 2. quick and DB like attribute access. Ie. this is not a column based format, focus is on feature-by-feature access in a streaming fashion, same as CityJSONSeq.
 
-# CityBuf file layout
+# CityBuf file specification
 A CityBuf (`.cb`) file is binary encoded and consists of the following parts (very similar to flatgeobuf):
 
 1. Magic bytes. The first 8 bytes of a CityBuf file are a signature, containing: ASCII `FCB`, followed by the spec major version (currently 00), then `FCB` again, then the spec patch version (currently 04).
@@ -38,7 +38,7 @@ The features in the Data portion of an CityBuf file are modelled after [CityJSON
 
  Currently not supported are CityJSON's geometry templates, appearance and extensions. However, these features will be added in the future.
 
-## Geometry
+### Geometry
 Given this `Solid` with 2 shells in the CityJSON representation:
 ```
 boundaries: [
@@ -155,7 +155,7 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Implement a spatial index, could be the same as FlatGeoBuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
-- Do more extensive benchamrking
+- Do more extensive benchmarking
 - Investigate and implement support for CityJSON extensions
 - Add support for geometry templates
 - Add support for textures
