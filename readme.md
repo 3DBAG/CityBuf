@@ -7,7 +7,7 @@ Binary variant of [CityJSONSeq](https://www.cityjson.org/cityjsonseq/). Inspired
 
 These number are based on the benchmark that is given in more detail below.
 
-__WORK IN PROGRESS!!__: this spec is not finalised yet
+__WORK IN PROGRESS!!__ this spec is not finalised yet
 
 ## Goals
 The primary goals of CityBuf are
@@ -174,7 +174,7 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Investigate and implement support for CityJSON extensions
 - Add support for geometry templates
 - Add support for textures
-- Could try to reuse the same attribute value strings within a feature, instead of always creating a new string even if the same string occurs many times.
+- Implement an enum attribute type
 
 ## References
 - CityJSON(Sequences)
