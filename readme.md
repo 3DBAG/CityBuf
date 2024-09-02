@@ -167,6 +167,7 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Implement a spatial index, could be the same as FlatGeoBuf
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
+- Showcase streaming processing of features for 1) simple feature by feature processing (eg calculate and add a volume attribute), and 2) processing that requires access to locally nearby/adjacent features, assuming spatially sorted features (eg computing shared surfaces between adjacent features)
 - Do more extensive benchmarking
 - Release a python package for easy reading/writing
 - Create a C(++) library for easy reading/writing
