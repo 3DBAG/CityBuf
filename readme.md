@@ -168,6 +168,7 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
 - Implement an Feature ID index
 - See if we can effciently access large CityBuf files over the web using HTTP range requests (same as FlatGeoBuf), probably need to implement spatial index first.
 - Showcase streaming processing of features for 1) simple feature by feature processing (eg calculate and add a volume attribute), and 2) processing that requires access to locally nearby/adjacent features, assuming spatially sorted features (eg computing shared surfaces between adjacent features)
+- Look at benefits of using memory mapping on very large CityBuf files (pros/cons vs streaming)
 - Implement a CityBuf validator
 - Do more extensive benchmarking
 - Build a `cbio` cli application that can perform basic operation on CityBuf files (similar to `cjio`)
