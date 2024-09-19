@@ -15,12 +15,6 @@ def generate_cityjson_root_object(header):
   transform.Scale(Scale)
   transform.Translate(Translate)
 
-  crs = header.ReferenceSystem()
-  crs_auth = crs.Authority().decode("utf-8")
-  crs_version = crs.Version()
-  crs_code = crs.Code()
-  crs_str = f"https://www.opengis.net/def/crs/{crs_auth}/{crs_version}/{crs_code}"
-
   ge = header.GeographicalExtent()
   ge_min = Vector.Vector()
   ge_max = Vector.Vector()
@@ -37,10 +31,16 @@ def generate_cityjson_root_object(header):
       "translate": [Translate.X(), Translate.Y(), Translate.Z()]
     },
     "metadata": {
-      "referenceSystem": crs_str,
       "geographicalExtent": [ge_min.X(), ge_min.Y(), ge_min.Z(), ge_max.X(), ge_max.Y(), ge_max.Z()]
     }
   }
+  crs = header.ReferenceSystem()
+  if crs:
+    crs_auth = crs.Authority().decode("utf-8")
+    crs_version = crs.Version()
+    crs_code = crs.Code()
+    crs_str = f"https://www.opengis.net/def/crs/{crs_auth}/{crs_version}/{crs_code}"
+    cj["metadata"]["referenceSystem"] = crs_str
   return cj
 
 def generate_cityjson_feature(feature, schema_decoder):
