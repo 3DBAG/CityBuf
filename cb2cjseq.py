@@ -1,3 +1,24 @@
+# Copyright (c) 2024 TU Delft 3D geoinformation group, Ravi Peters (3DGI), Balazs Dukai (3DGI)
+#
+# This file is part of CityBuf
+#
+# CityBuf was created as part of the 3DBAG project by the TU Delft 3D geoinformation group (3d.bk.tudelf.nl) and 3DGI (3dgi.nl)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author(s): 
+# Ravi Peters
+
 import argparse, json
 from CityBufReader import CityBufReader
 from CityBuf_.GeometryType import GeometryType

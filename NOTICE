@@ -1,5 +1,6 @@
-CityBuf
-Copyright 2024 Ravi Peters <ravi.peters@3dgi.nl>, 3DGI
+Copyright (c) 2024 TU Delft 3D geoinformation group, Ravi Peters (3DGI), Balazs Dukai (3DGI)
+
+CityBuf was created as part of the 3DBAG project by the TU Delft 3D geoinformation group (3d.bk.tudelf.nl) and 3DGI (3dgi.nl)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
