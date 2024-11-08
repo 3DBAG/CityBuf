@@ -195,3 +195,7 @@ python cb2cjseq.py data/one_feature.cb data/one_feature_out.city.jsonl
   - https://github.com/google/flatbuffers
   - https://flatbuffers.dev/flatbuffers_guide_writing_schema.html
   - https://flatbuffers.dev/flatbuffers_internals.html
+ 
+# 3DBAG organisation
+
+This software is part of the 3DBAG project. For more information visit the [3DBAG organisation](https://github.com/3DBAG).
